@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { ArrowLeft, Mail, Phone, Calendar, Briefcase, UserCircle } from "lucide-react";
+import { ArrowLeft, UserCircle } from "lucide-react";
 import { cn } from "../ui/utils";
-import { Separator } from "../ui/separator";
 
 interface Employee {
   id: number;

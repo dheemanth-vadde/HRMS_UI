@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Separator } from "../ui/separator";
-import { UserCircle, Search, RefreshCw, Plus, Upload, Edit, Trash2, FileSpreadsheet, Mail, Phone, MoreVertical, FileDown, FileUp, Grid3x3, List, ChevronRight, Calendar, Briefcase, Eye, Filter } from "lucide-react";
+import { Search, Plus, Upload, Edit, Trash2, FileSpreadsheet, Mail, Phone, MoreVertical, FileDown, FileUp, Grid3x3, List, Briefcase, Eye, Filter } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { EmployeeDetailsView } from "./EmployeeDetailsView";
 import {
@@ -54,270 +53,16 @@ import {
   TabsTrigger,
 } from "../ui/tabs";
 import { Badge } from "../ui/badge";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { cn } from "../ui/utils";
-
-const initialEmployees = [
-  {
-    id: 1,
-    employeeId: "PNB001",
-    name: "Rajesh Kumar Sharma",
-    personalEmail: "rajesh.kumar@gmail.com",
-    companyEmail: "rajesh.sharma@pnb.co.in",
-    phone: "+91 98765 43210",
-    department: "Retail Banking",
-    designation: "Senior Manager",
-    role: "Manager",
-    project: "Digital Transformation",
-    joiningDate: "15-06-2010",
-    location: "Head Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "Suresh Reddy",
-    reports: 4,
-  },
-  {
-    id: 2,
-    employeeId: "PNB002",
-    name: "Priya Deshmukh",
-    personalEmail: "priya.d@gmail.com",
-    companyEmail: "priya.deshmukh@pnb.co.in",
-    phone: "+91 98765 43211",
-    department: "Treasury Operations",
-    designation: "Deputy Manager",
-    role: "Manager",
-    project: "Treasury Modernization",
-    joiningDate: "22-03-2015",
-    location: "Head Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "Rajesh Kumar Sharma",
-    reports: 3,
-  },
-  {
-    id: 3,
-    employeeId: "PNB003",
-    name: "Amit Verma",
-    personalEmail: "amit.v@gmail.com",
-    companyEmail: "amit.verma@pnb.co.in",
-    phone: "+91 98765 43212",
-    department: "Corporate Banking",
-    designation: "Manager",
-    role: "Manager",
-    project: "Corporate Lending Platform",
-    joiningDate: "10-11-2012",
-    location: "Mumbai Regional Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "Rajesh Kumar Sharma",
-    reports: 15,
-  },
-  {
-    id: 4,
-    employeeId: "PNB004",
-    name: "Neha Kapoor",
-    personalEmail: "neha.k@gmail.com",
-    companyEmail: "neha.kapoor@pnb.co.in",
-    phone: "+91 98765 43213",
-    department: "Digital Banking",
-    designation: "Assistant Manager",
-    role: "Employee",
-    project: "Mobile Banking App",
-    joiningDate: "05-08-2018",
-    location: "Bangalore Regional Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "Pradeep Kumar",
-    reports: 0,
-  },
-  {
-    id: 5,
-    employeeId: "PNB005",
-    name: "Suresh Reddy",
-    personalEmail: "suresh.r@gmail.com",
-    companyEmail: "suresh.reddy@pnb.co.in",
-    phone: "+91 98765 43214",
-    department: "Risk Management",
-    designation: "Chief Risk Officer",
-    role: "HR Admin",
-    project: "Risk Assessment Framework",
-    joiningDate: "18-01-2008",
-    location: "Head Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "Rajesh Kumar Sharma",
-    reports: 8,
-  },
-  {
-    id: 6,
-    employeeId: "PNB006",
-    name: "Deepak Singh",
-    personalEmail: "deepak.s@gmail.com",
-    companyEmail: "deepak.singh@pnb.co.in",
-    phone: "+91 98765 43215",
-    department: "Human Resources",
-    designation: "HR Head",
-    role: "HR Admin",
-    project: "HRMS Implementation",
-    joiningDate: "25-04-2011",
-    location: "Head Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "-",
-    reports: 0,
-  },
-  {
-    id: 7,
-    employeeId: "PNB007",
-    name: "Meena Iyer",
-    personalEmail: "meena.i@gmail.com",
-    companyEmail: "meena.iyer@pnb.co.in",
-    phone: "+91 98765 43216",
-    department: "Credit & Recovery",
-    designation: "Senior Officer",
-    role: "Employee",
-    project: "NPA Recovery System",
-    joiningDate: "12-09-2016",
-    location: "Chennai Regional Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "Meera Gupta",
-    reports: 0,
-  },
-  {
-    id: 8,
-    employeeId: "PNB008",
-    name: "Anil Kumar Gupta",
-    personalEmail: "anil.g@gmail.com",
-    companyEmail: "anil.gupta@pnb.co.in",
-    phone: "+91 98765 43217",
-    department: "Information Technology",
-    designation: "IT Head",
-    role: "Super Admin",
-    project: "Core Banking Upgrade",
-    joiningDate: "30-07-2009",
-    location: "Head Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "-",
-    reports: 0,
-  },
-  {
-    id: 9,
-    employeeId: "PNB009",
-    name: "Vikram Malhotra",
-    personalEmail: "vikram.m@gmail.com",
-    companyEmail: "vikram.malhotra@pnb.co.in",
-    phone: "+91 98765 43218",
-    department: "Compliance & Legal",
-    designation: "Legal Advisor",
-    role: "Employee",
-    project: "Compliance Monitoring",
-    joiningDate: "14-02-2014",
-    location: "Head Office",
-    status: "Active",
-    type: "Contract",
-    manager: "Suresh Reddy",
-    reports: 0,
-  },
-  {
-    id: 10,
-    employeeId: "PNB010",
-    name: "Sunita Patel",
-    personalEmail: "sunita.p@gmail.com",
-    companyEmail: "sunita.patel@pnb.co.in",
-    phone: "+91 98765 43219",
-    department: "International Banking",
-    designation: "Manager",
-    role: "Manager",
-    project: "Global Remittance",
-    joiningDate: "08-05-2017",
-    location: "Mumbai Regional Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "Rajesh Kumar Sharma",
-    reports: 0,
-  },
-];
-
-const departments = [
-  "Retail Banking",
-  "Corporate Banking",
-  "Treasury Operations",
-  "Risk Management",
-  "Credit & Recovery",
-  "Human Resources",
-  "Information Technology",
-  "Digital Banking",
-  "Compliance & Legal",
-  "International Banking",
-  "Operations & Services",
-  "Internal Audit",
-  "Marketing & Communications",
-  "Priority Banking Services",
-  "MSME & Agriculture",
-];
-
-const locations = [
-  "Head Office",
-  "Mumbai Regional Office",
-  "Kolkata Regional Office",
-  "Chennai Regional Office",
-  "Bangalore Regional Office",
-  "Hyderabad Regional Office",
-  "Pune Regional Office",
-  "Ahmedabad Regional Office",
-];
-
-const designations = [
-  "General Manager",
-  "Deputy General Manager",
-  "Senior Manager",
-  "Manager",
-  "Deputy Manager",
-  "Assistant Manager",
-  "Chief Manager",
-  "Senior Officer",
-  "Officer",
-  "Clerk",
-  "Assistant",
-  "IT Head",
-  "Legal Advisor",
-  "HR Manager",
-  "Accountant",
-  "Auditor",
-  "Team Lead",
-  "Specialist",
-];
-
-const roles = [
-  "Employee",
-  "Manager",
-  "HR Admin",
-  "Super Admin",
-];
-
-const projects = [
-  "Digital Transformation",
-  "Core Banking Upgrade",
-  "Mobile Banking App",
-  "Risk Assessment Framework",
-  "HRMS Implementation",
-  "Treasury Modernization",
-  "NPA Recovery System",
-  "Compliance Monitoring",
-  "Corporate Lending Platform",
-  "Global Remittance",
-  "Customer Analytics",
-  "Cybersecurity Enhancement",
-];
+import data from "../../data.json";
 
 interface EmployeeInfoModuleProps {
   viewOnly?: boolean;
 }
 
 export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps) {
-  const [employees, setEmployees] = useState(initialEmployees);
+  const [employees, setEmployees] = useState(data.employees);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -495,7 +240,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Departments</SelectItem>
-                  {departments.map(dept => (
+                  {data.departments.map(dept => (
                     <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                   ))}
                 </SelectContent>
@@ -517,7 +262,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Locations</SelectItem>
-                  {locations.map(loc => (
+                  {data.locations.map(loc => (
                     <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                   ))}
                 </SelectContent>
@@ -836,13 +581,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   <Label>Department *</Label>
                   <Select
                     value={newEmployee.department}
-                    onValueChange={(value) => setNewEmployee({ ...newEmployee, department: value })}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, department: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
-                      {departments.map(dept => (
+                      {data.departments.map(dept => (
                         <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                       ))}
                     </SelectContent>
@@ -852,13 +597,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   <Label>Designation *</Label>
                   <Select
                     value={newEmployee.designation}
-                    onValueChange={(value) => setNewEmployee({ ...newEmployee, designation: value })}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, designation: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select designation" />
                     </SelectTrigger>
                     <SelectContent>
-                      {designations.map(designation => (
+                      {data.designations.map(designation => (
                         <SelectItem key={designation} value={designation}>{designation}</SelectItem>
                       ))}
                     </SelectContent>
@@ -868,13 +613,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   <Label>Role *</Label>
                   <Select
                     value={newEmployee.role}
-                    onValueChange={(value) => setNewEmployee({ ...newEmployee, role: value })}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, role: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {roles.map(role => (
+                      {data.roles.map(role => (
                         <SelectItem key={role} value={role}>{role}</SelectItem>
                       ))}
                     </SelectContent>
@@ -884,13 +629,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   <Label>Project</Label>
                   <Select
                     value={newEmployee.project}
-                    onValueChange={(value) => setNewEmployee({ ...newEmployee, project: value })}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, project: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select project" />
                     </SelectTrigger>
                     <SelectContent>
-                      {projects.map(project => (
+                      {data.projects.map(project => (
                         <SelectItem key={project} value={project}>{project}</SelectItem>
                       ))}
                     </SelectContent>
@@ -908,13 +653,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   <Label>Location *</Label>
                   <Select
                     value={newEmployee.location}
-                    onValueChange={(value) => setNewEmployee({ ...newEmployee, location: value })}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, location: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {locations.map(loc => (
+                      {data.locations.map(loc => (
                         <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                       ))}
                     </SelectContent>
@@ -924,7 +669,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   <Label>Status</Label>
                   <Select
                     value={newEmployee.status}
-                    onValueChange={(value) => setNewEmployee({ ...newEmployee, status: value })}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, status: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -1066,13 +811,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <Label>Department *</Label>
                 <Select
                   value={editingEmployee.department}
-                  onValueChange={(value) => setEditingEmployee({ ...editingEmployee, department: value })}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, department: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments.map(dept => (
+                    {data.departments.map(dept => (
                       <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                     ))}
                   </SelectContent>
@@ -1082,13 +827,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <Label>Designation *</Label>
                 <Select
                   value={editingEmployee.designation}
-                  onValueChange={(value) => setEditingEmployee({ ...editingEmployee, designation: value })}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, designation: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {designations.map(designation => (
+                    {data.designations.map(designation => (
                       <SelectItem key={designation} value={designation}>{designation}</SelectItem>
                     ))}
                   </SelectContent>
@@ -1098,13 +843,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <Label>Role *</Label>
                 <Select
                   value={editingEmployee.role}
-                  onValueChange={(value) => setEditingEmployee({ ...editingEmployee, role: value })}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, role: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {roles.map(role => (
+                    {data.roles.map(role => (
                       <SelectItem key={role} value={role}>{role}</SelectItem>
                     ))}
                   </SelectContent>
@@ -1114,7 +859,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <Label>Type *</Label>
                 <Select
                   value={editingEmployee.type}
-                  onValueChange={(value) => setEditingEmployee({ ...editingEmployee, type: value })}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, type: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -1137,13 +882,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <Label>Project</Label>
                 <Select
                   value={editingEmployee.project}
-                  onValueChange={(value) => setEditingEmployee({ ...editingEmployee, project: value })}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, project: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select project" />
                   </SelectTrigger>
                   <SelectContent>
-                    {projects.map(project => (
+                    {data.projects.map(project => (
                       <SelectItem key={project} value={project}>{project}</SelectItem>
                     ))}
                   </SelectContent>
@@ -1161,13 +906,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <Label>Location *</Label>
                 <Select
                   value={editingEmployee.location}
-                  onValueChange={(value) => setEditingEmployee({ ...editingEmployee, location: value })}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, location: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {locations.map(loc => (
+                    {data.locations.map(loc => (
                       <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                     ))}
                   </SelectContent>
@@ -1177,7 +922,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <Label>Status</Label>
                 <Select
                   value={editingEmployee.status}
-                  onValueChange={(value) => setEditingEmployee({ ...editingEmployee, status: value })}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, status: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
