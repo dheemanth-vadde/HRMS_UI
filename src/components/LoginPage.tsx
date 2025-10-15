@@ -13,6 +13,8 @@ interface LoginPageProps {
 export function LoginPage({ onLogin }: LoginPageProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  // dispatch(login({ id: '1', name: 'Dheemanth', email: 'dheemanth@sagarsoft.com' }));
+  // dispatch(logout());
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();

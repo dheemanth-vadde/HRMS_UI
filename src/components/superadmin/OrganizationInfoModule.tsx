@@ -5,7 +5,8 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
+import { getValidationError } from "../../utils/validations";
 
 interface OrganizationInfoModuleProps {
   viewOnly?: boolean;
@@ -37,6 +38,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
       return;
     }
 
+    const customerCareError = getValidationError("phone", orgData.customerCare, "Customer care number must be exactly 10 digits");
+
+    if (customerCareError) {
+      toast.error(customerCareError);
+      return;
+    }
+
+    // If valid, proceed
     setIsEditing(false);
     setHasOrganization(true);
     toast.success("Organization information saved successfully");
