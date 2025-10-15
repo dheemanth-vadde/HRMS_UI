@@ -69,74 +69,76 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
     country: "India",
     timezone: "Asia/Kolkata [IST]",
   });
-const [errors, setErrors] = useState<{ [key in keyof typeof newUnit]?: string }>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-const handleAdd = () => {
-  const requiredFields: (keyof typeof newUnit)[] = ["name", "code", "streetAddress", "city", "state"];
-  const newErrors: { [key in keyof typeof newUnit]?: string } = {};
+  const validateUnit = (unit: typeof newUnit) => {
+    const requiredFields: (keyof typeof unit)[] = ["name", "code", "startedOn", "streetAddress", "city", "state"];
+    const newErrors: { [key: string]: string } = {};
 
-  for (const field of requiredFields) {
-    const value = newUnit[field as keyof typeof newUnit]; // <-- cast here
+    for (const field of requiredFields) {
+      const value = unit[field];
 
-    // Leading/trailing space check
-    let error = getValidationError(
-      "noSpaces",
-      value,
-      `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
-    );
+      // Leading/trailing space check
+      let error = getValidationError(
+        "noSpaces",
+        value,
+        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
+      );
 
-    if (error) {
-      newErrors[String(field)] = error;
-      continue;
+      if (error) {
+        newErrors[String(field)] = error;
+        continue;
+      }
+
+      // Required check
+      error = getValidationError(
+        "required",
+        value,
+        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
+      );
+
+      if (error) {
+        newErrors[String(field)] = error;
+      }
     }
 
-    // Required check
-    error = getValidationError(
-      "required",
-      value,
-      `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
-    );
-
-    if (error) {
-      newErrors[String(field)] = error;
-    }
-  }
-
-  setErrors(newErrors);
-
-  if (Object.keys(newErrors).length > 0) return;
-
-  const unitToAdd = {
-    id: businessUnits.length + 1,
-    ...newUnit,
+    return newErrors;
   };
 
-  setBusinessUnits([...businessUnits, unitToAdd]);
-  setShowAddDialog(false);
-  resetNewUnit();
-  setNewUnit({
-    name: "",
-    code: "",
-    startedOn: "",
-    streetAddress: "",
-    city: "",
-    state: "",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  });
-  setErrors({});
-};
+  const handleAdd = () => {
+    const newErrors = validateUnit(newUnit);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
 
+    const unitToAdd = {
+      id: businessUnits.length + 1,
+      ...newUnit,
+    };
+
+    setBusinessUnits([...businessUnits, unitToAdd]);
+    setShowAddDialog(false);
+    resetNewUnit();
+  };
 
   const handleEdit = (unit: any) => {
     setEditingUnit({ ...unit });
   };
 
   const handleUpdate = () => {
-    setBusinessUnits(businessUnits.map(u => u.id === editingUnit.id ? editingUnit : u));
+    if (!editingUnit) return;
+
+    const newErrors = validateUnit(editingUnit);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    setBusinessUnits(
+      businessUnits.map((u) => (u.id === editingUnit.id ? editingUnit : u))
+    );
     setEditingUnit(null);
+    setErrors({});
     toast.success("Business unit updated successfully!");
   };
+
 
   const handleDeleteClick = (id: number) => {
     setUnitToDelete(id);
@@ -160,18 +162,18 @@ const handleAdd = () => {
   );
 
   const resetNewUnit = () => {
-  setNewUnit({
-    name: "",
-    code: "",
-    startedOn: "",
-    streetAddress: "",
-    city: "",
-    state: "",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  });
-  setErrors({});
-};
+    setNewUnit({
+      name: "",
+      code: "",
+      startedOn: "",
+      streetAddress: "",
+      city: "",
+      state: "",
+      country: "India",
+      timezone: "Asia/Kolkata [IST]",
+    });
+    setErrors({});
+  };
 
   return (
     <div className="space-y-6">
@@ -224,20 +226,26 @@ const handleAdd = () => {
                   <TableRow key={unit.id}>
                     <TableCell className="font-medium">
                       {editingUnit?.id === unit.id ? (
-                        <Input
-                          value={editingUnit.name}
-                          onChange={(e) => setEditingUnit({ ...editingUnit, name: e.target.value })}
-                        />
+                        <>
+                          <Input
+                            value={editingUnit.name}
+                            onChange={(e) => setEditingUnit({ ...editingUnit, name: e.target.value })}
+                          />
+                          {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
+                        </>
                       ) : (
                         unit.name
                       )}
                     </TableCell>
                     <TableCell>
                       {editingUnit?.id === unit.id ? (
-                        <Input
-                          value={editingUnit.code}
-                          onChange={(e) => setEditingUnit({ ...editingUnit, code: e.target.value })}
-                        />
+                        <>
+                          <Input
+                            value={editingUnit.code}
+                            onChange={(e) => setEditingUnit({ ...editingUnit, code: e.target.value })}
+                          />
+                          {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
+                        </>
                       ) : (
                         unit.code
                       )}
@@ -245,20 +253,26 @@ const handleAdd = () => {
                     <TableCell>{unit.startedOn}</TableCell>
                     <TableCell>
                       {editingUnit?.id === unit.id ? (
+                        <>
                         <Input
                           value={editingUnit.streetAddress}
                           onChange={(e) => setEditingUnit({ ...editingUnit, streetAddress: e.target.value })}
                         />
+                          {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
+                          </>
                       ) : (
                         unit.streetAddress
                       )}
                     </TableCell>
                     <TableCell>
                       {editingUnit?.id === unit.id ? (
-                        <Input
-                          value={editingUnit.city}
-                          onChange={(e) => setEditingUnit({ ...editingUnit, city: e.target.value })}
-                        />
+                        <>
+                          <Input
+                            value={editingUnit.city}
+                            onChange={(e) => setEditingUnit({ ...editingUnit, city: e.target.value })}
+                          />
+                          {errors.city && <p className="text-destructive text-sm mt-1">{errors.city}</p>}
+                        </>
                       ) : (
                         unit.city
                       )}
@@ -291,7 +305,7 @@ const handleAdd = () => {
                                   Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   onClick={() => handleDeleteClick(unit.id)}
                                   className="text-destructive focus:text-destructive"
                                 >
@@ -337,7 +351,12 @@ const handleAdd = () => {
       </Card>
 
       {/* Add Business Unit Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      <Dialog open={showAddDialog}
+        // onOpenChange={setShowAddDialog}
+        onOpenChange={(open: boolean) => {
+          setShowAddDialog(open);
+          if (!open) resetNewUnit(); // Reset the form when dialog is closed
+        }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add Business Unit</DialogTitle>
@@ -355,7 +374,7 @@ const handleAdd = () => {
                   value={newUnit.name}
                   onChange={(e) => setNewUnit({ ...newUnit, name: e.target.value })}
                 />
-                 {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
+                {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Unit Code *</Label>
@@ -364,15 +383,17 @@ const handleAdd = () => {
                   value={newUnit.code}
                   onChange={(e) => setNewUnit({ ...newUnit, code: e.target.value })}
                 />
-                 {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
+                {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
               </div>
               <div className="space-y-2">
-                <Label>Started On</Label>
+                <Label>Started On *</Label>
                 <Input
+                type="date"
                   placeholder="DD-MM-YYYY"
                   value={newUnit.startedOn}
                   onChange={(e) => setNewUnit({ ...newUnit, startedOn: e.target.value })}
                 />
+                {errors.startedOn && <p className="text-destructive text-sm mt-1">{errors.startedOn}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Street Address *</Label>
@@ -381,7 +402,7 @@ const handleAdd = () => {
                   value={newUnit.streetAddress}
                   onChange={(e) => setNewUnit({ ...newUnit, streetAddress: e.target.value })}
                 />
-                 {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
+                {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
               </div>
               <div className="space-y-2">
                 <Label>City *</Label>
@@ -390,7 +411,7 @@ const handleAdd = () => {
                   value={newUnit.city}
                   onChange={(e) => setNewUnit({ ...newUnit, city: e.target.value })}
                 />
-                 {errors.city && <p className="text-destructive text-sm mt-1">{errors.city}</p>}
+                {errors.city && <p className="text-destructive text-sm mt-1">{errors.city}</p>}
               </div>
               <div className="space-y-2">
                 <Label>State *</Label>
@@ -399,7 +420,7 @@ const handleAdd = () => {
                   value={newUnit.state}
                   onChange={(e) => setNewUnit({ ...newUnit, state: e.target.value })}
                 />
-                 {errors.state && <p className="text-destructive text-sm mt-1">{errors.state}</p>}
+                {errors.state && <p className="text-destructive text-sm mt-1">{errors.state}</p>}
               </div>
             </div>
             <DialogFooter>

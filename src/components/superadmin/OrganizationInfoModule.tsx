@@ -16,6 +16,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
   const [isEditing, setIsEditing] = useState(false);
   const [hasOrganization, setHasOrganization] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [orgData, setOrgData] = useState({
     name: "",
     domain: "",
@@ -31,26 +32,68 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     logo: "",
   });
 
+  const validateOrgData = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    // --- Required fields ---
+    const requiredFields: (keyof typeof orgData)[] = ["name", "domain", "website", "employees", "established", "customerCare", "country", "state", "category", "headOffice", "regionalOffice"];
+    requiredFields.forEach((field) => {
+      const error =
+        getValidationError("required", orgData[field], `${field} is required`) ||
+        getValidationError("noSpaces", orgData[field], `${field} cannot start or end with a space`);
+      if (error) newErrors[field] = error;
+    });
+
+    // --- Phone validation for customer care ---
+    if (orgData.customerCare) {
+      const phoneError = getValidationError(
+        "phone",
+        orgData.customerCare,
+        "Customer care number must be 10 digits"
+      );
+      if (phoneError) newErrors.customerCare = phoneError;
+    }
+
+    // --- Optional text fields ---
+    const optionalFields: (keyof typeof orgData)[] = [
+      "domain",
+      "website",
+      "country",
+      "state",
+      "category",
+      "headOffice",
+      "regionalOffice",
+    ];
+
+    optionalFields.forEach((field) => {
+      const value = orgData[field];
+      if (value) {
+        const spaceError = getValidationError(
+          "noSpaces",
+          value,
+          `${field} cannot start or end with a space`
+        );
+        if (spaceError) newErrors[field] = spaceError;
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // valid if no errors
+  };
+
+
   const handleSave = () => {
-    // Validate that at least the organization name is filled
-    if (!orgData.name.trim()) {
-      toast.error("Organization name is required");
+    const isValid = validateOrgData();
+    if (!isValid) {
+      setIsEditing(true);
       return;
     }
-
-    const customerCareError = getValidationError("phone", orgData.customerCare, "Customer care number must be exactly 10 digits");
-
-    if (customerCareError) {
-      toast.error(customerCareError);
-      return;
-    }
-
-    // If valid, proceed
+    console.log("Saved organization data:", orgData); // check your data
     setIsEditing(false);
     setHasOrganization(true);
-    toast.success("Organization information saved successfully");
-    // Here you would typically save to backend/database
+    toast.success("Organization data saved locally");
   };
+
 
   const handleAddOrganization = () => {
     setIsEditing(true);
@@ -108,7 +151,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
         {!viewOnly && (
           <div className="flex gap-2">
             {!isEditing && !hasOrganization ? (
-              <Button 
+              <Button
                 className="btn-add-purple"
                 onClick={handleAddOrganization}
               >
@@ -116,7 +159,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 Add Organization
               </Button>
             ) : !isEditing && hasOrganization ? (
-              <Button 
+              <Button
                 className="btn-gradient-primary"
                 onClick={() => setIsEditing(true)}
               >
@@ -125,21 +168,21 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
               </Button>
             ) : (
               <>
-                <Button 
+                <Button
                   variant="outline"
                   onClick={handleCancel}
-              >
-                <X className="size-4 mr-2" />
-                Cancel
-              </Button>
-              <Button 
-                className="btn-gradient-primary"
-                onClick={handleSave}
-              >
-                <Save className="size-4 mr-2" />
-                Save Changes
-              </Button>
-            </>
+                >
+                  <X className="size-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button
+                  className="btn-gradient-primary"
+                  onClick={handleSave}
+                >
+                  <Save className="size-4 mr-2" />
+                  Save Changes
+                </Button>
+              </>
             )}
           </div>
         )}
@@ -169,9 +212,9 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                       <div className="flex items-center gap-4">
                         {logoPreview || orgData.logo ? (
                           <div className="relative">
-                            <img 
-                              src={logoPreview || orgData.logo} 
-                              alt="Organization Logo" 
+                            <img
+                              src={logoPreview || orgData.logo}
+                              alt="Organization Logo"
                               className="size-24 object-contain border-2 border-primary/20 rounded-lg p-2 bg-white"
                             />
                           </div>
@@ -206,9 +249,9 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                   ) : (
                     <div>
                       {orgData.logo ? (
-                        <img 
-                          src={orgData.logo} 
-                          alt="Organization Logo" 
+                        <img
+                          src={orgData.logo}
+                          alt="Organization Logo"
                           className="size-24 object-contain border-2 border-primary/20 rounded-lg p-2 bg-white"
                         />
                       ) : (
@@ -223,11 +266,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Organization Name *</Label>
                   {isEditing && !viewOnly ? (
-                    <Input
-                      value={orgData.name}
-                      onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
-                      placeholder="Enter organization name"
-                    />
+                    <>
+                      <Input
+                        value={orgData.name}
+                        onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
+                        placeholder="Enter organization name"
+                      />
+                      {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
+                    </>
                   ) : (
                     <p className="font-medium">{orgData.name || "-"}</p>
                   )}
@@ -236,11 +282,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Business Domain</Label>
                   {isEditing && !viewOnly ? (
-                    <Input
-                      value={orgData.domain}
-                      onChange={(e) => setOrgData({ ...orgData, domain: e.target.value })}
-                      placeholder="Enter business domain"
-                    />
+                    <>
+                      <Input
+                        value={orgData.domain}
+                        onChange={(e) => setOrgData({ ...orgData, domain: e.target.value })}
+                        placeholder="Enter business domain"
+                      />
+                      {errors.domain && <p className="text-sm text-red-600">{errors.domain}</p>}
+                    </>
                   ) : (
                     <p className="font-medium">{orgData.domain || "-"}</p>
                   )}
@@ -252,11 +301,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     Website
                   </Label>
                   {isEditing && !viewOnly ? (
-                    <Input
-                      value={orgData.website}
-                      onChange={(e) => setOrgData({ ...orgData, website: e.target.value })}
-                      placeholder="Enter website URL"
-                    />
+                    <>
+                      <Input
+                        value={orgData.website}
+                        onChange={(e) => setOrgData({ ...orgData, website: e.target.value })}
+                        placeholder="Enter website URL"
+                      />
+                      {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
+                    </>
                   ) : orgData.website ? (
                     <a href={`https://${orgData.website}`} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">
                       {orgData.website}
@@ -269,11 +321,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Total Employees</Label>
                   {isEditing && !viewOnly ? (
-                    <Input
-                      value={orgData.employees}
-                      onChange={(e) => setOrgData({ ...orgData, employees: e.target.value })}
-                      placeholder="Enter total employees"
-                    />
+                    <>
+                      <Input
+                        value={orgData.employees}
+                        onChange={(e) => setOrgData({ ...orgData, employees: e.target.value })}
+                        placeholder="Enter total employees"
+                      />
+                      {errors.employees && <p className="text-sm text-red-600">{errors.employees}</p>}
+                    </>
                   ) : (
                     <p className="font-medium">{orgData.employees || "-"}</p>
                   )}
@@ -285,11 +340,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     Established On
                   </Label>
                   {isEditing && !viewOnly ? (
-                    <Input
-                      value={orgData.established}
-                      onChange={(e) => setOrgData({ ...orgData, established: e.target.value })}
-                      placeholder="DD-MM-YYYY"
-                    />
+                    <>
+                      <Input
+                        value={orgData.established}
+                        onChange={(e) => setOrgData({ ...orgData, established: e.target.value })}
+                        placeholder="DD-MM-YYYY"
+                      />
+                      {errors.established && <p className="text-sm text-red-600">{errors.established}</p>}
+                    </>
                   ) : (
                     <p className="font-medium">{orgData.established || "-"}</p>
                   )}
@@ -301,11 +359,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     Customer Care
                   </Label>
                   {isEditing && !viewOnly ? (
-                    <Input
-                      value={orgData.customerCare}
-                      onChange={(e) => setOrgData({ ...orgData, customerCare: e.target.value })}
-                      placeholder="Enter customer care number"
-                    />
+                    <>
+                      <Input
+                        value={orgData.customerCare}
+                        onChange={(e) => setOrgData({ ...orgData, customerCare: e.target.value })}
+                        placeholder="Enter customer care number"
+                      />
+                      {errors.customerCare && <p className="text-sm text-red-600">{errors.customerCare}</p>}
+                    </>
                   ) : (
                     <p className="font-medium">{orgData.customerCare || "-"}</p>
                   )}
@@ -314,11 +375,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Country</Label>
                   {isEditing && !viewOnly ? (
-                    <Input
-                      value={orgData.country}
-                      onChange={(e) => setOrgData({ ...orgData, country: e.target.value })}
-                      placeholder="Enter country"
-                    />
+                    <>
+                      <Input
+                        value={orgData.country}
+                        onChange={(e) => setOrgData({ ...orgData, country: e.target.value })}
+                        placeholder="Enter country"
+                      />
+                      {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
+                    </>
                   ) : (
                     <p className="font-medium">{orgData.country || "-"}</p>
                   )}
@@ -327,11 +391,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Headquarters State</Label>
                   {isEditing && !viewOnly ? (
-                    <Input
-                      value={orgData.state}
-                      onChange={(e) => setOrgData({ ...orgData, state: e.target.value })}
-                      placeholder="Enter state"
-                    />
+                    <>
+                      <Input
+                        value={orgData.state}
+                        onChange={(e) => setOrgData({ ...orgData, state: e.target.value })}
+                        placeholder="Enter state"
+                      />
+                      {errors.state && <p className="text-sm text-red-600">{errors.state}</p>}
+                    </>
                   ) : (
                     <p className="font-medium">{orgData.state || "-"}</p>
                   )}
@@ -340,11 +407,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Organization Category</Label>
                   {isEditing && !viewOnly ? (
-                    <Input
-                      value={orgData.category}
-                      onChange={(e) => setOrgData({ ...orgData, category: e.target.value })}
-                      placeholder="Enter category"
-                    />
+                    <>
+                      <Input
+                        value={orgData.category}
+                        onChange={(e) => setOrgData({ ...orgData, category: e.target.value })}
+                        placeholder="Enter category"
+                      />
+                      {errors.category && <p className="text-sm text-red-600">{errors.category}</p>}
+                    </>
                   ) : (
                     <p className="font-medium">{orgData.category || "-"}</p>
                   )}
@@ -358,12 +428,15 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     Head Office Address
                   </Label>
                   {isEditing && !viewOnly ? (
-                    <Textarea
-                      value={orgData.headOffice}
-                      onChange={(e) => setOrgData({ ...orgData, headOffice: e.target.value })}
-                      rows={4}
-                      placeholder="Enter head office address"
-                    />
+                    <>
+                      <Textarea
+                        value={orgData.headOffice}
+                        onChange={(e) => setOrgData({ ...orgData, headOffice: e.target.value })}
+                        rows={4}
+                        placeholder="Enter head office address"
+                      />
+                      {errors.headOffice && <p className="text-sm text-red-600">{errors.headOffice}</p>}
+                    </>
                   ) : (
                     <p className="font-medium">{orgData.headOffice || "-"}</p>
                   )}
@@ -372,13 +445,16 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="p-4 border rounded-lg bg-muted/30">
                   <Label className="text-sm text-muted-foreground mb-2">Regional Office</Label>
                   {isEditing && !viewOnly ? (
-                    <Textarea
-                      value={orgData.regionalOffice}
-                      onChange={(e) => setOrgData({ ...orgData, regionalOffice: e.target.value })}
-                      rows={4}
-                      className="mt-2"
-                      placeholder="Enter regional office address (optional)"
-                    />
+                    <>
+                      <Textarea
+                        value={orgData.regionalOffice}
+                        onChange={(e) => setOrgData({ ...orgData, regionalOffice: e.target.value })}
+                        rows={4}
+                        className="mt-2"
+                        placeholder="Enter regional office address (optional)"
+                      />
+                      {errors.regionalOffice && <p className="text-sm text-red-600">{errors.regionalOffice}</p>}
+                    </>
                   ) : (
                     <p className="font-medium mt-2">{orgData.regionalOffice || "-"}</p>
                   )}
