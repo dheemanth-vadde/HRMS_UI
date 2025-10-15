@@ -13,7 +13,7 @@ interface ManagerDashboardProps {
   onNavigate: (module: ActiveModule) => void;
 }
 
-export function ManagerDashboard({ onNavigate }: ManagerDashboardProps) {
+function ManagerDashboard({ onNavigate }: ManagerDashboardProps) {
   const stats = [
     {
       title: "Team Size",
@@ -171,7 +171,7 @@ export function ManagerDashboard({ onNavigate }: ManagerDashboardProps) {
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      onClick={(e) => {
+                      onClick={(e:any) => {
                         e.stopPropagation();
                         onNavigate("performance");
                       }}
@@ -238,3 +238,5 @@ export function ManagerDashboard({ onNavigate }: ManagerDashboardProps) {
     </div>
   );
 }
+
+export default ManagerDashboard;

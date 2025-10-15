@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Building2, Users, Briefcase, Megaphone, TrendingUp, UserPlus, Activity, Clock, Shield, Settings, BarChart3, Award } from "lucide-react";
 import { Button } from "../ui/button";
 
-export function SuperAdminDashboard() {
+ function SuperAdminDashboard() {
   const stats = [
     {
       title: "Total Employees",
@@ -268,3 +268,5 @@ export function SuperAdminDashboard() {
     </div>
   );
 }
+
+export default SuperAdminDashboard;

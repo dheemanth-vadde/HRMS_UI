@@ -21,7 +21,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 
-export function HRDashboard() {
+function HRDashboard() {
   const stats = [
     {
       title: "Total Employees",
@@ -350,3 +350,5 @@ export function HRDashboard() {
     </div>
   );
 }
+
+export default HRDashboard;

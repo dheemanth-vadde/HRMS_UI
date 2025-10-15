@@ -4,7 +4,7 @@ import { Progress } from "../ui/progress";
 import { Button } from "../ui/button";
 import { Calendar, Clock, TrendingUp, FileText, LogOut, Bell, Target, Activity, Award, Settings } from "lucide-react";
 
-export function EmployeeDashboard() {
+function EmployeeDashboard() {
   const stats = [
     {
       title: "Attendance",
@@ -318,3 +318,5 @@ export function EmployeeDashboard() {
     </div>
   );
 }
+
+export default EmployeeDashboard;

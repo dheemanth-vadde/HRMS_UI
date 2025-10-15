@@ -40,7 +40,17 @@ interface EmployeeDetailsViewProps {
 export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewProps) {
   const [activeTab, setActiveTab] = useState("official");
 
+  // If employee is undefined, return early
+  if (!employee) {
+    return (
+      <div className="p-6 text-center text-muted-foreground">
+        Employee data not found
+      </div>
+    );
+  }
+
   const getInitials = (name: string) => {
+    if (!name) return "??";
     return name
       .split(" ")
       .map((n) => n[0])
