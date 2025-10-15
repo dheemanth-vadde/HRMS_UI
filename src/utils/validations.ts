@@ -12,6 +12,8 @@ export const validatePhone = (phone: string): boolean => {
   return phoneRegex.test(phone.trim());
 };
 
+
+
 // --- Checks if a value is empty or only spaces ---
 export const isEmptyOrSpaces = (value: string): boolean => {
   return !value || value.trim() === "";
