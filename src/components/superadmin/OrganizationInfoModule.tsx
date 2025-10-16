@@ -204,14 +204,14 @@ const handleAddOrganization = () => {
 
       {(hasOrganization || isEditing || viewOnly) && (
         <Card>
-          <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-secondary/5">
+          {/* <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-secondary/5">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-lg bg-white shadow-sm">
                 <Building2 className="size-6 text-primary" />
               </div>
               <CardTitle>{orgData.name || "Organization Information"}</CardTitle>
             </div>
-          </CardHeader>
+          </CardHeader> */}
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
@@ -404,7 +404,6 @@ const handleAddOrganization = () => {
                     <p className="font-medium">{orgData.established || "-"}</p>
                   )}
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <Phone className="size-4" />
@@ -430,7 +429,9 @@ const handleAddOrganization = () => {
                     <p className="font-medium">{orgData.customerCare || "-"}</p>
                   )}
                 </div>
+              </div>
 
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Country *</Label>
                   {isEditing && !viewOnly ? (
@@ -499,9 +500,6 @@ const handleAddOrganization = () => {
                     <p className="font-medium">{orgData.category || "-"}</p>
                   )}
                 </div>
-              </div>
-
-              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <MapPin className="size-4" />
@@ -528,24 +526,22 @@ const handleAddOrganization = () => {
                     <p className="font-medium">{orgData.headOffice || "-"}</p>
                   )}
                 </div>
-
-                <div className="p-4 border rounded-lg bg-muted/30">
-                  <Label className="text-sm text-muted-foreground mb-2">Regional Office</Label>
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground flex items-center gap-2">
+                    <MapPin className="size-4" />
+                    Regional Office
+                  </Label>
                   {isEditing && !viewOnly ? (
-                    <>
-                      <Textarea
-                        value={orgData.regionalOffice}
-                        onChange={(e) => setOrgData({ ...orgData, regionalOffice: e.target.value })}
-                        rows={4}
-                        className="mt-2"
-                        placeholder="Enter regional office address (optional)"
-                      />
-                    </>
+                    <Textarea
+                      value={orgData.headOffice}
+                      onChange={(e) => setOrgData({ ...orgData, headOffice: e.target.value })}
+                      rows={4}
+                      placeholder="Enter regional office address (optional)"
+                    />
                   ) : (
-                    <p className="font-medium mt-2">{orgData.regionalOffice || "-"}</p>
+                    <p className="font-medium">{orgData.headOffice || "-"}</p>
                   )}
                 </div>
-
                 {!isEditing && hasOrganization && !viewOnly && (
                   <div className="flex gap-2 pt-4">
                     <Button variant="outline" className="flex-1">

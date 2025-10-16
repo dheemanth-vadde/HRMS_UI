@@ -232,13 +232,13 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Started On</TableHead>
-                  <TableHead>Department Head</TableHead>
-                  <TableHead>Time Zone</TableHead>
-                  <TableHead>Business Unit</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Name</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Code</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Started On</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Department Head</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Time Zone</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Business Unit</TableHead>
+                  <TableHead className="font-semibold text-base mb-1 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

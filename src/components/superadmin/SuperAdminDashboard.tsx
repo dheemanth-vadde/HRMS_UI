@@ -131,7 +131,7 @@ export function SuperAdminDashboard() {
             className="stat-card-sagarsoft relative overflow-hidden border shadow-lg animate-scale-in" 
             style={{animationDelay: `${index * 0.1}s`}}
           >
-            <div className={`absolute inset-0 ${stat.color === 'primary' ? 'bg-gradient-to-br from-blue-50 to-cyan-50' : 'bg-gradient-to-br from-orange-50 to-red-50'} opacity-40`}></div>
+            <div className={`absolute`}></div>
             <CardContent className="p-6 relative z-10">
               <div className="flex items-start justify-between mb-4">
                 <div className={`p-3 rounded-xl ${stat.color === 'primary' ? 'bg-gradient-to-br from-primary to-[#2171b5]' : 'bg-gradient-to-br from-secondary to-[#e55a2b]'} shadow-lg`}>
@@ -156,20 +156,18 @@ export function SuperAdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activities - Takes 2 columns */}
         <Card className="lg:col-span-2 border shadow-lg animate-slide-in-left">
-          <CardHeader className="border-b bg-gradient-to-r from-accent/40 to-blue-50/40 pb-4">
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-[#2171b5]">
-                <TrendingUp className="size-5 text-white" />
-              </div>
-              Recent Activities
-            </CardTitle>
+           <CardHeader className="border-b pb-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="size-5 text-primary" />
+              <h3 className="font-semibold">Recent Activities</h3>
+            </div>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
               {recentActivities.map((activity, index) => (
                 <div 
                   key={index} 
-                  className="flex gap-4 p-4 rounded-lg hover:bg-accent/50 transition-all cursor-pointer border border-transparent hover:border-primary/20"
+                  className="flex gap-2 p-2 rounded-lg hover:bg-accent/50 transition-all cursor-pointer border border-transparent hover:border-primary/20"
                   style={{animationDelay: `${index * 0.1}s`}}
                 >
                   <div className={`p-2 rounded-lg h-fit ${index % 2 === 0 ? 'bg-primary/10' : 'bg-secondary/10'}`}>
@@ -192,13 +190,11 @@ export function SuperAdminDashboard() {
 
         {/* Quick Actions - Takes 1 column */}
         <Card className="border shadow-lg animate-slide-in-right">
-          <CardHeader className="border-b bg-gradient-to-r from-orange-50/40 to-red-50/40 pb-4">
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-secondary to-[#e55a2b]">
-                <UserPlus className="size-5 text-white" />
-              </div>
-              Quick Actions
-            </CardTitle>
+          <CardHeader className="border-b pb-4">
+            <div className="flex items-center gap-2">
+              <UserPlus className="size-5 text-primary" />
+              <h3 className="font-semibold">Quick Actions</h3>
+            </div>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-3">
@@ -226,7 +222,7 @@ export function SuperAdminDashboard() {
 
       {/* Bottom Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50 animate-scale-in" style={{animationDelay: '0.2s'}}>
+        <Card className="border shadow-lg" style={{animationDelay: '0.2s'}}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -239,7 +235,7 @@ export function SuperAdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border shadow-lg bg-gradient-to-br from-orange-50 to-red-50 animate-scale-in" style={{animationDelay: '0.3s'}}>
+        <Card className="border shadow-lg" style={{animationDelay: '0.3s'}}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -252,7 +248,7 @@ export function SuperAdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50 animate-scale-in" style={{animationDelay: '0.4s'}}>
+        <Card className="border shadow-lg" style={{animationDelay: '0.4s'}}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>

@@ -217,11 +217,12 @@ export function AccessControlModule() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="w-24">Action</TableHead>
-                  <TableHead>Role Name</TableHead>
-                  <TableHead>Role Type</TableHead>
-                  <TableHead>Role Description</TableHead>
-                  <TableHead>Group</TableHead>
+                  
+                  <TableHead className="font-semibold text-base mb-1">Role Name</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Role Type</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Role Description</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Group</TableHead>
+                  <TableHead className="font-semibold text-base mb-1 w-24">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -234,6 +235,15 @@ export function AccessControlModule() {
                 ) : (
                   currentRoles.map((role) => (
                     <TableRow key={role.id} className="hover:bg-muted/30">
+                      
+                      <TableCell className="font-medium">{role.roleName}</TableCell>
+                      <TableCell className="text-muted-foreground">{role.roleType}</TableCell>
+                      <TableCell className="text-muted-foreground">{role.roleDescription || "-"}</TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-sm">
+                          {role.group}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
@@ -253,14 +263,6 @@ export function AccessControlModule() {
                             <Trash2 className="size-4" />
                           </Button>
                         </div>
-                      </TableCell>
-                      <TableCell className="font-medium">{role.roleName}</TableCell>
-                      <TableCell className="text-muted-foreground">{role.roleType}</TableCell>
-                      <TableCell className="text-muted-foreground">{role.roleDescription || "-"}</TableCell>
-                      <TableCell>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-sm">
-                          {role.group}
-                        </span>
                       </TableCell>
                     </TableRow>
                   ))

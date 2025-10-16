@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Search, Plus, Upload, Edit, Trash2, FileSpreadsheet, Mail, Phone, MoreVertical, FileDown, FileUp, Grid3x3, List, Briefcase, Eye, Filter } from "lucide-react";
+import { Search, Plus, Upload, Edit, Trash2, FileSpreadsheet, Mail, Phone, MoreVertical, FileDown, FileUp, Grid3x3, List, Briefcase, Eye, Filter, Delete, LucideDelete } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { EmployeeDetailsView } from "./EmployeeDetailsView";
+import { Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -370,7 +371,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   onClick={() => setViewingEmployee(employee)}
                   className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                 >
-                  View profile
+                  View profile &rarr;
                 </button>
               </CardContent>
             </Card>
@@ -378,11 +379,11 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         </div>
       ) : (
         <Card className="border-[#e5e7eb]">
-          <CardHeader className="border-b bg-white">
+          {/* <CardHeader className="border-b bg-white">
             <div className="flex items-center justify-between">
               <CardTitle>Employees ({filteredEmployees.length})</CardTitle>
             </div>
-          </CardHeader>
+          </CardHeader> */}
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
@@ -474,31 +475,16 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                             >
                               <Edit className="size-4" />
                             </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="size-8 hover:bg-muted">
-                                  <MoreVertical className="size-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setViewingEmployee(employee)}>
-                                  <Eye className="size-4 mr-2" />
-                                  View Details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleEdit(employee)}>
-                                  <Edit className="size-4 mr-2" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem 
-                                  onClick={() => handleDeleteClick(employee.id)}
-                                  className="text-destructive focus:text-destructive"
-                                >
-                                  <Trash2 className="size-4 mr-2" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="size-8 hover:bg-muted"
+                                 onClick={() => handleDeleteClick(employee.id)}
+                                 >
+                               <Trash className="size-4" />
+                            
+                            </Button>
+                            
                           </>
                         )}
                       </div>

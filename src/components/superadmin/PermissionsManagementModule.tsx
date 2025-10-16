@@ -433,7 +433,7 @@ export function PermissionsManagementModule() {
           {/* Desktop Table View */}
           <div className="hidden md:block">
             <table className="w-full">
-              <thead className="bg-gradient-to-r from-accent/50 to-blue-50 dark:from-accent/20 dark:to-blue-900/20 sticky top-0 z-10">
+              <thead className="sticky top-0 z-10">
                 <tr>
                   <th className="text-left px-6 py-4 font-semibold text-foreground border-b border-border">
                     Screen

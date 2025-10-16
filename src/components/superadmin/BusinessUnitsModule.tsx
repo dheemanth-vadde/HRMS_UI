@@ -210,15 +210,15 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Started On</TableHead>
-                  <TableHead>Street Address</TableHead>
-                  <TableHead>City</TableHead>
-                  <TableHead>State</TableHead>
-                  <TableHead>Country</TableHead>
-                  <TableHead>Time zone</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Name</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Code</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Started On</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Street Address</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">City</TableHead>
+                  <TableHead className="font-semibold text-base mb-1"> State</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Country</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Time zone</TableHead>
+                  <TableHead className="font-semibold text-base mb-1"> Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

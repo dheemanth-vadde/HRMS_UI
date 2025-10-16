@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap");
 /*! tailwindcss v4.1.3 | MIT License | https://tailwindcss.com */
 @layer properties {
   @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
@@ -198,7 +197,7 @@
     -webkit-text-size-adjust: 100%;
     tab-size: 4;
     line-height: 1.5;
-    font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
     font-feature-settings: var(--default-font-feature-settings, normal);
     font-variation-settings: var(--default-font-variation-settings, normal);
     -webkit-tap-highlight-color: transparent;
@@ -220,7 +219,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-size: inherit;
+    font-size: 18px; 
     font-weight: inherit;
   }
 
@@ -457,7 +456,7 @@
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h1 {
     color: #2d2d58;
     letter-spacing: -.02em;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     line-height: 1.2;
   }
@@ -465,21 +464,21 @@
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h2 {
     color: #2d2d58;
     letter-spacing: -.01em;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
     line-height: 1.3;
   }
 
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h3 {
     color: #2d2d58;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
     line-height: 1.4;
   }
 
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h4 {
     color: #2d2d58;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
     line-height: 1.5;
   }
@@ -4207,7 +4206,7 @@
   }
 
   .\[\.border-b\]\:pb-6.border-b {
-    padding-bottom: calc(var(--spacing) * 6);
+    padding-bottom: calc(var(--spacing) * 4);
   }
 
   .\[\.border-t\]\:pt-6.border-t {
@@ -4323,7 +4322,7 @@
 
 :root {
   --font-size: 16px;
-  --font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
   --background: #f5f7fa;
   --foreground: #1e1e2d;
   --card: #fff;
@@ -4466,6 +4465,7 @@ html {
   background: #232341;
   transform: translateY(-1px);
   box-shadow: 0 10px 15px -3px #2d2d5866;
+  cursor:pointer;
 }
 
 .btn-sagarsoft-primary:active, .btn-gradient-primary:active {
@@ -4484,6 +4484,7 @@ html {
   color: #fff;
   background: #746def;
   border-color: #746def;
+  cursor:pointer;
 }
 
 .btn-add-purple:active {
@@ -4503,6 +4504,7 @@ html {
   background: linear-gradient(135deg, #e55a2b 0%, #cc4920 100%);
   transform: translateY(-1px);
   box-shadow: 0 10px 15px -3px #ff6b3566;
+  cursor:pointer;
 }
 
 .btn-sagarsoft-secondary:active, .btn-gradient-secondary:active {

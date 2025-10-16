@@ -304,11 +304,12 @@ export function RolesPrivilegesModule() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="w-24">Action</TableHead>
-                  <TableHead>Role Name</TableHead>
-                  <TableHead>Role Type</TableHead>
-                  <TableHead>Role Description</TableHead>
-                  <TableHead>Group</TableHead>
+                  
+                  <TableHead className="font-semibold text-base mb-1">Role Name</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Role Type</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Role Description</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Group</TableHead>
+                  <TableHead className="font-semibold text-base mb-1 w-24">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
