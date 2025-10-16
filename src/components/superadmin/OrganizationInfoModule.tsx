@@ -31,12 +31,31 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     regionalOffice: "",
     logo: "",
   });
+  const resetOrgData = () => {
+  setOrgData({
+    name: "",
+    domain: "",
+    website: "",
+    employees: "",
+    established: "",
+    customerCare: "",
+    country: "",
+    state: "",
+    category: "",
+    headOffice: "",
+    regionalOffice: "",
+    logo: "",
+  });
+  setLogoPreview(null);
+  setErrors({}); // ✅ clear all validation errors
+};
+
 
   const validateOrgData = () => {
     const newErrors: { [key: string]: string } = {};
 
     // --- Required fields ---
-    const requiredFields: (keyof typeof orgData)[] = ["name", "domain", "website", "employees", "established", "customerCare", "country", "state", "category", "headOffice", "regionalOffice"];
+    const requiredFields: (keyof typeof orgData)[] = ["name", "domain", "website", "employees", "established", "customerCare", "country", "state", "category", "headOffice", "logo"];
     requiredFields.forEach((field) => {
       const error =
         getValidationError("required", orgData[field], `${field} is required`) ||
@@ -95,49 +114,44 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
   };
 
 
-  const handleAddOrganization = () => {
-    setIsEditing(true);
-    setHasOrganization(false);
-  };
+ const handleCancel = () => {
+  if (!hasOrganization) {
+    resetOrgData(); // ✅ reset all fields and errors
+  }
+  setIsEditing(false);
+};
 
-  const handleCancel = () => {
-    if (!hasOrganization) {
-      // If no organization exists, reset all fields
-      setOrgData({
-        name: "",
-        domain: "",
-        website: "",
-        employees: "",
-        established: "",
-        customerCare: "",
-        country: "",
-        state: "",
-        category: "",
-        headOffice: "",
-        regionalOffice: "",
-        logo: "",
-      });
-      setLogoPreview(null);
-    }
-    setIsEditing(false);
-  };
+const handleAddOrganization = () => {
+  resetOrgData(); // ✅ start fresh
+  setIsEditing(true);
+  setHasOrganization(false);
+};
+
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size should be less than 5MB");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-        setOrgData({ ...orgData, logo: reader.result as string });
-        toast.success("Logo uploaded successfully");
-      };
-      reader.readAsDataURL(file);
+  const file = event.target.files?.[0];
+  if (file) {
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size should be less than 5MB");
+      return;
     }
-  };
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLogoPreview(reader.result as string);
+      setOrgData({ ...orgData, logo: reader.result as string });
+
+      // ✅ Clear logo error if exists
+      if (errors.logo) {
+        setErrors((prev) => ({ ...prev, logo: "" }));
+      }
+
+      toast.success("Logo uploaded successfully");
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+
 
   return (
     <div className="space-y-6">
@@ -205,7 +219,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2 border-b pb-4">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <Image className="size-4" />
-                    Organization Logo
+                    Organization Logo *
                   </Label>
                   {isEditing && !viewOnly ? (
                     <div className="space-y-3">
@@ -217,6 +231,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                               alt="Organization Logo"
                               className="size-24 object-contain border-2 border-primary/20 rounded-lg p-2 bg-white"
                             />
+
                           </div>
                         ) : (
                           <div className="size-24 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center bg-muted/30">
@@ -261,6 +276,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                       )}
                     </div>
                   )}
+                  {errors.logo && <p className="text-sm text-red-600">{errors.logo}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -269,7 +285,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     <>
                       <Input
                         value={orgData.name}
-                        onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value; 
+                          setOrgData({ ...orgData, name: value });
+                          if (errors.name) {
+                            setErrors((prev) => ({ ...prev, name: "" }));
+                          }
+                        }}
+                        //onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
                         placeholder="Enter organization name"
                       />
                       {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
@@ -280,12 +303,19 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Business Domain</Label>
+                  <Label className="text-sm text-muted-foreground">Business Domain *</Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.domain}
-                        onChange={(e) => setOrgData({ ...orgData, domain: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, domain: value });
+                          if (errors.domain) {
+                            setErrors((prev) => ({ ...prev, domain: "" }));
+                          }
+                        }}
+                       // onChange={(e) => setOrgData({ ...orgData, domain: e.target.value })}
                         placeholder="Enter business domain"
                       />
                       {errors.domain && <p className="text-sm text-red-600">{errors.domain}</p>}
@@ -298,16 +328,23 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <Globe className="size-4" />
-                    Website
+                    Website *
                   </Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.website}
-                        onChange={(e) => setOrgData({ ...orgData, website: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, website: value });
+                          if (errors.website) {
+                            setErrors((prev) => ({ ...prev, website: "" }));
+                          }
+                        }}
+                        //onChange={(e) => setOrgData({ ...orgData, website: e.target.value })}
                         placeholder="Enter website URL"
                       />
-                      {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
+                      {errors.website && <p className="text-sm text-red-600">{errors.website}</p>}
                     </>
                   ) : orgData.website ? (
                     <a href={`https://${orgData.website}`} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">
@@ -319,12 +356,19 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Total Employees</Label>
+                  <Label className="text-sm text-muted-foreground">Total Employees *</Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.employees}
-                        onChange={(e) => setOrgData({ ...orgData, employees: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, employees: value });
+                          if (errors.employees) {
+                            setErrors((prev) => ({ ...prev, employees: "" }));
+                          }
+                        }}
+                       // onChange={(e) => setOrgData({ ...orgData, employees: e.target.value })}
                         placeholder="Enter total employees"
                       />
                       {errors.employees && <p className="text-sm text-red-600">{errors.employees}</p>}
@@ -337,13 +381,21 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <Calendar className="size-4" />
-                    Established On
+                    Established On *
                   </Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
+                      type="date"
                         value={orgData.established}
-                        onChange={(e) => setOrgData({ ...orgData, established: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, established: value });
+                          if (errors.established) {
+                            setErrors((prev) => ({ ...prev, established: "" }));
+                          }
+                        }}
+                       // onChange={(e) => setOrgData({ ...orgData, established: e.target.value })}
                         placeholder="DD-MM-YYYY"
                       />
                       {errors.established && <p className="text-sm text-red-600">{errors.established}</p>}
@@ -356,13 +408,20 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <Phone className="size-4" />
-                    Customer Care
+                    Customer Care *
                   </Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.customerCare}
-                        onChange={(e) => setOrgData({ ...orgData, customerCare: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, customerCare: value });
+                          if (errors.customerCare) {
+                            setErrors((prev) => ({ ...prev, customerCare: "" }));
+                          }
+                        }}
+                      //  onChange={(e) => setOrgData({ ...orgData, customerCare: e.target.value })}
                         placeholder="Enter customer care number"
                       />
                       {errors.customerCare && <p className="text-sm text-red-600">{errors.customerCare}</p>}
@@ -373,12 +432,19 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Country</Label>
+                  <Label className="text-sm text-muted-foreground">Country *</Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.country}
-                        onChange={(e) => setOrgData({ ...orgData, country: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, country: value });
+                          if (errors.country) {
+                            setErrors((prev) => ({ ...prev, country: "" }));
+                          }
+                        }}
+                      //  onChange={(e) => setOrgData({ ...orgData, country: e.target.value })}
                         placeholder="Enter country"
                       />
                       {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
@@ -389,12 +455,19 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Headquarters State</Label>
+                  <Label className="text-sm text-muted-foreground">Headquarters State *</Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.state}
-                        onChange={(e) => setOrgData({ ...orgData, state: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, state: value });
+                          if (errors.state) {
+                            setErrors((prev) => ({ ...prev, state: "" }));
+                          }
+                        }}
+                       // onChange={(e) => setOrgData({ ...orgData, state: e.target.value })}
                         placeholder="Enter state"
                       />
                       {errors.state && <p className="text-sm text-red-600">{errors.state}</p>}
@@ -405,12 +478,19 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Organization Category</Label>
+                  <Label className="text-sm text-muted-foreground">Organization Category *</Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.category}
-                        onChange={(e) => setOrgData({ ...orgData, category: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, category: value });
+                          if (errors.category) {
+                            setErrors((prev) => ({ ...prev, category: "" }));
+                          }
+                        }}
+                        //onChange={(e) => setOrgData({ ...orgData, category: e.target.value })}
                         placeholder="Enter category"
                       />
                       {errors.category && <p className="text-sm text-red-600">{errors.category}</p>}
@@ -425,13 +505,20 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <MapPin className="size-4" />
-                    Head Office Address
+                    Head Office Address *
                   </Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Textarea
                         value={orgData.headOffice}
-                        onChange={(e) => setOrgData({ ...orgData, headOffice: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, headOffice: value });
+                          if (errors.headOffice) {
+                            setErrors((prev) => ({ ...prev, headOffice: "" }));
+                          }
+                        }}
+                      //  onChange={(e) => setOrgData({ ...orgData, headOffice: e.target.value })}
                         rows={4}
                         placeholder="Enter head office address"
                       />
@@ -453,7 +540,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                         className="mt-2"
                         placeholder="Enter regional office address (optional)"
                       />
-                      {errors.regionalOffice && <p className="text-sm text-red-600">{errors.regionalOffice}</p>}
                     </>
                   ) : (
                     <p className="font-medium mt-2">{orgData.regionalOffice || "-"}</p>

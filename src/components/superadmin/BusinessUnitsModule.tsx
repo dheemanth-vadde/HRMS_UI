@@ -229,7 +229,14 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                         <>
                           <Input
                             value={editingUnit.name}
-                            onChange={(e) => setEditingUnit({ ...editingUnit, name: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingUnit({ ...editingUnit, name: value });
+                              if (errors.name) {
+                                setErrors((prev) => ({ ...prev, name: "" }));
+                              }
+                            }}
+                           // onChange={(e) => setEditingUnit({ ...editingUnit, name: e.target.value })}
                           />
                           {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
                         </>
@@ -242,7 +249,14 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                         <>
                           <Input
                             value={editingUnit.code}
-                            onChange={(e) => setEditingUnit({ ...editingUnit, code: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingUnit({ ...editingUnit, code: value });
+                              if (errors.code) {
+                                setErrors((prev) => ({ ...prev, code: "" }));
+                              }
+                            }}
+                           // onChange={(e) => setEditingUnit({ ...editingUnit, code: e.target.value })}
                           />
                           {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
                         </>
@@ -254,12 +268,19 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                     <TableCell>
                       {editingUnit?.id === unit.id ? (
                         <>
-                        <Input
-                          value={editingUnit.streetAddress}
-                          onChange={(e) => setEditingUnit({ ...editingUnit, streetAddress: e.target.value })}
-                        />
+                          <Input
+                            value={editingUnit.streetAddress}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingUnit({ ...editingUnit, streetAddress: value });
+                              if (errors.streetAddress) {
+                                setErrors((prev) => ({ ...prev, streetAddress: "" }));
+                              }
+                            }}
+                         //   onChange={(e) => setEditingUnit({ ...editingUnit, streetAddress: e.target.value })}
+                          />
                           {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
-                          </>
+                        </>
                       ) : (
                         unit.streetAddress
                       )}
@@ -269,7 +290,14 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                         <>
                           <Input
                             value={editingUnit.city}
-                            onChange={(e) => setEditingUnit({ ...editingUnit, city: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingUnit({ ...editingUnit, city: value });
+                              if (errors.city) {
+                                setErrors((prev) => ({ ...prev, city: "" }));
+                              }
+                            }}
+                           // onChange={(e) => setEditingUnit({ ...editingUnit, city: e.target.value })}
                           />
                           {errors.city && <p className="text-destructive text-sm mt-1">{errors.city}</p>}
                         </>
@@ -372,7 +400,13 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 <Input
                   placeholder="e.g., Delhi Regional Office"
                   value={newUnit.name}
-                  onChange={(e) => setNewUnit({ ...newUnit, name: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewUnit({ ...newUnit, name: value });
+                    if (errors.name) {
+                      setErrors((prev) => ({ ...prev, name: "" }));
+                    } }}
+                 // onChange={(e) => setNewUnit({ ...newUnit, name: e.target.value })}
                 />
                 {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
               </div>
@@ -381,17 +415,31 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 <Input
                   placeholder="e.g., PNB-DEL"
                   value={newUnit.code}
-                  onChange={(e) => setNewUnit({ ...newUnit, code: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewUnit({ ...newUnit, code: value });
+                    if (errors.code) {
+                      setErrors((prev) => ({ ...prev, code: "" }));
+                    }
+                  }}
+                 // onChange={(e) => setNewUnit({ ...newUnit, code: e.target.value })}
                 />
                 {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Started On *</Label>
                 <Input
-                type="date"
+                  type="date"
                   placeholder="DD-MM-YYYY"
                   value={newUnit.startedOn}
-                  onChange={(e) => setNewUnit({ ...newUnit, startedOn: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewUnit({ ...newUnit, startedOn: value });
+                    if (errors.startedOn) {
+                      setErrors((prev) => ({ ...prev, startedOn: "" }));
+                    }
+                  }}
+                //  onChange={(e) => setNewUnit({ ...newUnit, startedOn: e.target.value })}
                 />
                 {errors.startedOn && <p className="text-destructive text-sm mt-1">{errors.startedOn}</p>}
               </div>
@@ -400,7 +448,14 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 <Input
                   placeholder="Enter address"
                   value={newUnit.streetAddress}
-                  onChange={(e) => setNewUnit({ ...newUnit, streetAddress: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewUnit({ ...newUnit, streetAddress: value });
+                    if (errors.streetAddress) {
+                      setErrors((prev) => ({ ...prev, streetAddress: "" }));
+                    }
+                  }}
+                 // onChange={(e) => setNewUnit({ ...newUnit, streetAddress: e.target.value })}
                 />
                 {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
               </div>
@@ -409,7 +464,13 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 <Input
                   placeholder="Enter city"
                   value={newUnit.city}
-                  onChange={(e) => setNewUnit({ ...newUnit, city: e.target.value })}
+                  onChange={(e) => {
+                    setNewUnit({ ...newUnit, city: e.target.value });
+                    if (errors.city) {
+                      setErrors((prev) => ({ ...prev, city: "" }));
+                    }
+                  }}
+                //onChange={(e) => setNewUnit({ ...newUnit, city: e.target.value })}
                 />
                 {errors.city && <p className="text-destructive text-sm mt-1">{errors.city}</p>}
               </div>
@@ -418,7 +479,14 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 <Input
                   placeholder="Enter state"
                   value={newUnit.state}
-                  onChange={(e) => setNewUnit({ ...newUnit, state: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewUnit({ ...newUnit, state: value });
+                    if (errors.state) {
+                      setErrors((prev) => ({ ...prev, state: "" }));
+                    }
+                  }}
+                 // onChange={(e) => setNewUnit({ ...newUnit, state: e.target.value })}
                 />
                 {errors.state && <p className="text-destructive text-sm mt-1">{errors.state}</p>}
               </div>

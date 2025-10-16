@@ -87,6 +87,15 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
     for (const field of requiredFields) {
       const value = announcement[field];
 
+      //  Handle dropdowns separately
+      if ((field === "category" || field === "priority")) {
+        if (!value || value === "Select Category" || value === "Select Priority" || value === "") {
+          errors[field] = `Please select a option`;
+          continue;
+        }
+      }
+
+      // Check for leading/trailing spaces
       let error = getValidationError(
         "noSpaces",
         value,
@@ -97,6 +106,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
         continue;
       }
 
+      //  Required field check
       error = getValidationError(
         "required",
         value,
@@ -107,6 +117,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
 
     return errors;
   };
+
 
   //  Add with validation
   const handleAdd = () => {
@@ -220,7 +231,14 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                         <Label>Title *</Label>
                         <Input
                           value={editingAnnouncement.title}
-                          onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, title: e.target.value })}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setEditingAnnouncement({ ...editingAnnouncement, title: value });
+                            if (formErrors.title) {
+                              setFormErrors((prev) => ({ ...prev, title: null }));
+                            }
+                          }}
+                        //onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, title: e.target.value })}
                         />
                         {formErrors.title && <p className="text-sm text-destructive">{formErrors.title}</p>}
                       </div>
@@ -234,16 +252,23 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Date *</Label>
-                          <Input
-                            type="date"
-                            value={editingAnnouncement.date}
-                            onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, date: e.target.value })}
-                          />
-                          {formErrors.date && <p className="text-sm text-destructive">{formErrors.date}</p>}
+                          <Label>Category *</Label>
+                          <Select
+                            value={editingAnnouncement.category}
+                            onValueChange={(value) => setEditingAnnouncement({ ...editingAnnouncement, category: value })}
+                          >
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="General">General</SelectItem>
+                              <SelectItem value="Training">Training</SelectItem>
+                              <SelectItem value="Performance">Performance</SelectItem>
+                              <SelectItem value="Security">Security</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {formErrors.category && <p className="text-sm text-destructive">{formErrors.category}</p>}
                         </div>
                         <div className="space-y-2">
-                          <Label>Priority</Label>
+                          <Label>Priority *</Label>
                           <Select
                             value={editingAnnouncement.priority}
                             onValueChange={(value) => setEditingAnnouncement({ ...editingAnnouncement, priority: value })}
@@ -255,6 +280,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                               <SelectItem value="Low">Low</SelectItem>
                             </SelectContent>
                           </Select>
+                          {formErrors.priority && <p className="text-sm text-destructive">{formErrors.priority}</p>}
                         </div>
                       </div>
                       <div className="flex gap-2 justify-end">
@@ -346,7 +372,14 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                   <Input
                     placeholder="Enter announcement title"
                     value={newAnnouncement.title}
-                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewAnnouncement({ ...newAnnouncement, title: value });
+                      if (formErrors.title) {
+                        setFormErrors((prev) => ({ ...prev, title: null }));
+                      }
+                    }}
+                  //  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
                   />
                   {formErrors.title && <p className="text-sm text-destructive">{formErrors.title}</p>}
                 </div>
@@ -365,7 +398,14 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                     <Input
                       type="date"
                       value={newAnnouncement.date}
-                      onChange={(e) => setNewAnnouncement({ ...newAnnouncement, date: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setNewAnnouncement({ ...newAnnouncement, date: value });
+                        if (formErrors.date) {
+                          setFormErrors((prev) => ({ ...prev, date: null }));
+                        }
+                      }}
+                    // onChange={(e) => setNewAnnouncement({ ...newAnnouncement, date: e.target.value })}
                     />
                     {formErrors.date && <p className="text-sm text-destructive">{formErrors.date}</p>}
                   </div>
@@ -373,11 +413,17 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                     <Label>Category *</Label>
                     <Select
                       value={newAnnouncement.category}
-                      onValueChange={(value) => setNewAnnouncement({ ...newAnnouncement, category: value })}
+                      onValueChange={(value) => {
+                        setNewAnnouncement({ ...newAnnouncement, category: value });
+                        // Clear error as soon as an option is selected
+                        if (formErrors.category) {
+                          setFormErrors((prev) => ({ ...prev, category: null }));
+                        }
+                      }}
                     >
                       <SelectTrigger>
-                      <SelectValue placeholder="Select a option" />
-                    </SelectTrigger>
+                        <SelectValue placeholder="Select a option" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="General">General</SelectItem>
                         <SelectItem value="Training">Training</SelectItem>
@@ -387,15 +433,22 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                     </Select>
                     {formErrors.category && <p className="text-sm text-destructive">{formErrors.category}</p>}
                   </div>
+
                   <div className="space-y-2">
                     <Label>Priority *</Label>
                     <Select
                       value={newAnnouncement.priority}
-                      onValueChange={(value) => setNewAnnouncement({ ...newAnnouncement, priority: value })}
+                      onValueChange={(value) => {
+                        setNewAnnouncement({ ...newAnnouncement, priority: value });
+                        if (formErrors.priority) {
+                          setFormErrors((prev) => ({ ...prev, priority: null }));
+                        }
+                      }}
+                      //onValueChange={(value) => setNewAnnouncement({ ...newAnnouncement, priority: value })}
                     >
                       <SelectTrigger>
-                      <SelectValue placeholder="Select a option" />
-                    </SelectTrigger>
+                        <SelectValue placeholder="Select a option" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="High">High</SelectItem>
                         <SelectItem value="Medium">Medium</SelectItem>

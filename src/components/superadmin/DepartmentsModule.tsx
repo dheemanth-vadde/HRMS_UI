@@ -94,6 +94,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     for (const field of requiredFields) {
       const value = dept[field];
 
+      // --- Check for leading/trailing spaces ---
       let error = getValidationError(
         "noSpaces",
         value,
@@ -104,16 +105,23 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
         continue;
       }
 
-      error = getValidationError(
-        "required",
-        value,
-        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
-      );
+      // --- Required field validation ---
+      if (field === "businessUnit") {
+        error = getValidationError("required", value, "Please select an option");
+      } else {
+        error = getValidationError(
+          "required",
+          value,
+          `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
+        );
+      }
+
       if (error) errors[String(field)] = error;
     }
 
     return errors;
   };
+
 
 
   const handleAdd = () => {
@@ -241,7 +249,15 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                         <>
                           <Input
                             value={editingDept.name}
-                            onChange={(e) => setEditingDept({ ...editingDept, name: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingDept({ ...editingDept, name: value });
+                              if (formErrors.name) {
+                                setFormErrors((prev) => ({ ...prev, name: null }));
+                              }
+                            }}
+                         
+                           // onChange={(e) => setEditingDept({ ...editingDept, name: e.target.value })}
                           />
                           {formErrors.name && <p className="text-destructive text-xs mt-1">{formErrors.name}</p>}
                         </>
@@ -254,7 +270,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                         <>
                           <Input
                             value={editingDept.code}
-                            onChange={(e) => setEditingDept({ ...editingDept, code: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingDept({ ...editingDept, code: value });
+                              if (formErrors.code) {
+                                setFormErrors((prev) => ({ ...prev, code: null }));
+                              }
+                            }}
+                           // onChange={(e) => setEditingDept({ ...editingDept, code: e.target.value })}
                           />
                           {formErrors.code && <p className="text-destructive text-xs mt-1">{formErrors.code}</p>}
                         </>
@@ -268,7 +291,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                         <>
                           <Input
                             value={editingDept.departmentHead}
-                            onChange={(e) => setEditingDept({ ...editingDept, departmentHead: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingDept({ ...editingDept, departmentHead: value });
+                              if (formErrors.departmentHead) {
+                                setFormErrors((prev) => ({ ...prev, departmentHead: null }));
+                              }
+                            }}
+                           // onChange={(e) => setEditingDept({ ...editingDept, departmentHead: e.target.value })}
                           />
                           {formErrors.departmentHead && <p className="text-destructive text-xs mt-1">{formErrors.departmentHead}</p>}
                         </>
@@ -376,8 +406,13 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Input
                     placeholder="e.g., Customer Service"
                     value={newDept.name}
-                    onChange={(e) => setNewDept({ ...newDept, name: e.target.value })}
-                  />
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewDept({ ...newDept, name: value });
+                      if (formErrors.name) {
+                        setFormErrors((prev) => ({ ...prev, name: null }));
+                      }
+                    }} />
                   {formErrors.name && <p className="text-sm text-destructive">{formErrors.name}</p>}
                 </div>
                 <div className="space-y-2">
@@ -385,7 +420,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Input
                     placeholder="e.g., CS"
                     value={newDept.code}
-                    onChange={(e) => setNewDept({ ...newDept, code: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewDept({ ...newDept, code: value });
+                      if (formErrors.code) {
+                        setFormErrors((prev) => ({ ...prev, code: null }));
+                      }
+                    }}
+                  //                    onChange={(e) => setNewDept({ ...newDept, code: e.target.value })}
                   />
                   {formErrors.code && <p className="text-sm text-destructive">{formErrors.code}</p>}
                 </div>
@@ -395,7 +437,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                     type="date" // <-- makes it a date picker
                     placeholder="DD-MM-YYYY"
                     value={newDept.startedOn}
-                    onChange={(e) => setNewDept({ ...newDept, startedOn: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewDept({ ...newDept, startedOn: value });
+                      if (formErrors.startedOn) {
+                        setFormErrors((prev) => ({ ...prev, startedOn: null }));
+                      }
+                    }}
+                  //  onChange={(e) => setNewDept({ ...newDept, startedOn: e.target.value })}
 
                   />
                   {formErrors.startedOn && <p className="text-sm text-destructive">{formErrors.startedOn}</p>}
@@ -405,7 +454,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Input
                     placeholder="Enter name"
                     value={newDept.departmentHead}
-                    onChange={(e) => setNewDept({ ...newDept, departmentHead: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewDept({ ...newDept, departmentHead: value });
+                      if (formErrors.departmentHead) {
+                        setFormErrors((prev) => ({ ...prev, departmentHead: null }));
+                      }
+                    }}
+                  //   onChange={(e) => setNewDept({ ...newDept, departmentHead: e.target.value })}
                   />
                   {formErrors.departmentHead && <p className="text-sm text-destructive">{formErrors.departmentHead}</p>}
                 </div>
@@ -413,7 +469,12 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Label>Business Unit *</Label>
                   <Select
                     value={newDept.businessUnit}
-                    onValueChange={(value) => setNewDept({ ...newDept, businessUnit: value })}
+                    onValueChange={(value) => {
+                      setNewDept({ ...newDept, businessUnit: value });
+                      if (formErrors.businessUnit) {
+                        setFormErrors((prev) => ({ ...prev, businessUnit: null }));
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select an option" />
