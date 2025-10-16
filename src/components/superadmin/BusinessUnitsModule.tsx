@@ -44,105 +44,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { toast } from "sonner@2.0.3";
-
-const initialBusinessUnits = [
-  {
-    id: 1,
-    name: "Head Office",
-    code: "PNB-HO",
-    startedOn: "12-04-1894",
-    streetAddress: "7, Bhikaiji Cama Place",
-    city: "New Delhi",
-    state: "Delhi",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  },
-  {
-    id: 2,
-    name: "Mumbai Regional Office",
-    code: "PNB-MUM",
-    startedOn: "15-08-1947",
-    streetAddress: "5, Chhatrapati Shivaji Maharaj Marg, Fort",
-    city: "Mumbai",
-    state: "Maharashtra",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  },
-  {
-    id: 3,
-    name: "Kolkata Regional Office",
-    code: "PNB-KOL",
-    startedOn: "22-03-1950",
-    streetAddress: "33, Netaji Subhas Road",
-    city: "Kolkata",
-    state: "West Bengal",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  },
-  {
-    id: 4,
-    name: "Chennai Regional Office",
-    code: "PNB-CHE",
-    startedOn: "10-06-1955",
-    streetAddress: "168, Anna Salai, Mount Road",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  },
-  {
-    id: 5,
-    name: "Bangalore Regional Office",
-    code: "PNB-BLR",
-    startedOn: "14-11-1960",
-    streetAddress: "45, Mahatma Gandhi Road",
-    city: "Bangalore",
-    state: "Karnataka",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  },
-  {
-    id: 6,
-    name: "Hyderabad Regional Office",
-    code: "PNB-HYD",
-    startedOn: "05-09-1965",
-    streetAddress: "6-3-879/B, Greenlands Road",
-    city: "Hyderabad",
-    state: "Telangana",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  },
-  {
-    id: 7,
-    name: "Pune Regional Office",
-    code: "PNB-PUN",
-    startedOn: "18-12-1972",
-    streetAddress: "1134/1, Shivajinagar",
-    city: "Pune",
-    state: "Maharashtra",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  },
-  {
-    id: 8,
-    name: "Ahmedabad Regional Office",
-    code: "PNB-AMD",
-    startedOn: "25-01-1978",
-    streetAddress: "Ashram Road, Ellisbridge",
-    city: "Ahmedabad",
-    state: "Gujarat",
-    country: "India",
-    timezone: "Asia/Kolkata [IST]",
-  },
-];
-
+import { toast } from "sonner";
+import data from "../../data.json";
+import { getValidationError } from "../../utils/validations";
 interface BusinessUnitsModuleProps {
   viewOnly?: boolean;
 }
 
 export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModuleProps) {
-  const [businessUnits, setBusinessUnits] = useState(initialBusinessUnits);
+  // const [businessUnits, setBusinessUnits] = useState(initialBusinessUnits);
+  const [businessUnits, setBusinessUnits] = useState(data.businessUnits);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingUnit, setEditingUnit] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -158,25 +69,55 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
     country: "India",
     timezone: "Asia/Kolkata [IST]",
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const validateUnit = (unit: typeof newUnit) => {
+    const requiredFields: (keyof typeof unit)[] = ["name", "code", "startedOn", "streetAddress", "city", "state"];
+    const newErrors: { [key: string]: string } = {};
+
+    for (const field of requiredFields) {
+      const value = unit[field];
+
+      // Leading/trailing space check
+      let error = getValidationError(
+        "noSpaces",
+        value,
+        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
+      );
+
+      if (error) {
+        newErrors[String(field)] = error;
+        continue;
+      }
+
+      // Required check
+      error = getValidationError(
+        "required",
+        value,
+        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
+      );
+
+      if (error) {
+        newErrors[String(field)] = error;
+      }
+    }
+
+    return newErrors;
+  };
 
   const handleAdd = () => {
+    const newErrors = validateUnit(newUnit);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     const unitToAdd = {
       id: businessUnits.length + 1,
       ...newUnit,
     };
+
     setBusinessUnits([...businessUnits, unitToAdd]);
     setShowAddDialog(false);
-    setNewUnit({
-      name: "",
-      code: "",
-      startedOn: "",
-      streetAddress: "",
-      city: "",
-      state: "",
-      country: "India",
-      timezone: "Asia/Kolkata [IST]",
-    });
-    toast.success("Business unit added successfully!");
+    resetNewUnit();
   };
 
   const handleEdit = (unit: any) => {
@@ -184,10 +125,20 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
   };
 
   const handleUpdate = () => {
-    setBusinessUnits(businessUnits.map(u => u.id === editingUnit.id ? editingUnit : u));
+    if (!editingUnit) return;
+
+    const newErrors = validateUnit(editingUnit);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    setBusinessUnits(
+      businessUnits.map((u) => (u.id === editingUnit.id ? editingUnit : u))
+    );
     setEditingUnit(null);
+    setErrors({});
     toast.success("Business unit updated successfully!");
   };
+
 
   const handleDeleteClick = (id: number) => {
     setUnitToDelete(id);
@@ -209,6 +160,20 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
     unit.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
     unit.state.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const resetNewUnit = () => {
+    setNewUnit({
+      name: "",
+      code: "",
+      startedOn: "",
+      streetAddress: "",
+      city: "",
+      state: "",
+      country: "India",
+      timezone: "Asia/Kolkata [IST]",
+    });
+    setErrors({});
+  };
 
   return (
     <div className="space-y-6">
@@ -261,20 +226,26 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   <TableRow key={unit.id}>
                     <TableCell className="font-medium">
                       {editingUnit?.id === unit.id ? (
-                        <Input
-                          value={editingUnit.name}
-                          onChange={(e) => setEditingUnit({ ...editingUnit, name: e.target.value })}
-                        />
+                        <>
+                          <Input
+                            value={editingUnit.name}
+                            onChange={(e) => setEditingUnit({ ...editingUnit, name: e.target.value })}
+                          />
+                          {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
+                        </>
                       ) : (
                         unit.name
                       )}
                     </TableCell>
                     <TableCell>
                       {editingUnit?.id === unit.id ? (
-                        <Input
-                          value={editingUnit.code}
-                          onChange={(e) => setEditingUnit({ ...editingUnit, code: e.target.value })}
-                        />
+                        <>
+                          <Input
+                            value={editingUnit.code}
+                            onChange={(e) => setEditingUnit({ ...editingUnit, code: e.target.value })}
+                          />
+                          {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
+                        </>
                       ) : (
                         unit.code
                       )}
@@ -282,20 +253,26 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                     <TableCell>{unit.startedOn}</TableCell>
                     <TableCell>
                       {editingUnit?.id === unit.id ? (
+                        <>
                         <Input
                           value={editingUnit.streetAddress}
                           onChange={(e) => setEditingUnit({ ...editingUnit, streetAddress: e.target.value })}
                         />
+                          {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
+                          </>
                       ) : (
                         unit.streetAddress
                       )}
                     </TableCell>
                     <TableCell>
                       {editingUnit?.id === unit.id ? (
-                        <Input
-                          value={editingUnit.city}
-                          onChange={(e) => setEditingUnit({ ...editingUnit, city: e.target.value })}
-                        />
+                        <>
+                          <Input
+                            value={editingUnit.city}
+                            onChange={(e) => setEditingUnit({ ...editingUnit, city: e.target.value })}
+                          />
+                          {errors.city && <p className="text-destructive text-sm mt-1">{errors.city}</p>}
+                        </>
                       ) : (
                         unit.city
                       )}
@@ -328,7 +305,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                                   Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   onClick={() => handleDeleteClick(unit.id)}
                                   className="text-destructive focus:text-destructive"
                                 >
@@ -374,7 +351,12 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       </Card>
 
       {/* Add Business Unit Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      <Dialog open={showAddDialog}
+        // onOpenChange={setShowAddDialog}
+        onOpenChange={(open: boolean) => {
+          setShowAddDialog(open);
+          if (!open) resetNewUnit(); // Reset the form when dialog is closed
+        }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add Business Unit</DialogTitle>
@@ -386,56 +368,63 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Unit Name</Label>
+                <Label>Unit Name *</Label>
                 <Input
                   placeholder="e.g., Delhi Regional Office"
                   value={newUnit.name}
                   onChange={(e) => setNewUnit({ ...newUnit, name: e.target.value })}
                 />
+                {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
               </div>
               <div className="space-y-2">
-                <Label>Unit Code</Label>
+                <Label>Unit Code *</Label>
                 <Input
                   placeholder="e.g., PNB-DEL"
                   value={newUnit.code}
                   onChange={(e) => setNewUnit({ ...newUnit, code: e.target.value })}
                 />
+                {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
               </div>
               <div className="space-y-2">
-                <Label>Started On</Label>
+                <Label>Started On *</Label>
                 <Input
+                type="date"
                   placeholder="DD-MM-YYYY"
                   value={newUnit.startedOn}
                   onChange={(e) => setNewUnit({ ...newUnit, startedOn: e.target.value })}
                 />
+                {errors.startedOn && <p className="text-destructive text-sm mt-1">{errors.startedOn}</p>}
               </div>
               <div className="space-y-2">
-                <Label>Street Address</Label>
+                <Label>Street Address *</Label>
                 <Input
                   placeholder="Enter address"
                   value={newUnit.streetAddress}
                   onChange={(e) => setNewUnit({ ...newUnit, streetAddress: e.target.value })}
                 />
+                {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
               </div>
               <div className="space-y-2">
-                <Label>City</Label>
+                <Label>City *</Label>
                 <Input
                   placeholder="Enter city"
                   value={newUnit.city}
                   onChange={(e) => setNewUnit({ ...newUnit, city: e.target.value })}
                 />
+                {errors.city && <p className="text-destructive text-sm mt-1">{errors.city}</p>}
               </div>
               <div className="space-y-2">
-                <Label>State</Label>
+                <Label>State *</Label>
                 <Input
                   placeholder="Enter state"
                   value={newUnit.state}
                   onChange={(e) => setNewUnit({ ...newUnit, state: e.target.value })}
                 />
+                {errors.state && <p className="text-destructive text-sm mt-1">{errors.state}</p>}
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+              <Button variant="outline" onClick={() => { setShowAddDialog(false); resetNewUnit(); }}>
                 Cancel
               </Button>
               <Button onClick={handleAdd}>

@@ -50,152 +50,18 @@ import {
   TabsList,
   TabsTrigger,
 } from "../ui/tabs";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
+import { organizationDepartments } from "../../data.json";
+import { getValidationError } from "../../utils/validations";
 
-const initialDepartments = [
-  {
-    id: 1,
-    name: "Retail Banking",
-    code: "RB",
-    startedOn: "12-04-1894",
-    departmentHead: "Rajesh Kumar Sharma",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 2,
-    name: "Corporate Banking",
-    code: "CB",
-    startedOn: "15-06-1950",
-    departmentHead: "Amit Verma",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 3,
-    name: "Treasury Operations",
-    code: "TO",
-    startedOn: "22-03-1960",
-    departmentHead: "Priya Deshmukh",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 4,
-    name: "Risk Management",
-    code: "RM",
-    startedOn: "10-08-1985",
-    departmentHead: "Suresh Reddy",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 5,
-    name: "Credit & Recovery",
-    code: "CR",
-    startedOn: "05-11-1970",
-    departmentHead: "Meena Iyer",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 6,
-    name: "Human Resources",
-    code: "HR",
-    startedOn: "18-02-1955",
-    departmentHead: "Deepak Singh",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 7,
-    name: "Information Technology",
-    code: "IT",
-    startedOn: "12-09-1995",
-    departmentHead: "Anil Kumar Gupta",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 8,
-    name: "Digital Banking",
-    code: "DB",
-    startedOn: "20-04-2015",
-    departmentHead: "Neha Kapoor",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 9,
-    name: "Compliance & Legal",
-    code: "CL",
-    startedOn: "14-07-1980",
-    departmentHead: "Vikram Malhotra",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 10,
-    name: "International Banking",
-    code: "IB",
-    startedOn: "30-10-1988",
-    departmentHead: "Sunita Patel",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 11,
-    name: "Operations & Services",
-    code: "OS",
-    startedOn: "08-03-1965",
-    departmentHead: "Ramesh Nair",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 12,
-    name: "Internal Audit",
-    code: "IA",
-    startedOn: "25-12-1975",
-    departmentHead: "Kavita Joshi",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 13,
-    name: "Marketing & Communications",
-    code: "MC",
-    startedOn: "16-05-2000",
-    departmentHead: "Rohit Mehta",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 14,
-    name: "Priority Banking Services",
-    code: "PBS",
-    startedOn: "22-08-2010",
-    departmentHead: "Anjali Rao",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-  {
-    id: 15,
-    name: "MSME & Agriculture",
-    code: "MA",
-    startedOn: "11-01-1990",
-    departmentHead: "Santosh Kumar",
-    timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
-  },
-];
+
 
 interface DepartmentsModuleProps {
   viewOnly?: boolean;
 }
 
 export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) {
-  const [departments, setDepartments] = useState(initialDepartments);
+  const [departments, setDepartments] = useState(organizationDepartments);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingDept, setEditingDept] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -207,10 +73,54 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     startedOn: "",
     departmentHead: "",
     timezone: "Asia/Kolkata [IST]",
-    businessUnit: "Head Office",
+    businessUnit: "",
   });
+  const resetNewDept = () => {
+    setNewDept({
+      name: "",
+      code: "",
+      startedOn: "",
+      departmentHead: "",
+      timezone: "Asia/Kolkata [IST]",
+      businessUnit: "",
+    });
+    setFormErrors({});
+  };
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string | null }>({});
+  const validateDeptForm = (dept: typeof newDept) => {
+    const errors: { [key: string]: string | null } = {};
+    const requiredFields: (keyof typeof newDept)[] = ["name", "code", "departmentHead", "startedOn", "businessUnit"];
+
+    for (const field of requiredFields) {
+      const value = dept[field];
+
+      let error = getValidationError(
+        "noSpaces",
+        value,
+        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
+      );
+      if (error) {
+        errors[String(field)] = error;
+        continue;
+      }
+
+      error = getValidationError(
+        "required",
+        value,
+        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
+      );
+      if (error) errors[String(field)] = error;
+    }
+
+    return errors;
+  };
+
 
   const handleAdd = () => {
+    const errors = validateDeptForm(newDept);
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     const deptToAdd = {
       id: departments.length + 1,
       ...newDept,
@@ -223,20 +133,32 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       startedOn: "",
       departmentHead: "",
       timezone: "Asia/Kolkata [IST]",
-      businessUnit: "Head Office",
+      businessUnit: "",
     });
+    setFormErrors({});
+    resetNewDept();
     toast.success("Department added successfully!");
   };
+
 
   const handleEdit = (dept: any) => {
     setEditingDept({ ...dept });
   };
 
   const handleUpdate = () => {
+    if (!editingDept) return;
+
+    const errors = validateDeptForm(editingDept);
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     setDepartments(departments.map(d => d.id === editingDept.id ? editingDept : d));
     setEditingDept(null);
+    setFormErrors({});
     toast.success("Department updated successfully!");
   };
+
+
 
   const handleDeleteClick = (id: number) => {
     setDeptToDelete(id);
@@ -316,20 +238,26 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <TableRow key={dept.id}>
                     <TableCell className="font-medium">
                       {editingDept?.id === dept.id ? (
-                        <Input
-                          value={editingDept.name}
-                          onChange={(e) => setEditingDept({ ...editingDept, name: e.target.value })}
-                        />
+                        <>
+                          <Input
+                            value={editingDept.name}
+                            onChange={(e) => setEditingDept({ ...editingDept, name: e.target.value })}
+                          />
+                          {formErrors.name && <p className="text-destructive text-xs mt-1">{formErrors.name}</p>}
+                        </>
                       ) : (
                         dept.name
                       )}
                     </TableCell>
                     <TableCell>
                       {editingDept?.id === dept.id ? (
-                        <Input
-                          value={editingDept.code}
-                          onChange={(e) => setEditingDept({ ...editingDept, code: e.target.value })}
-                        />
+                        <>
+                          <Input
+                            value={editingDept.code}
+                            onChange={(e) => setEditingDept({ ...editingDept, code: e.target.value })}
+                          />
+                          {formErrors.code && <p className="text-destructive text-xs mt-1">{formErrors.code}</p>}
+                        </>
                       ) : (
                         dept.code
                       )}
@@ -337,10 +265,13 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                     <TableCell>{dept.startedOn || "-"}</TableCell>
                     <TableCell>
                       {editingDept?.id === dept.id ? (
-                        <Input
-                          value={editingDept.departmentHead}
-                          onChange={(e) => setEditingDept({ ...editingDept, departmentHead: e.target.value })}
-                        />
+                        <>
+                          <Input
+                            value={editingDept.departmentHead}
+                            onChange={(e) => setEditingDept({ ...editingDept, departmentHead: e.target.value })}
+                          />
+                          {formErrors.departmentHead && <p className="text-destructive text-xs mt-1">{formErrors.departmentHead}</p>}
+                        </>
                       ) : (
                         dept.departmentHead || "-"
                       )}
@@ -372,7 +303,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                                   Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   onClick={() => handleDeleteClick(dept.id)}
                                   className="text-destructive focus:text-destructive"
                                 >
@@ -418,7 +349,12 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       </Card>
 
       {/* Add/Import Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      <Dialog open={showAddDialog}
+        // onOpenChange={setShowAddDialog}
+        onOpenChange={(open: boolean) => {
+          setShowAddDialog(open);
+          if (!open) resetNewDept(); // Reset the form when dialog is closed
+        }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add Department</DialogTitle>
@@ -436,42 +372,51 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
             <TabsContent value="manual" className="space-y-4 mt-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Department Name</Label>
+                  <Label>Department Name *</Label>
                   <Input
                     placeholder="e.g., Customer Service"
                     value={newDept.name}
                     onChange={(e) => setNewDept({ ...newDept, name: e.target.value })}
                   />
+                  {formErrors.name && <p className="text-sm text-destructive">{formErrors.name}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label>Department Code</Label>
+                  <Label>Department Code *</Label>
                   <Input
                     placeholder="e.g., CS"
                     value={newDept.code}
                     onChange={(e) => setNewDept({ ...newDept, code: e.target.value })}
                   />
+                  {formErrors.code && <p className="text-sm text-destructive">{formErrors.code}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Started On</Label>
                   <Input
+                    type="date" // <-- makes it a date picker
                     placeholder="DD-MM-YYYY"
                     value={newDept.startedOn}
                     onChange={(e) => setNewDept({ ...newDept, startedOn: e.target.value })}
+
                   />
+                  {formErrors.startedOn && <p className="text-sm text-destructive">{formErrors.startedOn}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label>Department Head</Label>
+                  <Label>Department Head *</Label>
                   <Input
                     placeholder="Enter name"
                     value={newDept.departmentHead}
                     onChange={(e) => setNewDept({ ...newDept, departmentHead: e.target.value })}
                   />
+                  {formErrors.departmentHead && <p className="text-sm text-destructive">{formErrors.departmentHead}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label>Business Unit</Label>
-                  <Select value={newDept.businessUnit} onValueChange={(value) => setNewDept({ ...newDept, businessUnit: value })}>
+                  <Label>Business Unit *</Label>
+                  <Select
+                    value={newDept.businessUnit}
+                    onValueChange={(value) => setNewDept({ ...newDept, businessUnit: value })}
+                  >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select an option" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Head Office">Head Office</SelectItem>
@@ -480,6 +425,9 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                       <SelectItem value="Chennai Regional Office">Chennai Regional Office</SelectItem>
                     </SelectContent>
                   </Select>
+                  {formErrors.businessUnit && (
+                    <p className="text-sm text-destructive">{formErrors.businessUnit}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Time Zone</Label>
@@ -490,7 +438,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                <Button variant="outline" onClick={() => { setShowAddDialog(false); resetNewDept(); }}>
                   Cancel
                 </Button>
                 <Button className="btn-add-purple" onClick={handleAdd}>

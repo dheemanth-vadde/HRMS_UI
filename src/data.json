@@ -247,5 +247,296 @@
     "Global Remittance",
     "Customer Analytics",
     "Cybersecurity Enhancement"
+  ],
+  "organization": {
+    "name": "Tech Solutions Pvt Ltd",
+    "domain": "IT Services",
+    "website": "www.techsolutions.com",
+    "employees": "150",
+    "established": "15-08-2010",
+    "customerCare": "9876543210",
+    "country": "India",
+    "state": "Telangana",
+    "category": "Software Development",
+    "headOffice": "Plot No 42, Hitech City, Hyderabad, Telangana - 500081",
+    "regionalOffice": "Brigade Towers, Bengaluru, Karnataka - 560025",
+    "logo": "/images/company-logo.png"
+  },
+  "businessUnits": [
+    {
+      "id": 1,
+      "name": "Head Office",
+      "code": "PNB-HO",
+      "startedOn": "12-04-1894",
+      "streetAddress": "7, Bhikaiji Cama Place",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "country": "India",
+      "timezone": "Asia/Kolkata [IST]"
+    },
+    {
+      "id": 2,
+      "name": "Mumbai Regional Office",
+      "code": "PNB-MUM",
+      "startedOn": "15-08-1947",
+      "streetAddress": "5, Chhatrapati Shivaji Maharaj Marg, Fort",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "country": "India",
+      "timezone": "Asia/Kolkata [IST]"
+    },
+    {
+      "id": 3,
+      "name": "Kolkata Regional Office",
+      "code": "PNB-KOL",
+      "startedOn": "22-03-1950",
+      "streetAddress": "33, Netaji Subhas Road",
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "country": "India",
+      "timezone": "Asia/Kolkata [IST]"
+    },
+    {
+      "id": 4,
+      "name": "Chennai Regional Office",
+      "code": "PNB-CHE",
+      "startedOn": "10-06-1955",
+      "streetAddress": "168, Anna Salai, Mount Road",
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "country": "India",
+      "timezone": "Asia/Kolkata [IST]"
+    },
+    {
+      "id": 5,
+      "name": "Bangalore Regional Office",
+      "code": "PNB-BLR",
+      "startedOn": "14-11-1960",
+      "streetAddress": "45, Mahatma Gandhi Road",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "timezone": "Asia/Kolkata [IST]"
+    },
+    {
+      "id": 6,
+      "name": "Hyderabad Regional Office",
+      "code": "PNB-HYD",
+      "startedOn": "05-09-1965",
+      "streetAddress": "6-3-879/B, Greenlands Road",
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "country": "India",
+      "timezone": "Asia/Kolkata [IST]"
+    },
+    {
+      "id": 7,
+      "name": "Pune Regional Office",
+      "code": "PNB-PUN",
+      "startedOn": "18-12-1972",
+      "streetAddress": "1134/1, Shivajinagar",
+      "city": "Pune",
+      "state": "Maharashtra",
+      "country": "India",
+      "timezone": "Asia/Kolkata [IST]"
+    },
+    {
+      "id": 8,
+      "name": "Ahmedabad Regional Office",
+      "code": "PNB-AMD",
+      "startedOn": "25-01-1978",
+      "streetAddress": "Ashram Road, Ellisbridge",
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "country": "India",
+      "timezone": "Asia/Kolkata [IST]"
+    }
+  ],
+  "organizationDepartments": [
+   {
+   "id":1,
+   "name":"Retail Banking",
+   "code":"RB",
+   "startedOn":"12-04-1894",
+   "departmentHead":"Rajesh Kumar Sharma",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":2,
+   "name":"Corporate Banking",
+   "code":"CB",
+   "startedOn":"15-06-1950",
+   "departmentHead":"Amit Verma",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":3,
+   "name":"Treasury Operations",
+   "code":"TO",
+   "startedOn":"22-03-1960",
+   "departmentHead":"Priya Deshmukh",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":4,
+   "name":"Risk Management",
+   "code":"RM",
+   "startedOn":"10-08-1985",
+   "departmentHead":"Suresh Reddy",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":5,
+   "name":"Credit & Recovery",
+   "code":"CR",
+   "startedOn":"05-11-1970",
+   "departmentHead":"Meena Iyer",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":6,
+   "name":"Human Resources",
+   "code":"HR",
+   "startedOn":"18-02-1955",
+   "departmentHead":"Deepak Singh",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":7,
+   "name":"Information Technology",
+   "code":"IT",
+   "startedOn":"12-09-1995",
+   "departmentHead":"Anil Kumar Gupta",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":8,
+   "name":"Digital Banking",
+   "code":"DB",
+   "startedOn":"20-04-2015",
+   "departmentHead":"Neha Kapoor",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":9,
+   "name":"Compliance & Legal",
+   "code":"CL",
+   "startedOn":"14-07-1980",
+   "departmentHead":"Vikram Malhotra",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":10,
+   "name":"International Banking",
+   "code":"IB",
+   "startedOn":"30-10-1988",
+   "departmentHead":"Sunita Patel",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":11,
+   "name":"Operations & Services",
+   "code":"OS",
+   "startedOn":"08-03-1965",
+   "departmentHead":"Ramesh Nair",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":12,
+   "name":"Internal Audit",
+   "code":"IA",
+   "startedOn":"25-12-1975",
+   "departmentHead":"Kavita Joshi",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":13,
+   "name":"Marketing & Communications",
+   "code":"MC",
+   "startedOn":"16-05-2000",
+   "departmentHead":"Rohit Mehta",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":14,
+   "name":"Priority Banking Services",
+   "code":"PBS",
+   "startedOn":"22-08-2010",
+   "departmentHead":"Anjali Rao",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+},
+{
+   "id":15,
+   "name":"MSME & Agriculture",
+   "code":"MA",
+   "startedOn":"11-01-1990",
+   "departmentHead":"Santosh Kumar",
+   "timezone":"Asia/Kolkata [IST]",
+   "businessUnit":"Head Office"
+}
+  ],
+  "organizationAnnocument": [
+    {
+   "id":1,
+   "title":"Festival Bonus Announcement",
+   "description":"The bank is pleased to announce the Diwali festival bonus for all employees. Details have been shared via email.",
+   "date":"2025-10-08",
+   "category":"Compensation",
+   "priority":"High"
+},
+{
+   "id":2,
+   "title":"Digital Banking Initiative Launch",
+   "description":"PNB launches new digital banking services. All employees are requested to attend the training session on October 18, 2025.",
+   "date":"2025-10-07",
+   "category":"Training",
+   "priority":"High"
+},
+{
+   "id":3,
+   "title":"Branch Network Expansion",
+   "description":"PNB is expanding its branch network with 200+ new branches across rural India. Opportunities for transfers and promotions available.",
+   "date":"2025-10-06",
+   "category":"Expansion",
+   "priority":"Medium"
+},
+{
+   "id":4,
+   "title":"Quarterly Performance Review",
+   "description":"Q3 performance review cycle begins from October 15, 2025. All employees must complete self-assessment by October 30.",
+   "date":"2025-10-05",
+   "category":"Performance",
+   "priority":"High"
+},
+{
+   "id":5,
+   "title":"Cybersecurity Awareness Week",
+   "description":"Join us for Cybersecurity Awareness Week from October 20-26. Mandatory training sessions for all staff members.",
+   "date":"2025-10-04",
+   "category":"Security",
+   "priority":"High"
+},
+{
+   "id":6,
+   "title":"Health & Wellness Program",
+   "description":"New health insurance benefits and wellness programs now available. Visit HR portal for enrollment details.",
+   "date":"2025-10-02",
+   "category":"Benefits",
+   "priority":"Medium"
+}
   ]
 }

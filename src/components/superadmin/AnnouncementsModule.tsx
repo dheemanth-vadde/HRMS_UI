@@ -44,78 +44,76 @@ import {
   TabsList,
   TabsTrigger,
 } from "../ui/tabs";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
+import { organizationAnnocument } from "../../data.json";
+import { getValidationError } from "../../utils/validations"; // ✅ same as in Department module
 
-const initialAnnouncements = [
-  {
-    id: 1,
-    title: "Festival Bonus Announcement",
-    description: "The bank is pleased to announce the Diwali festival bonus for all employees. Details have been shared via email.",
-    date: "2025-10-08",
-    category: "Compensation",
-    priority: "High",
-  },
-  {
-    id: 2,
-    title: "Digital Banking Initiative Launch",
-    description: "PNB launches new digital banking services. All employees are requested to attend the training session on October 18, 2025.",
-    date: "2025-10-07",
-    category: "Training",
-    priority: "High",
-  },
-  {
-    id: 3,
-    title: "Branch Network Expansion",
-    description: "PNB is expanding its branch network with 200+ new branches across rural India. Opportunities for transfers and promotions available.",
-    date: "2025-10-06",
-    category: "Expansion",
-    priority: "Medium",
-  },
-  {
-    id: 4,
-    title: "Quarterly Performance Review",
-    description: "Q3 performance review cycle begins from October 15, 2025. All employees must complete self-assessment by October 30.",
-    date: "2025-10-05",
-    category: "Performance",
-    priority: "High",
-  },
-  {
-    id: 5,
-    title: "Cybersecurity Awareness Week",
-    description: "Join us for Cybersecurity Awareness Week from October 20-26. Mandatory training sessions for all staff members.",
-    date: "2025-10-04",
-    category: "Security",
-    priority: "High",
-  },
-  {
-    id: 6,
-    title: "Health & Wellness Program",
-    description: "New health insurance benefits and wellness programs now available. Visit HR portal for enrollment details.",
-    date: "2025-10-02",
-    category: "Benefits",
-    priority: "Medium",
-  },
-];
 
 interface AnnouncementsModuleProps {
   viewOnly?: boolean;
 }
 
 export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModuleProps) {
-  const [announcements, setAnnouncements] = useState(initialAnnouncements);
+  const [announcements, setAnnouncements] = useState(organizationAnnocument);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [announcementToDelete, setAnnouncementToDelete] = useState<number | null>(null);
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string | null }>({});
+
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: "",
     description: "",
-    date: new Date().toISOString().split('T')[0],
-    category: "General",
-    priority: "Medium",
+    date: "",
+    category: "",
+    priority: "",
   });
+  const resetNewAnnoc = () => {
+    setNewAnnouncement({
+      title: "",
+      description: "",
+      date: "",
+      category: "",
+      priority: "",
+    });
+    setFormErrors({});
+  };
 
+  //  Validation logic (same style as DepartmentsModule)
+  const validateAnnouncementForm = (announcement: typeof newAnnouncement) => {
+    const errors: { [key: string]: string | null } = {};
+    const requiredFields: (keyof typeof newAnnouncement)[] = ["title", "date", "category", "priority"];
+
+    for (const field of requiredFields) {
+      const value = announcement[field];
+
+      let error = getValidationError(
+        "noSpaces",
+        value,
+        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
+      );
+      if (error) {
+        errors[String(field)] = error;
+        continue;
+      }
+
+      error = getValidationError(
+        "required",
+        value,
+        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
+      );
+      if (error) errors[String(field)] = error;
+    }
+
+    return errors;
+  };
+
+  //  Add with validation
   const handleAdd = () => {
+    const errors = validateAnnouncementForm(newAnnouncement);
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     const announcementToAdd = {
       id: announcements.length + 1,
       ...newAnnouncement,
@@ -126,19 +124,29 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       title: "",
       description: "",
       date: new Date().toISOString().split('T')[0],
-      category: "General",
-      priority: "Medium",
+      category: "",
+      priority: "",
     });
+    setFormErrors({});
+    resetNewAnnoc();
     toast.success("Announcement published successfully!");
   };
 
   const handleEdit = (announcement: any) => {
     setEditingAnnouncement({ ...announcement });
+    setFormErrors({});
   };
 
+  // Update with validation
   const handleUpdate = () => {
+    if (!editingAnnouncement) return;
+    const errors = validateAnnouncementForm(editingAnnouncement);
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     setAnnouncements(announcements.map(a => a.id === editingAnnouncement.id ? editingAnnouncement : a));
     setEditingAnnouncement(null);
+    setFormErrors({});
     toast.success("Announcement updated successfully!");
   };
 
@@ -188,7 +196,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       </div>
 
       <Card>
-        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-secondary/5">
+        {/* <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-secondary/5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-lg bg-white shadow-sm">
@@ -200,7 +208,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
               <Search className="size-4" />
             </Button>
           </div>
-        </CardHeader>
+        </CardHeader> */}
         <CardContent className="p-6">
           <div className="space-y-4">
             {announcements.map((announcement) => (
@@ -209,11 +217,12 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                   {editingAnnouncement?.id === announcement.id ? (
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label>Title</Label>
+                        <Label>Title *</Label>
                         <Input
                           value={editingAnnouncement.title}
                           onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, title: e.target.value })}
                         />
+                        {formErrors.title && <p className="text-sm text-destructive">{formErrors.title}</p>}
                       </div>
                       <div className="space-y-2">
                         <Label>Description</Label>
@@ -225,11 +234,13 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Category</Label>
+                          <Label>Date *</Label>
                           <Input
-                            value={editingAnnouncement.category}
-                            onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, category: e.target.value })}
+                            type="date"
+                            value={editingAnnouncement.date}
+                            onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, date: e.target.value })}
                           />
+                          {formErrors.date && <p className="text-sm text-destructive">{formErrors.date}</p>}
                         </div>
                         <div className="space-y-2">
                           <Label>Priority</Label>
@@ -237,9 +248,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                             value={editingAnnouncement.priority}
                             onValueChange={(value) => setEditingAnnouncement({ ...editingAnnouncement, priority: value })}
                           >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
                               <SelectItem value="High">High</SelectItem>
                               <SelectItem value="Medium">Medium</SelectItem>
@@ -249,12 +258,8 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                         </div>
                       </div>
                       <div className="flex gap-2 justify-end">
-                        <Button variant="outline" onClick={() => setEditingAnnouncement(null)}>
-                          Cancel
-                        </Button>
-                        <Button onClick={handleUpdate}>
-                          Save Changes
-                        </Button>
+                        <Button variant="outline" onClick={() => setEditingAnnouncement(null)}>Cancel</Button>
+                        <Button onClick={handleUpdate}>Save Changes</Button>
                       </div>
                     </div>
                   ) : (
@@ -262,21 +267,17 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-semibold">{announcement.title}</h3>
-                          <Badge 
-                            variant={announcement.priority === "High" ? "destructive" : "secondary"}
-                          >
+                          <Badge variant={announcement.priority === "High" ? "destructive" : "secondary"}>
                             {announcement.priority}
                           </Badge>
                           <Badge variant="outline">{announcement.category}</Badge>
                         </div>
-                        <p className="text-muted-foreground text-sm mb-2">
-                          {announcement.description}
-                        </p>
+                        <p className="text-muted-foreground text-sm mb-2">{announcement.description}</p>
                         <p className="text-xs text-muted-foreground">
-                          Posted on: {new Date(announcement.date).toLocaleDateString('en-IN', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
+                          Posted on: {new Date(announcement.date).toLocaleDateString("en-IN", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
                           })}
                         </p>
                       </div>
@@ -288,16 +289,14 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => handleEdit(announcement)}>
-                            <Edit className="size-4 mr-2" />
-                            Edit
+                            <Edit className="size-4 mr-2" /> Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => handleDeleteClick(announcement.id)}
                             className="text-destructive focus:text-destructive"
                           >
-                            <Trash2 className="size-4 mr-2" />
-                            Delete
+                            <Trash2 className="size-4 mr-2" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -307,7 +306,6 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
               </Card>
             ))}
           </div>
-
           {announcements.length === 0 && (
             <div className="text-center py-12">
               <Megaphone className="size-12 mx-auto text-muted-foreground mb-4" />
@@ -317,12 +315,16 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                 Create First Announcement
               </Button>
             </div>
-          )}
-        </CardContent>
+          )}        </CardContent>
       </Card>
 
-      {/* Add/Import Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      {/* Add Dialog with validation */}
+      <Dialog open={showAddDialog}
+        //</div>onOpenChange={setShowAddDialog}
+        onOpenChange={(open: boolean) => {
+          setShowAddDialog(open);
+          if (!open) resetNewAnnoc(); // Reset the form when dialog is closed
+        }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>New Announcement</DialogTitle>
@@ -340,12 +342,13 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
             <TabsContent value="manual" className="space-y-4 mt-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Title</Label>
+                  <Label>Title *</Label>
                   <Input
                     placeholder="Enter announcement title"
                     value={newAnnouncement.title}
                     onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
                   />
+                  {formErrors.title && <p className="text-sm text-destructive">{formErrors.title}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Description</Label>
@@ -358,62 +361,58 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Date</Label>
+                    <Label>Date *</Label>
                     <Input
                       type="date"
                       value={newAnnouncement.date}
                       onChange={(e) => setNewAnnouncement({ ...newAnnouncement, date: e.target.value })}
                     />
+                    {formErrors.date && <p className="text-sm text-destructive">{formErrors.date}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Category</Label>
+                    <Label>Category *</Label>
                     <Select
                       value={newAnnouncement.category}
                       onValueChange={(value) => setNewAnnouncement({ ...newAnnouncement, category: value })}
                     >
                       <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                      <SelectValue placeholder="Select a option" />
+                    </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="General">General</SelectItem>
-                        <SelectItem value="Compensation">Compensation</SelectItem>
                         <SelectItem value="Training">Training</SelectItem>
                         <SelectItem value="Performance">Performance</SelectItem>
                         <SelectItem value="Security">Security</SelectItem>
-                        <SelectItem value="Benefits">Benefits</SelectItem>
-                        <SelectItem value="Expansion">Expansion</SelectItem>
                       </SelectContent>
                     </Select>
+                    {formErrors.category && <p className="text-sm text-destructive">{formErrors.category}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Priority</Label>
+                    <Label>Priority *</Label>
                     <Select
                       value={newAnnouncement.priority}
                       onValueChange={(value) => setNewAnnouncement({ ...newAnnouncement, priority: value })}
                     >
                       <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                      <SelectValue placeholder="Select a option" />
+                    </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="High">High</SelectItem>
                         <SelectItem value="Medium">Medium</SelectItem>
                         <SelectItem value="Low">Low</SelectItem>
                       </SelectContent>
                     </Select>
+                    {formErrors.priority && <p className="text-sm text-destructive">{formErrors.priority}</p>}
                   </div>
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                  Cancel
-                </Button>
+                <Button variant="outline" onClick={() => { setShowAddDialog(false); resetNewAnnoc() }}>Cancel</Button>
                 <Button className="btn-add-purple" onClick={handleAdd}>
-                  <Plus className="size-4 mr-2" />
-                  Publish Announcement
+                  <Plus className="size-4 mr-2" /> Publish Announcement
                 </Button>
               </DialogFooter>
             </TabsContent>
-
             <TabsContent value="import" className="space-y-4 mt-4">
               <div className="border-2 border-dashed rounded-lg p-8">
                 <div className="text-center space-y-4">
@@ -466,18 +465,21 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the announcement from the system.
+              This action will permanently delete the announcement.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
