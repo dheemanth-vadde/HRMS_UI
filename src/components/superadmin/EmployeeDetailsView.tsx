@@ -1,20 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { ArrowLeft, UserCircle } from "lucide-react";
 import { cn } from "../ui/utils";
+import api from "../../services/interceptors";
+import EMPLOYEE_ENDPOINTS from "../../services/employeeEndpoints";
+import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
+import DESIGNATION_ENDPOINTS from "../../services/designationEndpoints";
+import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
 
 interface Employee {
   id: number;
   employeeId: string;
-  name: string;
-  email: string;
-  phone: string;
-  designation: string;
-  department: string;
+  fullName: string;
+  emailAddress: string;
+  contactNumber: string;
+  designationId: string;
+  deptId: string;
   businessUnit: string;
-  employmentType: string;
-  joiningDate: string;
+  userStatus: string;
+  selectedDate: string;
   status: string;
   division?: string;
   l1Manager?: string;
@@ -25,7 +30,7 @@ interface Employee {
   prefix?: string;
   firstName?: string;
   lastName?: string;
-  role?: string;
+  empRole?: string;
   modeOfEmployment?: string;
   previousExperience?: string;
   workTelephone?: string;
@@ -38,7 +43,12 @@ interface EmployeeDetailsViewProps {
 }
 
 export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewProps) {
+  const [employeeDetails, setEmployeeDetails] = useState<Employee | null>(employee);
   const [activeTab, setActiveTab] = useState("official");
+  const [loading, setLoading] = useState(true);
+  const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
+  const [designations, setDesignations] = useState<{ id: string; name: string }[]>([]);
+  const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
 
   const getInitials = (name: string) => {
     return name
@@ -60,67 +70,167 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
     return colors[id % colors.length];
   };
 
+  useEffect(() => {
+    const fetchEmployeeDetails = async () => {
+      try {
+        setLoading(true);
+        console.log("Fetching details for employee ID:", employee);
+        const response = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEE_BY_ID(employee.id));
+        setEmployeeDetails(response.data.data); // ensure backend returns employee object
+        console.log(response.data.data);
+      } catch (error) {
+        console.error("Error fetching employee details:", error);
+        // toast.error("Failed to load employee details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (employee && employee.id) {
+      fetchEmployeeDetails();
+    }
+  }, [employee]);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS);
+        const deptData = response?.data?.data || [];
+        // map to { id, name } for Select usage
+        const mappedDepartments = deptData.map((d: any) => ({ id: d.id, name: d.deptName }));
+        setDepartments(mappedDepartments);
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+        setDepartments([]); // fallback empty
+      }
+    };
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    const fetchDesignations = async () => {
+      try {
+        const response = await api.get(DESIGNATION_ENDPOINTS.GET_DESIGNATIONS);
+        const designationData = response?.data?.data || [];
+        // map to { id, name } for Select usage
+        const mappedDesignations = designationData.map((d: any) => ({ id: d.id, name: d.designationName }));
+        setDesignations(mappedDesignations);
+      } catch (err) {
+        console.error("Error fetching designations:", err);
+        setDesignations([]); // fallback empty
+      }
+    };
+    fetchDesignations();
+  }, []);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await api.get(ROLES_ENDPOINTS.GET_ROLES);
+        const rolesData = response?.data?.data || [];
+        // map to { id, name } for Select usage
+        const mappedRoles = rolesData.map((d: any) => ({ id: d.id, name: d.roleName }));
+        setRoles(mappedRoles);
+      } catch (err) {
+        console.error("Error fetching roles:", err);
+        setRoles([]); // fallback empty
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  const getDepartmentName = (deptId: any) => {
+    const dept = departments.find((d) => d.id === deptId);
+    return dept ? dept.name : deptId || "-";
+  };
+
+  const getDesignationName = (designationId: any) => {
+    const designation = designations.find((d) => d.id === designationId);
+    return designation ? designation.name : designationId || "-";
+  };
+
+  const getRolesName = (roleId: any) => {
+    const role = roles.find((d) => d.id === roleId);
+    return role ? role.name : roleId || "-";
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        Loading employee details...
+      </div>
+    );
+  }
+
+  if (!employeeDetails) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        No employee details found.
+      </div>
+    );
+  }
+
   const renderOfficialTab = () => (
     <div className="grid grid-cols-2 gap-x-12 gap-y-4">
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Employee Id</label>
-        <p className="text-sm font-medium text-primary">{employee.employeeId}</p>
+        <p className="text-sm font-medium text-primary">{employeeDetails.employeeId}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">First Name</label>
-        <p className="text-sm">{employee.firstName || employee.name.split(" ")[0]}</p>
+        <p className="text-sm">{employeeDetails.firstName || employeeDetails.fullName.split(" ")[0]}</p>
       </div>
-      <div className="space-y-1">
+      {/* <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Prefix</label>
         <p className="text-sm">{employee.prefix || "Mr"}</p>
-      </div>
+      </div> */}
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Last Name</label>
-        <p className="text-sm">{employee.lastName || employee.name.split(" ").slice(1).join(" ")}</p>
+        <p className="text-sm">{employeeDetails.lastName || employeeDetails.fullName.split(" ").slice(1).join(" ")}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Role</label>
-        <p className="text-sm">{employee.role || "Employee"}</p>
+        <p className="text-sm">{getRolesName(employeeDetails.empRole) || "-"}</p>
       </div>
-      <div className="space-y-1">
+      {/* <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Mode of Employment</label>
         <p className="text-sm">{employee.modeOfEmployment || employee.employmentType}</p>
-      </div>
+      </div> */}
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Email</label>
-        <p className="text-sm text-primary">{employee.email}</p>
+        <p className="text-sm text-primary">{employeeDetails.emailAddress || '-'}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Department</label>
-        <p className="text-sm">{employee.department}</p>
+        <p className="text-sm">{getDepartmentName(employeeDetails.deptId) || '-'}</p>
       </div>
-      <div className="space-y-1">
+      {/* <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Division</label>
         <p className="text-sm">{employee.division || "CORP-FIN-DIV"}</p>
-      </div>
+      </div> */}
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Exit Type</label>
-        <p className="text-sm">{employee.status === "Active" ? "-" : "Voluntary"}</p>
+        <p className="text-sm">{employeeDetails.userStatus === "Active" ? "-" : "Voluntary"}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Business Unit</label>
-        <p className="text-sm">{employee.businessUnit}</p>
+        <p className="text-sm">{employeeDetails.businessUnit || '-'}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">L1 Manager</label>
-        <p className="text-sm">{employee.l1Manager || "Rajesh Sharma"}</p>
+        <p className="text-sm">{employeeDetails.l1Manager || "-"}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">L2 Manager</label>
-        <p className="text-sm">{employee.l2Manager || "Amit Verma"}</p>
+        <p className="text-sm">{employeeDetails.l2Manager || "-"}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Date of Joining</label>
-        <p className="text-sm">{employee.joiningDate}</p>
+        <p className="text-sm">{employeeDetails.selectedDate}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">CUP Manager</label>
-        <p className="text-sm">{employee.cupManager || "Sunil Kapoor"}</p>
+        <p className="text-sm">{employeeDetails.cupManager || "-"}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Extension</label>
@@ -128,27 +238,27 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Designation</label>
-        <p className="text-sm">{employee.designation}</p>
+        <p className="text-sm">{getDesignationName(employeeDetails.designationId) || '-'}</p>
       </div>
       <div className="space-y-1">
-        <label className="text-xs text-muted-foreground">DOB skills</label>
-        <p className="text-sm">{employee.dob || "Tax"}</p>
+        <label className="text-xs text-muted-foreground">Date of Birth</label>
+        <p className="text-sm">{employeeDetails.dob || "-"}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Employment Status</label>
-        <p className="text-sm">{employee.employmentType}</p>
+        <p className="text-sm">{employeeDetails.userStatus || '-'}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Date of Leaving</label>
-        <p className="text-sm">{employee.dateOfLeaving || "--"}</p>
+        <p className="text-sm">{employeeDetails.dateOfLeaving || "--"}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Previous Experience(months)</label>
-        <p className="text-sm">{employee.previousExperience || "--"}</p>
+        <p className="text-sm">{employeeDetails.previousExperience || "--"}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Work Telephone Number</label>
-        <p className="text-sm">{employee.workTelephone || employee.phone}</p>
+        <p className="text-sm">{employeeDetails.workTelephone || employeeDetails.contactNumber || '-'}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Extension</label>
@@ -156,7 +266,7 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Fax</label>
-        <p className="text-sm">{employee.fax || "-"}</p>
+        <p className="text-sm">{employeeDetails.fax || "-"}</p>
       </div>
     </div>
   );
@@ -217,19 +327,19 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
             <div className="flex-1 grid grid-cols-2 gap-x-12 gap-y-3">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Employee Name</p>
-                <p className="font-medium">: {employee.name}</p>
+                <p className="font-medium">{employeeDetails.fullName}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Employee Id</p>
-                <p className="font-medium text-primary">: {employee.employeeId}</p>
+                <p className="font-medium text-primary">{employeeDetails.employeeId}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Email Id</p>
-                <p className="font-medium text-primary">: {employee.email}</p>
+                <p className="font-medium text-primary">{employeeDetails.emailAddress}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Contact Number</p>
-                <p className="font-medium">: {employee.phone}</p>
+                <p className="font-medium">{employeeDetails.contactNumber}</p>
               </div>
             </div>
           </div>

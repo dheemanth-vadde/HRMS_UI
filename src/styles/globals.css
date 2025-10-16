@@ -453,3 +453,7 @@ html {
   box-shadow: 0 12px 24px -5px rgba(0, 0, 0, 0.1);
   border-color: #d1d5db;
 }
+
+.error_text {
+  color: red;
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -56,14 +56,22 @@ import {
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
 import { cn } from "../ui/utils";
+import '../../styles/globals.css';
 import data from "../../data.json";
+import api from "../../services/interceptors";
+import { EMPLOYEE_ENDPOINTS } from "../../services/employeeEndpoints";
+import { getValidationError } from "../../utils/validations";
+import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
+import DESIGNATION_ENDPOINTS from "../../services/designationEndpoints";
+import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
 
 interface EmployeeInfoModuleProps {
   viewOnly?: boolean;
 }
 
 export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps) {
-  const [employees, setEmployees] = useState(data.employees);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -75,58 +83,170 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterLocation, setFilterLocation] = useState("all");
   const [newEmployee, setNewEmployee] = useState({
-    employeeId: "",
-    name: "",
+    fullName: "",
     personalEmail: "",
-    companyEmail: "",
-    phone: "",
-    department: "",
-    designation: "",
-    role: "",
-    project: "",
-    joiningDate: "",
-    location: "Head Office",
-    status: "Active",
-    type: "Full-time",
-    manager: "",
-    reports: 0,
+    emailAddress: "",
+    contactNumber: "",
+    deptId: "",         // was department
+    designationId: "",  // was designation
+    empRole: "",        // was role
+    selectedDate: "",   // was joiningDate
+    userStatus: "Active", // was status
   });
+  const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
+  const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
+  const [designations, setDesignations] = useState<{ id: string; name: string }[]>([]);
+  const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
 
-  const handleAdd = () => {
-    const employeeToAdd = {
-      id: employees.length + 1,
-      ...newEmployee,
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEES);
+        // Assuming API returns data in response.data
+        setEmployees(response?.data?.data);
+        console.log(response?.data?.data);
+      } catch (err) {
+        console.error("Error fetching employees:", err);
+        setEmployees(data.employees); // fallback to static data
+        // setError("Failed to load employee data");
+      } finally {
+        setLoading(false);
+      }
     };
-    setEmployees([...employees, employeeToAdd]);
-    setShowAddDialog(false);
-    setNewEmployee({
-      employeeId: "",
-      name: "",
-      personalEmail: "",
-      companyEmail: "",
-      phone: "",
-      department: "",
-      designation: "",
-      role: "",
-      project: "",
-      joiningDate: "",
-      location: "Head Office",
-      status: "Active",
-      type: "Full-time",
-      manager: "",
-      reports: 0,
-    });
-    toast.success("Employee added successfully!");
+
+    fetchEmployees();
+  }, []);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS);
+        const deptData = response?.data?.data || [];
+        // map to { id, name } for Select usage
+        const mappedDepartments = deptData.map((d: any) => ({ id: d.id, name: d.deptName }));
+        setDepartments(mappedDepartments);
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+        setDepartments([]); // fallback empty
+      }
+    };
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    const fetchDesignations = async () => {
+      try {
+        const response = await api.get(DESIGNATION_ENDPOINTS.GET_DESIGNATIONS);
+        const designationData = response?.data?.data || [];
+        // map to { id, name } for Select usage
+        const mappedDesignations = designationData.map((d: any) => ({ id: d.id, name: d.designationName }));
+        setDesignations(mappedDesignations);
+      } catch (err) {
+        console.error("Error fetching designations:", err);
+        setDesignations([]); // fallback empty
+      }
+    };
+    fetchDesignations();
+  }, []);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await api.get(ROLES_ENDPOINTS.GET_ROLES);
+        const rolesData = response?.data?.data || [];
+        // map to { id, name } for Select usage
+        const mappedRoles = rolesData.map((d: any) => ({ id: d.id, name: d.roleName }));
+        setRoles(mappedRoles);
+      } catch (err) {
+        console.error("Error fetching roles:", err);
+        setRoles([]); // fallback empty
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  const handleAdd = async () => {
+    const isValid = validateAllNewEmployee();
+    if (!isValid) {
+      toast.error("Please fix validation errors before adding.");
+      return; // stop — errors are shown inline
+    }
+
+    try {
+      setLoading(true);
+      const response = await api.post(EMPLOYEE_ENDPOINTS.POST_EMPLOYEE, newEmployee);
+      const createdEmployee = response.data.data;
+      setEmployees([...employees, createdEmployee]);
+      setShowAddDialog(false);
+      setNewEmployee({
+        fullName: "",
+        personalEmail: "",
+        emailAddress: "",
+        contactNumber: "",
+        deptId: "",
+        designationId: "",
+        empRole: "",
+        selectedDate: "",
+        userStatus: "Active",
+      });
+
+      // Clear errors
+      setErrors(prev => {
+        const copy = { ...prev };
+        Object.keys(copy).forEach(k => {
+          if (k.startsWith("new_")) copy[k] = null;
+        });
+        return copy;
+      });
+
+      toast.success("Employee added successfully!");
+    } catch (error: any) {
+      console.error("Error creating employee:", error);
+      // toast.error(error?.response?.data?.message || "Failed to add employee.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEdit = (employee: any) => {
     setEditingEmployee({ ...employee });
   };
 
-  const handleUpdate = () => {
-    setEmployees(employees.map(e => e.id === editingEmployee.id ? editingEmployee : e));
-    setEditingEmployee(null);
-    toast.success("Employee updated successfully!");
+  const handleUpdate = async () => {
+    // const isValid = validateAllNewEmployee();
+    // if (!isValid) {
+    //   toast.error("Please fix validation errors before updating.");
+    //   return;
+    // }
+    try {
+      setLoading(true);
+      const response = await api.put(
+        `${EMPLOYEE_ENDPOINTS.UPDATE_EMPLOYEE}/${editingEmployee.id}`,
+        editingEmployee
+      );
+      const updatedEmployee = response.data.data;
+      setEmployees((prev) =>
+        prev.map((emp) =>
+          emp.id === editingEmployee.id ? updatedEmployee : emp
+        )
+      );
+      setEditingEmployee(null);
+      setShowAddDialog(false);
+      setErrors((prev) => {
+        const copy = { ...prev };
+        Object.keys(copy).forEach((k) => {
+          if (k.startsWith("new_")) copy[k] = null;
+        });
+        return copy;
+      });
+      toast.success("Employee updated successfully!");
+    } catch (error: any) {
+      console.error("Error updating employee:", error);
+      // toast.error(error?.response?.data?.message || "Failed to update employee.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteClick = (id: number) => {
@@ -134,12 +254,19 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     setDeleteConfirmOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (employeeToDelete !== null) {
-      setEmployees(employees.filter(e => e.id !== employeeToDelete));
-      toast.success("Employee deleted successfully!");
-      setDeleteConfirmOpen(false);
-      setEmployeeToDelete(null);
+      try {
+        await api.delete(EMPLOYEE_ENDPOINTS.DELETE_EMPLOYEE(employeeToDelete));
+        setEmployees(employees.filter(e => e.id !== employeeToDelete));
+        toast.success("Employee deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting employee:", error);
+        // toast.error("Failed to delete employee. Please try again.");
+      } finally {
+        setDeleteConfirmOpen(false);
+        setEmployeeToDelete(null);
+      }
     }
   };
 
@@ -151,15 +278,71 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     }
   };
 
-  const filteredEmployees = employees.filter(emp => {
-    const matchesSearch = emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.employeeId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.department.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDepartment = filterDepartment === "all" || emp.department === filterDepartment;
-    const matchesStatus = filterStatus === "all" || emp.status === filterStatus;
-    const matchesLocation = filterLocation === "all" || emp.location === filterLocation;
-    return matchesSearch && matchesDepartment && matchesStatus && matchesLocation;
-  });
+  const validateField = (field: string, value: string): string | null => {
+    let error: string | null = null;
+    if (!value || value.trim() === "") {
+      error = "This field is required.";
+    }
+
+    // email / phone format checks (only if not empty)
+    if (!error) {
+      if (field === "personalEmail" || field === "emailAddress") {
+        error = getValidationError("email", value);
+      } else if (field === "contactNumber") {
+        error = getValidationError("phone", value);
+      }
+    }
+
+    setErrors(prev => ({ ...prev, [`new_${field}`]: error }));
+    return error;
+  };
+
+  // validate all required fields for newEmployee on submit
+  const validateAllNewEmployee = (): boolean => {
+    const requiredFields = [
+      "fullName",
+      "personalEmail",
+      "emailAddress",
+      "contactNumber",
+      "deptId",
+      "designationId",
+      "empRole",
+      "selectedDate",
+    ];
+
+    const newErrors: { [key: string]: string | null } = { ...errors };
+
+    requiredFields.forEach(field => {
+      const value = (newEmployee as any)[field] ?? "";
+      let error: string | null = null;
+
+      if (!value || String(value).trim() === "") {
+        error = "This field is required.";
+      } else {
+        if (field === "personalEmail" || field === "emailAddress") {
+          error = getValidationError("email", value);
+        } else if (field === "contactNumber") {
+          error = getValidationError("phone", value);
+        }
+      }
+      newErrors[`new_${field}`] = error;
+    });
+
+    setErrors(newErrors);
+    // if any error exists -> return false (invalid)
+    return !Object.values(newErrors).some(v => v !== null);
+  };
+  console.log(employees)
+  const filteredEmployees = Array.isArray(employees)
+  ? employees.filter(emp => {
+      const matchesSearch = emp.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        emp.deptId.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDepartment = filterDepartment === "all" || emp.deptId === filterDepartment;
+      const matchesStatus = filterStatus === "all" || emp.status === filterStatus;
+      const matchesLocation = filterLocation === "all" || emp.location === filterLocation;
+      return matchesSearch && matchesDepartment && matchesStatus && matchesLocation;
+    })
+  : [];
 
   const getInitials = (name: string) => {
     return name
@@ -241,8 +424,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Departments</SelectItem>
-                  {data.departments.map(dept => (
-                    <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                  {departments.map(dept => (
+                    <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -334,14 +517,14 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <div className="mb-4 relative">
                   <div className={cn(
                     "size-20 rounded-full bg-gradient-to-br flex items-center justify-center text-white shadow-lg",
-                    getAvatarColor(employee.id)
+                    getAvatarColor(employee.employeeId)
                   )}>
-                    <span className="text-xl font-bold">{getInitials(employee.name)}</span>
+                    <span className="text-xl font-bold">{getInitials(employee.fullName)}</span>
                   </div>
                 </div>
 
                 {/* Employee Name */}
-                <h3 className="font-semibold text-base mb-1">{employee.name}</h3>
+                <h3 className="font-semibold text-base mb-1">{employee.fullName}</h3>
                 
                 {/* Designation */}
                 <p className="text-sm text-muted-foreground mb-1">{employee.designation}</p>
@@ -358,11 +541,11 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <div className="w-full space-y-2 mb-4">
                   <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                     <Phone className="size-3.5 flex-shrink-0" />
-                    <span>{employee.phone}</span>
+                    <span>{employee.contactNumber}</span>
                   </div>
                   <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                     <Mail className="size-3.5 flex-shrink-0" />
-                    <span className="truncate">{employee.companyEmail}</span>
+                    <span className="truncate">{employee.emailAddress}</span>
                   </div>
                 </div>
 
@@ -413,11 +596,11 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                               color: `hsl(${(employee.id * 137.5) % 360}, 45%, 35%)`
                             }}
                           >
-                            {getInitials(employee.name)}
+                            {getInitials(employee.fullName)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium text-sm">{employee.name}</div>
+                          <div className="font-medium text-sm">{employee.fullName}</div>
                           <div className="text-xs text-muted-foreground">{employee.employeeId}</div>
                         </div>
                       </div>
@@ -521,21 +704,25 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
 
             <TabsContent value="manual" className="space-y-4 mt-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label>Employee ID *</Label>
                   <Input
                     placeholder="e.g., PNB011"
                     value={newEmployee.employeeId}
                     onChange={(e) => setNewEmployee({ ...newEmployee, employeeId: e.target.value })}
                   />
-                </div>
+                </div> */}
                 <div className="space-y-2">
                   <Label>Full Name *</Label>
                   <Input
                     placeholder="Enter full name"
-                    value={newEmployee.name}
-                    onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
+                    value={newEmployee.fullName}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, fullName: e.target.value })}
+                    onBlur={(e) => validateField("fullName", e.target.value)}
                   />
+                  {errors["new_name"] && (
+                    <small className="error_text">{errors["new_name"]}</small>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Personal Email *</Label>
@@ -544,37 +731,45 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     placeholder="personal.email@gmail.com"
                     value={newEmployee.personalEmail}
                     onChange={(e) => setNewEmployee({ ...newEmployee, personalEmail: e.target.value })}
+                    onBlur={(e) => validateField("personalEmail", e.target.value)}
                   />
+                  {errors["new_personalEmail"] && (
+                    <small className="error_text">{errors["new_personalEmail"]}</small>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Company Email *</Label>
                   <Input
                     type="email"
-                    placeholder="employee@pnb.co.in"
-                    value={newEmployee.companyEmail}
-                    onChange={(e) => setNewEmployee({ ...newEmployee, companyEmail: e.target.value })}
+                    placeholder="employee@sentrifugo.in"
+                    value={newEmployee.emailAddress}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, emailAddress: e.target.value })}
+                    onBlur={(e) => validateField("emailAddress", e.target.value)}
                   />
+                  {errors["new_emailAddress"] && (
+                    <small className="error_text">{errors["new_emailAddress"]}</small>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Phone Number *</Label>
                   <Input
-                    placeholder="+91 98765 43210"
-                    value={newEmployee.phone}
-                    onChange={(e) => setNewEmployee({ ...newEmployee, phone: e.target.value })}
+                    placeholder="9876543210"
+                    value={newEmployee.contactNumber}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, contactNumber: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Department *</Label>
                   <Select
-                    value={newEmployee.department}
-                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, department: value })}
+                    value={newEmployee.deptId}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, deptId: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
-                      {data.departments.map(dept => (
-                        <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                      {departments.map(dept => (
+                        <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -582,15 +777,15 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <div className="space-y-2">
                   <Label>Designation *</Label>
                   <Select
-                    value={newEmployee.designation}
-                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, designation: value })}
+                    value={newEmployee.designationId}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, designationId: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select designation" />
                     </SelectTrigger>
                     <SelectContent>
-                      {data.designations.map(designation => (
-                        <SelectItem key={designation} value={designation}>{designation}</SelectItem>
+                      {designations.map(designation => (
+                        <SelectItem key={designation.id} value={designation.id}>{designation.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -598,20 +793,20 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <div className="space-y-2">
                   <Label>Role *</Label>
                   <Select
-                    value={newEmployee.role}
-                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, role: value })}
+                    value={newEmployee.empRole}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, empRole: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {data.roles.map(role => (
-                        <SelectItem key={role} value={role}>{role}</SelectItem>
+                      {roles.map(role => (
+                        <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label>Project</Label>
                   <Select
                     value={newEmployee.project}
@@ -626,16 +821,16 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
                 <div className="space-y-2">
                   <Label>Joining Date *</Label>
                   <Input
                     placeholder="DD-MM-YYYY"
-                    value={newEmployee.joiningDate}
-                    onChange={(e) => setNewEmployee({ ...newEmployee, joiningDate: e.target.value })}
+                    value={newEmployee.selectedDate}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, selectedDate: e.target.value })}
                   />
                 </div>
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label>Location *</Label>
                   <Select
                     value={newEmployee.location}
@@ -650,12 +845,12 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
                 <div className="space-y-2">
                   <Label>Status</Label>
                   <Select
-                    value={newEmployee.status}
-                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, status: value })}
+                    value={newEmployee.userStatus}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, userStatus: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -756,18 +951,19 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Employee ID *</Label>
                 <Input
                   value={editingEmployee.employeeId}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, employeeId: e.target.value })}
+                  disabled
                 />
-              </div>
+              </div> */}
               <div className="space-y-2">
                 <Label>Full Name *</Label>
                 <Input
-                  value={editingEmployee.name}
-                  onChange={(e) => setEditingEmployee({ ...editingEmployee, name: e.target.value })}
+                  value={editingEmployee.fullName}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, fullName: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
@@ -782,15 +978,15 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <Label>Company Email *</Label>
                 <Input
                   type="email"
-                  value={editingEmployee.companyEmail}
-                  onChange={(e) => setEditingEmployee({ ...editingEmployee, companyEmail: e.target.value })}
+                  value={editingEmployee.emailAddress}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, emailAddress: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Phone Number *</Label>
                 <Input
-                  value={editingEmployee.phone}
-                  onChange={(e) => setEditingEmployee({ ...editingEmployee, phone: e.target.value })}
+                  value={editingEmployee.contactNumber}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, contactNumber: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
@@ -803,8 +999,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {data.departments.map(dept => (
-                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                    {departments.map(dept => (
+                      <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -819,8 +1015,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {data.designations.map(designation => (
-                      <SelectItem key={designation} value={designation}>{designation}</SelectItem>
+                    {designations.map(designation => (
+                      <SelectItem key={designation.id} value={designation.id}>{designation.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -835,13 +1031,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {data.roles.map(role => (
-                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                    {roles.map(role => (
+                      <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Type *</Label>
                 <Select
                   value={editingEmployee.type}
@@ -856,15 +1052,15 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     <SelectItem value="Contract">Contract</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-2">
+              </div> */}
+              {/* <div className="space-y-2">
                 <Label>Manager</Label>
                 <Input
                   value={editingEmployee.manager}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, manager: e.target.value })}
                 />
-              </div>
-              <div className="space-y-2">
+              </div> */}
+              {/* <div className="space-y-2">
                 <Label>Project</Label>
                 <Select
                   value={editingEmployee.project}
@@ -879,7 +1075,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
               <div className="space-y-2">
                 <Label>Joining Date *</Label>
                 <Input
@@ -888,7 +1084,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, joiningDate: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Location *</Label>
                 <Select
                   value={editingEmployee.location}
@@ -903,7 +1099,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
               <div className="space-y-2">
                 <Label>Status</Label>
                 <Select
