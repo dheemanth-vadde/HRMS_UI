@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Building2, Globe, Calendar, Phone, MapPin, Edit, Save, X, Plus, Upload, Image } from "lucide-react";
 import { Button } from "../ui/button";
@@ -7,12 +7,15 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
 import { getValidationError } from "../../utils/validations";
+import api from "../../services/interceptors";
+import ORGANIZATION_ENDPOINTS from "../../services/organizationEndpoints";
 
 interface OrganizationInfoModuleProps {
   viewOnly?: boolean;
 }
 
 export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoModuleProps) {
+  
   const [isEditing, setIsEditing] = useState(false);
   const [hasOrganization, setHasOrganization] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);

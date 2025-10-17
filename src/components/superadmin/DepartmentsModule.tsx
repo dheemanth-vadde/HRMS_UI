@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -53,6 +53,9 @@ import {
 import { toast } from "sonner";
 import { organizationDepartments } from "../../data.json";
 import { getValidationError } from "../../utils/validations";
+import api from '../../services/interceptors';
+import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
+import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
 
 
 
@@ -61,7 +64,9 @@ interface DepartmentsModuleProps {
 }
 
 export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) {
-  const [departments, setDepartments] = useState(organizationDepartments);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [businessUnits, setBusinessUnits] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingDept, setEditingDept] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -86,6 +91,50 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     });
     setFormErrors({});
   };
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      setLoading(true);
+      try {
+        const { data } = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS).then(res => res.data);
+
+        // Map API fields to front-end structure
+        const mappedData = data.map((dept: any, index: number) => ({
+          id: dept.id, 
+          name: dept.deptName || "",
+          code: dept.deptCode || "",
+          startedOn: dept.startDate || "",
+          departmentHead: dept.deptHead || "",
+          timezone: dept.timezone || "Asia/Kolkata [IST]",
+          businessUnit: dept.unitId || "Head Office",
+        }));
+
+        setDepartments(mappedData);
+      } catch (err) {
+        console.error("Failed to fetch departments", err);
+        toast.error("Failed to load departments");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    const fetchBusinessUnits = async () => {
+      try {
+        const response = await api.get(BUSSINESSUNIT_ENDPOINTS.GET_BUSSINESSUNIT);
+        const unitsArray = response.data.data; // your API wraps in `data`
+        setBusinessUnits(unitsArray);
+      } catch (err) {
+        console.error("Failed to fetch business units", err);
+        toast.error("Failed to load business units");
+      }
+    };
+
+    fetchBusinessUnits();
+  }, []);
+
   const [formErrors, setFormErrors] = useState<{ [key: string]: string | null }>({});
   const validateDeptForm = (dept: typeof newDept) => {
     const errors: { [key: string]: string | null } = {};
@@ -122,7 +171,10 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     return errors;
   };
 
-
+  const getBusinessUnitName = (unitId: string): string => {
+    const unit = businessUnits.find(u => u.id === unitId);
+    return unit ? unit.unitName : "Unknown";
+  };
 
   const handleAdd = () => {
     const errors = validateDeptForm(newDept);
@@ -173,14 +225,23 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     setDeleteConfirmOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    if (deptToDelete !== null) {
+  const handleDeleteConfirm = async () => {
+  if (deptToDelete !== null) {
+    try {
+      await api.delete(DEPARTMENT_ENDPOINTS.DELETE_DEPARTMENT(deptToDelete));
       setDepartments(departments.filter(d => d.id !== deptToDelete));
       toast.success("Department deleted successfully!");
+    } catch (err) {
+      console.error("Failed to delete department", err);
+      toast.error("Failed to delete department");
+    } finally {
       setDeleteConfirmOpen(false);
       setDeptToDelete(null);
     }
-  };
+  }
+};
+
+
 
   const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>, type: 'csv' | 'xlsx') => {
     const file = event.target.files?.[0];
@@ -256,8 +317,8 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                                 setFormErrors((prev) => ({ ...prev, name: null }));
                               }
                             }}
-                         
-                           // onChange={(e) => setEditingDept({ ...editingDept, name: e.target.value })}
+
+                          // onChange={(e) => setEditingDept({ ...editingDept, name: e.target.value })}
                           />
                           {formErrors.name && <p className="text-destructive text-xs mt-1">{formErrors.name}</p>}
                         </>
@@ -277,7 +338,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                                 setFormErrors((prev) => ({ ...prev, code: null }));
                               }
                             }}
-                           // onChange={(e) => setEditingDept({ ...editingDept, code: e.target.value })}
+                          // onChange={(e) => setEditingDept({ ...editingDept, code: e.target.value })}
                           />
                           {formErrors.code && <p className="text-destructive text-xs mt-1">{formErrors.code}</p>}
                         </>
@@ -298,7 +359,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                                 setFormErrors((prev) => ({ ...prev, departmentHead: null }));
                               }
                             }}
-                           // onChange={(e) => setEditingDept({ ...editingDept, departmentHead: e.target.value })}
+                          // onChange={(e) => setEditingDept({ ...editingDept, departmentHead: e.target.value })}
                           />
                           {formErrors.departmentHead && <p className="text-destructive text-xs mt-1">{formErrors.departmentHead}</p>}
                         </>
@@ -307,7 +368,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                       )}
                     </TableCell>
                     <TableCell>{dept.timezone}</TableCell>
-                    <TableCell>{dept.businessUnit}</TableCell>
+                    <TableCell>{getBusinessUnitName(dept.businessUnit)}</TableCell>
                     <TableCell className="text-right">
                       {!viewOnly && (
                         <div className="flex items-center justify-end gap-2">
@@ -466,30 +527,32 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   {formErrors.departmentHead && <p className="text-sm text-destructive">{formErrors.departmentHead}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label>Business Unit *</Label>
-                  <Select
-                    value={newDept.businessUnit}
-                    onValueChange={(value) => {
-                      setNewDept({ ...newDept, businessUnit: value });
-                      if (formErrors.businessUnit) {
-                        setFormErrors((prev) => ({ ...prev, businessUnit: null }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Head Office">Head Office</SelectItem>
-                      <SelectItem value="Mumbai Regional Office">Mumbai Regional Office</SelectItem>
-                      <SelectItem value="Kolkata Regional Office">Kolkata Regional Office</SelectItem>
-                      <SelectItem value="Chennai Regional Office">Chennai Regional Office</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {formErrors.businessUnit && (
-                    <p className="text-sm text-destructive">{formErrors.businessUnit}</p>
-                  )}
-                </div>
+  <Label>Business Unit *</Label>
+  <Select
+    value={newDept.businessUnit}
+    onValueChange={(value) => {
+      setNewDept({ ...newDept, businessUnit: value });
+      if (formErrors.businessUnit) {
+        setFormErrors((prev) => ({ ...prev, businessUnit: null }));
+      }
+    }}
+  >
+    <SelectTrigger>
+      <SelectValue placeholder="Select an option" />
+    </SelectTrigger>
+    <SelectContent>
+      {businessUnits.map((unit) => (
+        <SelectItem key={unit.id} value={String(unit.id)}>
+          {unit.unitName}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+  {formErrors.businessUnit && (
+    <p className="text-sm text-destructive">{formErrors.businessUnit}</p>
+  )}
+</div>
+
                 <div className="space-y-2">
                   <Label>Time Zone</Label>
                   <Input
