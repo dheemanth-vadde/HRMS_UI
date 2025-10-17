@@ -74,7 +74,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
     countryId: "",
     timezoneId: "",
   });
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
   const [cities, setCities] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [countries, setCountries] = useState<any[]>([]);
@@ -83,31 +83,49 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
 
   const validateUnit = (unit: typeof newUnit) => {
     const requiredFields: (keyof typeof unit)[] = [
-      "name", "code", "startedOn", "streetAddress",
-      "cityId", "stateId", "countryId", "timezoneId"
+      "name",
+      "code",
+      "startedOn",
+      "streetAddress",
+      "cityId",
+      "stateId",
+      "countryId",
+      "timezoneId",
     ];
 
-    const newErrors: { [key: string]: string } = {};
+    const errors: { [key: string]: string | null } = {};
 
     for (const field of requiredFields) {
       const value = unit[field];
 
-      // Leading/trailing space check for string fields
+      // --- Check for leading/trailing spaces for string fields ---
       if (typeof value === "string") {
-        if (value.trim() !== value) {
-          newErrors[field] = `${field} cannot start or end with a space`;
-          continue;
+        const spaceError = getValidationError(
+          "noSpaces",
+          value,
+          `${field} cannot start or end with a space`
+        );
+        if (spaceError) {
+          errors[field] = spaceError;
+          continue; // skip required check if space error exists
         }
       }
 
-      // Required check
-      if (!value || value === "") {
-        newErrors[field] = `${field} is required`;
+      // --- Required field check ---
+      const requiredError = getValidationError(
+        "required",
+        value ?? "", // convert null/undefined to empty string
+        `${field} is required`
+      );
+      if (requiredError) {
+        errors[field] = requiredError;
       }
     }
 
-    return newErrors;
+    return errors;
   };
+
+
 
   useEffect(() => {
     const fetchBusinessUnits = async () => {
@@ -118,10 +136,11 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
 
         // Map API data to frontend structure
         const mappedUnits = unitsArray.map((unit: any) => {
-          const cityObj = cities.find((c) => c.id === unit.cityId);
-          const stateObj = states.find((s) => s.id === unit.stateId);
-          const countryObj = countries.find((c) => c.id === unit.countryId);
-          const timezoneObj = timezones.find((t) => t.id === unit.timezoneId);
+          const cityObj = cities.find((c) => c.id === unit.cityId) || { city: unit.cityId };
+          const stateObj = states.find((s) => s.id === unit.stateId) || { state: unit.stateId };
+          const countryObj = countries.find((c) => c.id === unit.countryId) || { country: unit.countryId };
+          const timezoneObj = timezones.find((t) => t.id === unit.timezoneId) || { timezone: unit.timezoneId };
+
           return {
             id: unit.id,
             name: unit.unitName || "",
@@ -283,18 +302,18 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       const updatedUnit = response.data.data;
 
       setBusinessUnits(
-        businessUnits.map((u) =>
+        businessUnits.map(u =>
           u.id === updatedUnit.id
             ? {
-              id: updatedUnit.id,
+              ...updatedUnit,
               name: updatedUnit.unitName,
               code: updatedUnit.unitCode,
               startedOn: updatedUnit.startDate,
               streetAddress: updatedUnit.address1,
-              city: cities.find((c) => c.id === updatedUnit.cityId)?.city || updatedUnit.cityId,
-              state: states.find((s) => s.id === updatedUnit.stateId)?.state || updatedUnit.stateId,
-              country: countries.find((c) => c.id === updatedUnit.countryId)?.country || updatedUnit.countryId,
-              timezone: timezones.find((t) => t.id === updatedUnit.timezoneId)?.timezone || updatedUnit.timezoneId,
+              city: cities.find(c => c.id === updatedUnit.cityId)?.city || updatedUnit.cityId,
+              state: states.find(s => s.id === updatedUnit.stateId)?.state || updatedUnit.stateId,
+              country: countries.find(c => c.id === updatedUnit.countryId)?.country || updatedUnit.countryId,
+              timezone: timezones.find(t => t.id === updatedUnit.timezoneId)?.timezone || updatedUnit.timezoneId,
               cityId: updatedUnit.cityId,
               stateId: updatedUnit.stateId,
               countryId: updatedUnit.countryId,
@@ -465,7 +484,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                                 setErrors((prev) => ({ ...prev, startedOn: "" }));
                               }
                             }}
-                            //onChange={(e) => setEditingUnit({ ...editingUnit, startedOn: e.target.value }) }
+                          //onChange={(e) => setEditingUnit({ ...editingUnit, startedOn: e.target.value }) }
                           />
                           {errors.startedOn && (
                             <p className="text-destructive text-sm mt-1">{errors.startedOn}</p>
@@ -693,7 +712,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   placeholder="e.g., PNB-DEL"
                   value={newUnit.code}
                   onChange={(e) => {
-                    const value = e.target.value;
+                    const value = e.target.value.toUpperCase();
                     setNewUnit({ ...newUnit, code: value });
                     if (errors.code) {
                       setErrors((prev) => ({ ...prev, code: "" }));
