@@ -6,6 +6,7 @@ export const EMPLOYEE_ENDPOINTS = {
   POST_EMPLOYEE: `${BASE_URL}/users`,
   UPDATE_EMPLOYEE: (id: any) => `${BASE_URL}/users/${id}`,
   DELETE_EMPLOYEE: (id: any) => `${BASE_URL}/users/${id}`,
+  BULK_UPLOAD_EMPLOYEES: `${BASE_URL}/users/bulk`,
   // Add more employee-related endpoints here
 };
 

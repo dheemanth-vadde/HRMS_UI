@@ -64,6 +64,10 @@ import { getValidationError } from "../../utils/validations";
 import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
 import DESIGNATION_ENDPOINTS from "../../services/designationEndpoints";
 import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { readExcelFile } from "../../utils/utils";
+import Papa from "papaparse";
 
 interface EmployeeInfoModuleProps {
   viewOnly?: boolean;
@@ -97,6 +101,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
   const [designations, setDesignations] = useState<{ id: string; name: string }[]>([]);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
+  const statusOptions = ["Active", "Inactive", "On Leave"];
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -210,21 +215,37 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
   };
 
   const handleEdit = (employee: any) => {
-    setEditingEmployee({ ...employee });
+    setEditingEmployee({
+      ...employee,
+      department: departments.find(d => d.id === employee.deptId)?.name || "",
+      designation: designations.find(d => d.id === employee.designationId)?.name || "",
+      role: roles.find(r => r.id === employee.empRole)?.name || "",
+      userStatus: employee.userStatus || "Active",
+      joiningDate: employee.selectedDate || "",
+    });
   };
 
   const handleUpdate = async () => {
-    // const isValid = validateAllNewEmployee();
-    // if (!isValid) {
-    //   toast.error("Please fix validation errors before updating.");
-    //   return;
-    // }
     try {
       setLoading(true);
-      const response = await api.put(
-        `${EMPLOYEE_ENDPOINTS.UPDATE_EMPLOYEE}/${editingEmployee.id}`,
-        editingEmployee
-      );
+
+      // Map names to IDs for API payload
+      const payload = {
+        ...editingEmployee,
+        deptId: departments.find(d => d.name === editingEmployee.department)?.id || "",
+        designationId: designations.find(d => d.name === editingEmployee.designation)?.id || "",
+        empRole: roles.find(r => r.name === editingEmployee.role)?.id || "",
+        selectedDate: editingEmployee.joiningDate || "",
+        userStatus: editingEmployee.userStatus || "Active",
+      };
+
+      // Remove name fields not needed by API
+      delete payload.department;
+      delete payload.designation;
+      delete payload.role;
+      delete payload.joiningDate;
+
+      const response = await api.put(EMPLOYEE_ENDPOINTS.UPDATE_EMPLOYEE(editingEmployee.id), payload);
       const updatedEmployee = response.data.data;
       setEmployees((prev) =>
         prev.map((emp) =>
@@ -240,10 +261,11 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         });
         return copy;
       });
+      const usersResponse = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEES);
+      setEmployees(usersResponse.data.data);
       toast.success("Employee updated successfully!");
     } catch (error: any) {
       console.error("Error updating employee:", error);
-      // toast.error(error?.response?.data?.message || "Failed to update employee.");
     } finally {
       setLoading(false);
     }
@@ -275,6 +297,154 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     if (file) {
       toast.success(`${type.toUpperCase()} file "${file.name}" uploaded successfully!`);
       setShowAddDialog(false);
+    }
+  };
+
+  const handleDownloadTemplate = (type: "xlsx" | "csv") => {
+    const wb = XLSX.utils.book_new();
+    const header = [
+      "Full Name",
+      "Personal Email",
+      "Company Email",
+      "Phone Number",
+      "Department",
+      "Designation",
+      "Role",
+      "Joining Date",
+      "Status",
+    ];
+    const sampleRow = [
+      "John Doe",
+      "john.doe@gmail.com",
+      "john.doe@company.com",
+      "9876543210",
+      "IT Technical", // dropdown
+      "Software Engineer", // dropdown
+      "Super Admin", // dropdown
+      "2025-10-30",
+      "Active", // dropdown
+    ];
+
+    const wsData = [header, sampleRow];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Only XLSX supports dropdowns
+    if (type === "xlsx") {
+      // Data validation for dropdowns
+      const deptNames = departments.map(d => d.name);
+      const designationNames = designations.map(d => d.name);
+      const roleNames = roles.map(r => r.name);
+      const statusNames = ["Active", "Inactive", "On Leave"];
+
+      // XLSX uses !ref and !dataValidations for dropdowns
+      ws["!dataValidation"] = [
+        { sqref: "E2", type: "list", formula1: `"${deptNames.join(",")}"` },
+        { sqref: "F2", type: "list", formula1: `"${designationNames.join(",")}"` },
+        { sqref: "G2", type: "list", formula1: `"${roleNames.join(",")}"` },
+        { sqref: "I2", type: "list", formula1: `"${statusNames.join(",")}"` },
+      ];
+    }
+
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+    if (type === "xlsx") {
+      XLSX.writeFile(wb, "EmployeeTemplate.xlsx");
+    } else {
+      XLSX.writeFile(wb, "EmployeeTemplate.csv");
+    }
+  };
+
+  const handleBulkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const data = e.target?.result;
+      if (!data) return;
+
+      let parsedData: any[] = [];
+
+      if (extension === "csv") {
+        const text = data as string;
+        parsedData = Papa.parse(text, { header: true, skipEmptyLines: true }).data;
+      } else if (extension === "xlsx" || extension === "xls") {
+        const array = new Uint8Array(data as ArrayBuffer);
+        const workbook = XLSX.read(array, { type: "array", cellDates: true });
+
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+
+        // Use cellDates: true to correctly parse Excel dates as JS Date objects
+        parsedData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      } else {
+        alert("Unsupported file type!");
+        return;
+      }
+
+      // Map human-readable names to IDs and format dates
+      const mappedData = parsedData.map((row: any) => {
+        let joiningDate = row["Joining Date"] || "";
+        // Case 1: Excel date as Date object
+        if (joiningDate instanceof Date) {
+          const yyyy = joiningDate.getFullYear();
+          const mm = String(joiningDate.getMonth() + 1).padStart(2, "0");
+          const dd = String(joiningDate.getDate()).padStart(2, "0");
+          joiningDate = `${yyyy}-${mm}-${dd}`;
+        } 
+        // Case 2: Excel numeric date (Excel serial number)
+        else if (typeof joiningDate === "number") {
+          const date = XLSX.SSF.parse_date_code(joiningDate);
+          const yyyy = date.y;
+          const mm = String(date.m).padStart(2, "0");
+          const dd = String(date.d).padStart(2, "0");
+          joiningDate = `${yyyy}-${mm}-${dd}`;
+        } 
+        // Case 3: Already a string
+        else if (typeof joiningDate === "string" && joiningDate.trim()) {
+          const date = new Date(joiningDate);
+          const yyyy = date.getFullYear();
+          const mm = String(date.getMonth() + 1).padStart(2, "0");
+          const dd = String(date.getDate()).padStart(2, "0");
+          joiningDate = `${yyyy}-${mm}-${dd}`;
+        }
+
+        return {
+          fullName: row["Full Name"] || "",
+          personalEmail: row["Personal Email"] || "",
+          emailAddress: row["Company Email"] || "",
+          contactNumber: row["Phone Number"] || "",
+          deptId: departments.find((d) => d.name === row["Department"])?.id || "",
+          designationId: designations.find((d) => d.name === row["Designation"])?.id || "",
+          empRole: roles.find((r) => r.name === row["Role"])?.id || "",
+          selectedDate: joiningDate, // now correctly formatted YYYY-MM-DD
+          userStatus: statusOptions.includes(row["Status"]) ? row["Status"] : "Active",
+        };
+      });
+      // console.log("Mapped Payload:", mappedData);
+      // Call your bulk API here
+      try {
+        const response = await api.post(EMPLOYEE_ENDPOINTS.BULK_UPLOAD_EMPLOYEES, mappedData);
+        console.log("API response:", response.data);
+        alert("Employees uploaded successfully!");
+        setShowAddDialog(false);
+        const usersResponse = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEES);
+        if (usersResponse?.data?.data) {
+          setEmployees(usersResponse.data.data);
+        }
+      } catch (error) {
+        console.error("Bulk upload error:", error);
+        alert("Error uploading employees. Check console.");
+      }
+    };
+
+    // Read file based on type
+    if (extension === "csv") {
+      reader.readAsText(file);
+    } else {
+      reader.readAsArrayBuffer(file); // for XLSX
     }
   };
 
@@ -425,7 +595,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <SelectContent>
                   <SelectItem value="all">All Departments</SelectItem>
                   {departments.map(dept => (
-                    <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                    <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -769,7 +939,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map(dept => (
-                        <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                        <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -785,7 +955,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     </SelectTrigger>
                     <SelectContent>
                       {designations.map(designation => (
-                        <SelectItem key={designation.id} value={designation.id}>{designation.name}</SelectItem>
+                        <SelectItem key={designation.id} value={designation.name}>{designation.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -801,7 +971,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     </SelectTrigger>
                     <SelectContent>
                       {roles.map(role => (
-                        <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                        <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -825,6 +995,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <div className="space-y-2">
                   <Label>Joining Date *</Label>
                   <Input
+                    type="date"
                     placeholder="DD-MM-YYYY"
                     value={newEmployee.selectedDate}
                     onChange={(e) => setNewEmployee({ ...newEmployee, selectedDate: e.target.value })}
@@ -889,49 +1060,51 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     </p>
                   </div>
                   <div className="flex justify-center gap-4">
-                    <div>
+                    {/* <div>
                       <input
                         type="file"
                         accept=".csv"
                         className="hidden"
                         id="csv-upload-employee"
-                        onChange={(e) => handleFileImport(e, 'csv')}
+                        onChange={(e) => handleBulkUpload(e)}
                       />
                       <Button type="button" variant="outline" onClick={() => document.getElementById('csv-upload-employee')?.click()}>
                         <Upload className="size-4 mr-2" />
                         Upload CSV
                       </Button>
-                    </div>
+                    </div> */}
                     <div>
                       <input
                         type="file"
                         accept=".xlsx,.xls"
                         className="hidden"
-                        id="xlsx-upload-employee"
-                        onChange={(e) => handleFileImport(e, 'xlsx')}
+                        id="bulk-upload"
+                        onChange={(e) => handleBulkUpload(e)}
                       />
-                      <Button type="button" onClick={() => document.getElementById('xlsx-upload-employee')?.click()}>
+                      <Button type="button" onClick={() => document.getElementById('bulk-upload')?.click()}>
                         <Upload className="size-4 mr-2" />
-                        Upload XLSX
+                        Upload
                       </Button>
                     </div>
                   </div>
                   <div className="mt-4 p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm font-medium mb-2">Required Columns:</p>
                     <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                      <span>• Employee ID</span>
+                      {/* <span>• Employee ID</span> */}
                       <span>• Full Name</span>
-                      <span>• Email</span>
-                      <span>• Phone</span>
+                      <span>• Personal Email</span>
+                      <span>• Company Email</span>
+                      <span>• Phone Number</span>
                       <span>• Department</span>
                       <span>• Designation</span>
+                      <span>• Role</span>
                       <span>• Joining Date</span>
-                      <span>• Location</span>
+                      {/* <span>• Location</span> */}
                       <span>• Status</span>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Download template: <button className="text-primary hover:underline">CSV</button> | <button className="text-primary hover:underline">XLSX</button>
+                    Download template: <button className="text-primary hover:underline" onClick={() => handleDownloadTemplate("csv")}>CSV</button> | <button className="text-primary hover:underline" onClick={() => handleDownloadTemplate("xlsx")}>XLSX</button>
                   </p>
                 </div>
               </div>
@@ -1000,7 +1173,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   </SelectTrigger>
                   <SelectContent>
                     {departments.map(dept => (
-                      <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                      <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -1016,7 +1189,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   </SelectTrigger>
                   <SelectContent>
                     {designations.map(designation => (
-                      <SelectItem key={designation.id} value={designation.id}>{designation.name}</SelectItem>
+                      <SelectItem key={designation.id} value={designation.name}>{designation.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -1032,7 +1205,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   </SelectTrigger>
                   <SelectContent>
                     {roles.map(role => (
-                      <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                      <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -1079,6 +1252,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
               <div className="space-y-2">
                 <Label>Joining Date *</Label>
                 <Input
+                  type="date"
                   placeholder="DD-MM-YYYY"
                   value={editingEmployee.joiningDate}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, joiningDate: e.target.value })}
@@ -1103,8 +1277,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
               <div className="space-y-2">
                 <Label>Status</Label>
                 <Select
-                  value={editingEmployee.status}
-                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, status: value })}
+                  value={editingEmployee.userStatus}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, userStatus: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
