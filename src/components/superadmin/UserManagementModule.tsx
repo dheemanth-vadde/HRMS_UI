@@ -57,7 +57,7 @@ import {
   UserCircle,
   ChevronDown,
 } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { cn } from "../ui/utils";
 
 interface User {
@@ -369,7 +369,7 @@ export function UserManagementModule() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "users" | "teams")}>
+      <Tabs value={activeTab} onValueChange={(value:any) => setActiveTab(value as "users" | "teams")}>
         <div className="flex items-center justify-between">
           <TabsList>
             <TabsTrigger value="users" className="relative">
@@ -714,7 +714,7 @@ export function UserManagementModule() {
               <Label htmlFor="add-role">
                 Role <span className="text-destructive">*</span>
               </Label>
-              <Select value={userFormData.role} onValueChange={(value) => setUserFormData({ ...userFormData, role: value })}>
+              <Select value={userFormData.role} onValueChange={(value:any) => setUserFormData({ ...userFormData, role: value })}>
                 <SelectTrigger id="add-role">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -731,7 +731,7 @@ export function UserManagementModule() {
               <Label htmlFor="add-team">
                 Team <span className="text-destructive">*</span>
               </Label>
-              <Select value={userFormData.team} onValueChange={(value) => setUserFormData({ ...userFormData, team: value })}>
+              <Select value={userFormData.team} onValueChange={(value:any) => setUserFormData({ ...userFormData, team: value })}>
                 <SelectTrigger id="add-team">
                   <SelectValue placeholder="Select team" />
                 </SelectTrigger>
@@ -746,7 +746,7 @@ export function UserManagementModule() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="add-status">Status</Label>
-              <Select value={userFormData.status} onValueChange={(value) => setUserFormData({ ...userFormData, status: value as "Active" | "Inactive" })}>
+              <Select value={userFormData.status} onValueChange={(value:any) => setUserFormData({ ...userFormData, status: value as "Active" | "Inactive" })}>
                 <SelectTrigger id="add-status">
                   <SelectValue />
                 </SelectTrigger>
@@ -810,7 +810,7 @@ export function UserManagementModule() {
               <Label htmlFor="edit-role">
                 Role <span className="text-destructive">*</span>
               </Label>
-              <Select value={userFormData.role} onValueChange={(value) => setUserFormData({ ...userFormData, role: value })}>
+              <Select value={userFormData.role} onValueChange={(value:any) => setUserFormData({ ...userFormData, role: value })}>
                 <SelectTrigger id="edit-role">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -827,7 +827,7 @@ export function UserManagementModule() {
               <Label htmlFor="edit-team">
                 Team <span className="text-destructive">*</span>
               </Label>
-              <Select value={userFormData.team} onValueChange={(value) => setUserFormData({ ...userFormData, team: value })}>
+              <Select value={userFormData.team} onValueChange={(value:any) => setUserFormData({ ...userFormData, team: value })}>
                 <SelectTrigger id="edit-team">
                   <SelectValue placeholder="Select team" />
                 </SelectTrigger>
@@ -842,7 +842,7 @@ export function UserManagementModule() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-status">Status</Label>
-              <Select value={userFormData.status} onValueChange={(value) => setUserFormData({ ...userFormData, status: value as "Active" | "Inactive" })}>
+              <Select value={userFormData.status} onValueChange={(value:any) => setUserFormData({ ...userFormData, status: value as "Active" | "Inactive" })}>
                 <SelectTrigger id="edit-status">
                   <SelectValue />
                 </SelectTrigger>

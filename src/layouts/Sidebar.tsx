@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
-import { routes } from "../config/routes";
+import { routes } from "../config/permittedRoutes";
 import { SagarsoftLogo } from "../components/SagarsoftLogo";
 import { cn } from "../components/ui/utils";
 import { ChevronDown } from "lucide-react";
@@ -94,13 +94,22 @@ const Sidebar = () => {
                   
                   {!collapsed && isExpanded && (
                     <div className="mt-1 ml-4 space-y-1 border-l-2 border-white/20 pl-4">
-                      {route.children.map(child => (
-                        <NavItem
-                          key={child.path}
-                          {...child}
-                          isChild
-                        />
-                      ))}
+                                    {route.children.map(child => {
+                // Build the full URL used by NavLink:
+                // if child.path already starts with '/', use it as-is; otherwise join parent + child
+                const childFullPath = child.path.startsWith("/")
+                    ? child.path
+                    : `${route.path.replace(/\/$/, "")}/${child.path.replace(/^\//, "")}`;
+
+                return (
+                    <NavItem
+                    key={childFullPath}
+                    {...child}
+                    path={childFullPath}
+                    isChild
+                    />
+                );
+                })}
                     </div>
                   )}
                 </div>
