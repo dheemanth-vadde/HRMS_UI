@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -45,8 +45,9 @@ import {
   TabsTrigger,
 } from "../ui/tabs";
 import { toast } from "sonner";
-import { organizationAnnocument } from "../../data.json";
-import { getValidationError } from "../../utils/validations"; // ✅ same as in Department module
+import { getValidationError } from "../../utils/validations";
+import ANNOUNCEMENTS_ENDPOINTS from "../../services/announcementsEndpoints";
+import api from "../../services/interceptors";
 
 
 interface AnnouncementsModuleProps {
@@ -54,27 +55,29 @@ interface AnnouncementsModuleProps {
 }
 
 export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModuleProps) {
-  const [announcements, setAnnouncements] = useState(organizationAnnocument);
-  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<any>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [announcementToDelete, setAnnouncementToDelete] = useState<number | null>(null);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string | null }>({});
-
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [searchQuery, setSearchQuery] = useState("");
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: "",
-    description: "",
-    date: "",
-    category: "",
-    priority: "",
+    message: "",
+    startDate: "",
+    announcementType: "",
+    isPinned: false,
   });
   const resetNewAnnoc = () => {
     setNewAnnouncement({
       title: "",
-      description: "",
-      date: "",
-      category: "",
-      priority: "",
+      message: "",
+      startDate: "",
+      announcementType: "",
+      isPinned: false,
     });
     setFormErrors({});
   };
@@ -82,94 +85,188 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
   //  Validation logic (same style as DepartmentsModule)
   const validateAnnouncementForm = (announcement: typeof newAnnouncement) => {
     const errors: { [key: string]: string | null } = {};
-    const requiredFields: (keyof typeof newAnnouncement)[] = ["title", "date", "category", "priority"];
+
+    const requiredFields: (keyof typeof newAnnouncement)[] = [
+      "title",
+      "startDate",
+      "announcementType",
+    ];
 
     for (const field of requiredFields) {
       const value = announcement[field];
 
-      //  Handle dropdowns separately
-      if ((field === "category" || field === "priority")) {
-        if (!value || value === "Select Category" || value === "Select Priority" || value === "") {
-          errors[field] = `Please select a option`;
-          continue;
+      // --- Check for leading/trailing spaces for string fields only ---
+      if (typeof value === "string") {
+        const spaceError = getValidationError(
+          "noSpaces",
+          value,
+          `${field.charAt(0).toUpperCase() + field.slice(1)} cannot start or end with a space`
+        );
+        if (spaceError) {
+          errors[field] = spaceError;
+          continue; 
         }
       }
+   
+      const safeValue =
+        typeof value === "boolean" ? String(value) : (value ?? "");
 
-      // Check for leading/trailing spaces
-      let error = getValidationError(
-        "noSpaces",
-        value,
-        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
-      );
-      if (error) {
-        errors[String(field)] = error;
-        continue;
-      }
-
-      //  Required field check
-      error = getValidationError(
+      const requiredError = getValidationError(
         "required",
-        value,
-        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
+        safeValue,
+        `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
       );
-      if (error) errors[String(field)] = error;
+      if (requiredError) {
+        errors[field] = requiredError;
+      }
     }
 
     return errors;
   };
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      setLoading(true);
+      try {
+        const response = await api.get(ANNOUNCEMENTS_ENDPOINTS.GET_ANNOUNCEMENTS);
+        const dataArray = response.data.data || [];
+
+        // Map backend fields to frontend
+        const mapped = dataArray.map((a: any) => ({
+          id: a.id,
+          title: a.title || "",
+          message: a.message || "",
+          startDate: a.startDate || "",
+          announcementType: a.announcementType || "",
+          priority: a.isPinned ? "High" : "Low",
+        }));
+
+
+        setAnnouncements(mapped);
+      } catch (err) {
+        console.error("Failed to fetch announcements", err);
+        toast.error("Failed to load announcements");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
 
 
   //  Add with validation
-  const handleAdd = () => {
+  const handleAdd = async () => {
+    //  Validate form
     const errors = validateAnnouncementForm(newAnnouncement);
     setFormErrors(errors);
-    if (Object.keys(errors).length > 0) return;
+    if (Object.keys(errors).length > 0) return; // stop if there are validation errors
 
-    const announcementToAdd = {
-      id: announcements.length + 1,
-      ...newAnnouncement,
+    //  Prepare payload
+    const payload = {
+      title: newAnnouncement.title,
+      message: newAnnouncement.message,
+      startDate: new Date(newAnnouncement.startDate).toISOString(), // backend expects ISO
+      announcementType: newAnnouncement.announcementType,
+      isPinned: newAnnouncement.isPinned,
     };
-    setAnnouncements([announcementToAdd, ...announcements]);
-    setShowAddDialog(false);
-    setNewAnnouncement({
-      title: "",
-      description: "",
-      date: new Date().toISOString().split('T')[0],
-      category: "",
-      priority: "",
-    });
-    setFormErrors({});
-    resetNewAnnoc();
-    toast.success("Announcement published successfully!");
+
+    try {
+      const response = await api.post(ANNOUNCEMENTS_ENDPOINTS.POST_ANNOUNCEMENTS, payload);
+
+      // Map response to frontend structure
+      const newItem = {
+        id: response.data.data.id,
+        title: response.data.data.title,
+        message: response.data.data.message,
+        startDate: response.data.data.startDate,
+        announcementType: response.data.data.announcementType,
+        priority: response.data.data.isPinned ? "High" : "Low",
+      };
+
+      setAnnouncements([...announcements, newItem]);
+      setShowAddDialog(false);
+      resetNewAnnoc();
+      toast.success("Announcement added successfully!");
+    } catch (err) {
+      console.error("Failed to add announcement", err);
+      toast.error("Failed to add announcement");
+    }
   };
+
+
 
   const handleEdit = (announcement: any) => {
-    setEditingAnnouncement({ ...announcement });
-    setFormErrors({});
+  setEditingAnnouncement({
+    ...announcement,
+    startDate: announcement.startDate
+      ? new Date(announcement.startDate).toISOString().split("T")[0]
+      : "",
+  });
+  setFormErrors({});
+};
+
+
+  const handleUpdate = async () => {
+  if (!editingAnnouncement) return;
+
+  //  Validate form
+  const errors = validateAnnouncementForm(editingAnnouncement);
+  setFormErrors(errors);
+  if (Object.keys(errors).length > 0) return;
+
+  // Convert priority back to boolean for backend
+  const payload = {
+    title: editingAnnouncement.title,
+    message: editingAnnouncement.message,
+    startDate: new Date(editingAnnouncement.startDate).toISOString(),
+    announcementType: editingAnnouncement.announcementType,
+    isPinned: editingAnnouncement.priority === "High",
   };
 
-  // Update with validation
-  const handleUpdate = () => {
-    if (!editingAnnouncement) return;
-    const errors = validateAnnouncementForm(editingAnnouncement);
-    setFormErrors(errors);
-    if (Object.keys(errors).length > 0) return;
+  try {
+    const response = await api.put(
+      ANNOUNCEMENTS_ENDPOINTS.PUT_ANNOUNCEMENTS(editingAnnouncement.id),
+      payload
+    );
 
-    setAnnouncements(announcements.map(a => a.id === editingAnnouncement.id ? editingAnnouncement : a));
+    //  Update frontend state so the changes appear immediately
+    const updatedItem = {
+      id: response.data.data.id,
+      title: response.data.data.title,
+      message: response.data.data.message,
+      startDate: response.data.data.startDate,
+      announcementType: response.data.data.announcementType,
+      priority: response.data.data.isPinned ? "High" : "Low",
+    };
+
+    setAnnouncements((prev) =>
+      prev.map((a) => (a.id === updatedItem.id ? updatedItem : a))
+    );
+
     setEditingAnnouncement(null);
     setFormErrors({});
     toast.success("Announcement updated successfully!");
-  };
+  } catch (err) {
+    console.error("Failed to update announcement", err);
+    toast.error("Failed to update announcement");
+  }
+};
 
   const handleDeleteClick = (id: number) => {
     setAnnouncementToDelete(id);
     setDeleteConfirmOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    if (announcementToDelete !== null) {
-      setAnnouncements(announcements.filter(a => a.id !== announcementToDelete));
+  const handleDeleteConfirm = async () => {
+    if (!announcementToDelete) return;
+    try {
+      await api.delete(ANNOUNCEMENTS_ENDPOINTS.DELETE_ANNOUNCEMENTS(announcementToDelete));
+      setAnnouncements(announcements.filter((a) => a.id !== announcementToDelete));
       toast.success("Announcement deleted successfully!");
+    } catch (err) {
+      console.error("Failed to delete announcement", err);
+      toast.error("Failed to delete announcement");
+    } finally {
       setDeleteConfirmOpen(false);
       setAnnouncementToDelete(null);
     }
@@ -182,6 +279,11 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       setShowAddDialog(false);
     }
   };
+  const filteredAnnouncements = announcements.filter(
+    (a) =>
+      a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.message.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -207,19 +309,6 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       </div>
 
       <Card>
-        {/* <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-secondary/5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-white shadow-sm">
-                <Megaphone className="size-6 text-primary" />
-              </div>
-              <CardTitle>Recent Announcements</CardTitle>
-            </div>
-            <Button variant="outline" size="icon">
-              <Search className="size-4" />
-            </Button>
-          </div>
-        </CardHeader> */}
         <CardContent className="p-6">
           <div className="space-y-4">
             {announcements.map((announcement) => (
@@ -235,56 +324,75 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                             const value = e.target.value;
                             setEditingAnnouncement({ ...editingAnnouncement, title: value });
                             if (formErrors.title) {
-                              setFormErrors((prev) => ({ ...prev, title: null }));
+                              setFormErrors((prev) => ({ ...prev, title: "" }));
                             }
                           }}
-                        //onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, title: e.target.value })}
                         />
                         {formErrors.title && <p className="text-sm text-destructive">{formErrors.title}</p>}
                       </div>
+
                       <div className="space-y-2">
                         <Label>Description</Label>
                         <Textarea
-                          value={editingAnnouncement.description}
-                          onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, description: e.target.value })}
+                          value={editingAnnouncement.message}
+                          onChange={(e) =>
+                            setEditingAnnouncement({ ...editingAnnouncement, message: e.target.value })
+                          }
                           rows={3}
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+
+                      <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <Label>Category *</Label>
-                          <Select
-                            value={editingAnnouncement.category}
-                            onValueChange={(value) => setEditingAnnouncement({ ...editingAnnouncement, category: value })}
-                          >
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="General">General</SelectItem>
-                              <SelectItem value="Training">Training</SelectItem>
-                              <SelectItem value="Performance">Performance</SelectItem>
-                              <SelectItem value="Security">Security</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          {formErrors.category && <p className="text-sm text-destructive">{formErrors.category}</p>}
+                          <Label>Date *</Label>
+                          <Input
+                            type="date"
+                            value={editingAnnouncement.startDate}
+                            onChange={(e) =>
+                              setEditingAnnouncement({ ...editingAnnouncement, startDate: e.target.value })
+                            }
+                          />
+                          {formErrors.startDate && <p className="text-sm text-destructive">{formErrors.startDate}</p>}
                         </div>
-                        <div className="space-y-2">
-                          <Label>Priority *</Label>
-                          <Select
-                            value={editingAnnouncement.priority}
-                            onValueChange={(value) => setEditingAnnouncement({ ...editingAnnouncement, priority: value })}
-                          >
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="High">High</SelectItem>
-                              <SelectItem value="Medium">Medium</SelectItem>
-                              <SelectItem value="Low">Low</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          {formErrors.priority && <p className="text-sm text-destructive">{formErrors.priority}</p>}
+
+                        <div className="space-y-2 col-span-2">
+                          <Label>Category *</Label>
+                          <Input
+                            placeholder="Enter category"
+                            value={editingAnnouncement.announcementType || ""}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingAnnouncement({ ...editingAnnouncement, announcementType: value });
+                              if (formErrors.announcementType) {
+                                setFormErrors((prev) => ({ ...prev, announcementType: "" }));
+                              }
+                            }}
+                          />
+                          {formErrors.announcementType && (
+                            <p className="text-sm text-destructive">{formErrors.announcementType}</p>
+                          )}
                         </div>
                       </div>
+
+                      <div className="space-y-2">
+                        <Label>Priority</Label>
+                        <input
+                          type="checkbox"
+                          checked={editingAnnouncement.priority === "High"}
+                          onChange={(e) =>
+                            setEditingAnnouncement({
+                              ...editingAnnouncement,
+                              priority: e.target.checked ? "High" : "Low",
+                            })
+                          }
+                        />
+
+                      </div>
+
                       <div className="flex gap-2 justify-end">
-                        <Button variant="outline" onClick={() => setEditingAnnouncement(null)}>Cancel</Button>
+                        <Button variant="outline" onClick={() => setEditingAnnouncement(null)}>
+                          Cancel
+                        </Button>
                         <Button onClick={handleUpdate}>Save Changes</Button>
                       </div>
                     </div>
@@ -296,11 +404,11 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                           <Badge variant={announcement.priority === "High" ? "destructive" : "secondary"}>
                             {announcement.priority}
                           </Badge>
-                          <Badge variant="outline">{announcement.category}</Badge>
+                          <Badge variant="outline">{announcement.announcementType}</Badge>
                         </div>
-                        <p className="text-muted-foreground text-sm mb-2">{announcement.description}</p>
+                        <p className="text-muted-foreground text-sm mb-2">{announcement.message}</p>
                         <p className="text-xs text-muted-foreground">
-                          Posted on: {new Date(announcement.date).toLocaleDateString("en-IN", {
+                          Posted on: {new Date(announcement.startDate).toLocaleDateString("en-IN", {
                             year: "numeric",
                             month: "long",
                             day: "numeric",
@@ -376,10 +484,10 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                       const value = e.target.value;
                       setNewAnnouncement({ ...newAnnouncement, title: value });
                       if (formErrors.title) {
-                        setFormErrors((prev) => ({ ...prev, title: null }));
+                        setFormErrors((prev) => ({ ...prev, title: "" }));
                       }
                     }}
-                  //  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
+                  //onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
                   />
                   {formErrors.title && <p className="text-sm text-destructive">{formErrors.title}</p>}
                 </div>
@@ -387,8 +495,8 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                   <Label>Description</Label>
                   <Textarea
                     placeholder="Enter announcement details"
-                    value={newAnnouncement.description}
-                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, description: e.target.value })}
+                    value={newAnnouncement.message}
+                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })}
                     rows={4}
                   />
                 </div>
@@ -397,66 +505,50 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                     <Label>Date *</Label>
                     <Input
                       type="date"
-                      value={newAnnouncement.date}
+                      value={newAnnouncement.startDate}
                       onChange={(e) => {
                         const value = e.target.value;
-                        setNewAnnouncement({ ...newAnnouncement, date: value });
-                        if (formErrors.date) {
-                          setFormErrors((prev) => ({ ...prev, date: null }));
+                        setNewAnnouncement({ ...newAnnouncement, startDate: value });
+                        if (formErrors.startDate) {
+                          setFormErrors((prev) => ({ ...prev, startDate: "" }));
                         }
                       }}
-                    // onChange={(e) => setNewAnnouncement({ ...newAnnouncement, date: e.target.value })}
+                    //  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, startDate: e.target.value })}
                     />
-                    {formErrors.date && <p className="text-sm text-destructive">{formErrors.date}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Category *</Label>
-                    <Select
-                      value={newAnnouncement.category}
-                      onValueChange={(value) => {
-                        setNewAnnouncement({ ...newAnnouncement, category: value });
-                        // Clear error as soon as an option is selected
-                        if (formErrors.category) {
-                          setFormErrors((prev) => ({ ...prev, category: null }));
-                        }
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="General">General</SelectItem>
-                        <SelectItem value="Training">Training</SelectItem>
-                        <SelectItem value="Performance">Performance</SelectItem>
-                        <SelectItem value="Security">Security</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formErrors.category && <p className="text-sm text-destructive">{formErrors.category}</p>}
+                    {formErrors.startDate && <p className="text-sm text-destructive">{formErrors.startDate}</p>}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Priority *</Label>
-                    <Select
-                      value={newAnnouncement.priority}
-                      onValueChange={(value) => {
-                        setNewAnnouncement({ ...newAnnouncement, priority: value });
-                        if (formErrors.priority) {
-                          setFormErrors((prev) => ({ ...prev, priority: null }));
-                        }
-                      }}
-                      //onValueChange={(value) => setNewAnnouncement({ ...newAnnouncement, priority: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="High">High</SelectItem>
-                        <SelectItem value="Medium">Medium</SelectItem>
-                        <SelectItem value="Low">Low</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formErrors.priority && <p className="text-sm text-destructive">{formErrors.priority}</p>}
+                  <div className="grid grid-cols-2 gap-4 col-span-2">
+                    <div className="space-y-2">
+                      <Label>Category *</Label>
+                      <Input
+                        placeholder="Enter category"
+                        value={newAnnouncement.announcementType}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setNewAnnouncement({ ...newAnnouncement, announcementType: value });
+                          if (formErrors.announcementType) {
+                            setFormErrors((prev) => ({ ...prev, announcementType: "" }));
+                          }
+                        }}
+                      //  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, announcementType: e.target.value })}
+                      />
+                      {formErrors.announcementType && <p className="text-sm text-destructive">{formErrors.announcementType}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Priority</Label>
+                      <input
+                        type="checkbox"
+                        checked={newAnnouncement.isPinned}
+                        onChange={(e) => setNewAnnouncement({ ...newAnnouncement, isPinned: e.target.checked })}
+                      />
+                      {formErrors.priority && <p className="text-sm text-destructive">{formErrors.priority}</p>}
+                    </div>
+
+
                   </div>
+
                 </div>
               </div>
               <DialogFooter>

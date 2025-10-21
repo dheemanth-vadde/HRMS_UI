@@ -51,11 +51,12 @@ import {
   TabsTrigger,
 } from "../ui/tabs";
 import { toast } from "sonner";
-import { organizationDepartments } from "../../data.json";
 import { getValidationError } from "../../utils/validations";
 import api from '../../services/interceptors';
 import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
 import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
+import EMPLOYEE_ENDPOINTS from "../../services/employeeEndpoints";
+import TIMEZONE_ENDPOINTS from "../../services/timeZoneEndpoints";
 
 
 
@@ -66,6 +67,8 @@ interface DepartmentsModuleProps {
 export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) {
   const [departments, setDepartments] = useState<any[]>([]);
   const [businessUnits, setBusinessUnits] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [timezones, setTimezones] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingDept, setEditingDept] = useState<any>(null);
@@ -73,21 +76,22 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
   const [deptToDelete, setDeptToDelete] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [newDept, setNewDept] = useState({
-    name: "",
-    code: "",
+    deptName: "",
+    deptCode: "",
     startedOn: "",
-    departmentHead: "",
-    timezone: "Asia/Kolkata [IST]",
+    deptHead: "",
+    timezoneId: "",
     businessUnit: "",
   });
+
   const resetNewDept = () => {
     setNewDept({
-      name: "",
-      code: "",
-      startedOn: "",
-      departmentHead: "",
-      timezone: "Asia/Kolkata [IST]",
-      businessUnit: "",
+     deptName: "",
+    deptCode: "",
+    startedOn: "",
+    deptHead: "",
+    timezoneId: "",
+    businessUnit: "",
     });
     setFormErrors({});
   };
@@ -96,17 +100,17 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       setLoading(true);
       try {
         const { data } = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS).then(res => res.data);
-
         // Map API fields to front-end structure
-        const mappedData = data.map((dept: any, index: number) => ({
-          id: dept.id, 
-          name: dept.deptName || "",
-          code: dept.deptCode || "",
+        const mappedData = data.map((dept: any) => ({
+          id: dept.id,
+          deptName: dept.deptName || "",
+          deptCode: dept.deptCode || "",
           startedOn: dept.startDate || "",
-          departmentHead: dept.deptHead || "",
-          timezone: dept.timezone || "Asia/Kolkata [IST]",
-          businessUnit: dept.unitId || "Head Office",
+          deptHead: dept.deptHead || "",  // store employee ID
+          timezoneId: dept.timezoneId,
+          businessUnit: dept.unitId,
         }));
+
 
         setDepartments(mappedData);
       } catch (err) {
@@ -131,17 +135,44 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
         toast.error("Failed to load business units");
       }
     };
+    const fetchEmployees = async () => {
+      try {
+        const response = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEES);
+        const employeesArray = response.data.data; // assuming your API wraps results in `data`
+        setEmployees(employeesArray);
+      } catch (err) {
+        console.error("Failed to fetch employees", err);
+        toast.error("Failed to load employees");
+      }
+    };
+    const fetchTimezones = async () => {
+      try {
+        const response = await api.get(TIMEZONE_ENDPOINTS.GET_TIMEZONE);
+        const timezonesArray = response.data.data; // assuming your API wraps results in `data`
+        setTimezones(timezonesArray);
+      } catch (err) {
+        console.error("Failed to fetch timezones", err);
+        toast.error("Failed to load timezones");
+      }
+    };
 
+    fetchTimezones();
+
+    fetchEmployees();
     fetchBusinessUnits();
   }, []);
+
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string | null }>({});
   const validateDeptForm = (dept: typeof newDept) => {
     const errors: { [key: string]: string | null } = {};
-    const requiredFields: (keyof typeof newDept)[] = ["name", "code", "departmentHead", "startedOn", "businessUnit"];
+    const requiredFields: (keyof typeof newDept)[] = ["deptName", "deptCode", "deptHead", "startedOn", "businessUnit", "timezoneId"];
 
     for (const field of requiredFields) {
-      const value = dept[field];
+      let value = dept[field];
+
+      // Make sure value is a string
+      if (value === undefined || value === null) value = "";
 
       // --- Check for leading/trailing spaces ---
       let error = getValidationError(
@@ -149,24 +180,26 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
         value,
         `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
       );
+
       if (error) {
         errors[String(field)] = error;
         continue;
       }
 
       // --- Required field validation ---
-      if (field === "businessUnit") {
+      if (field === "businessUnit" || field === "deptHead" || field === "timezoneId") {
         error = getValidationError("required", value, "Please select an option");
       } else {
         error = getValidationError(
           "required",
           value,
-          `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
+          `This feild is required`
         );
       }
 
       if (error) errors[String(field)] = error;
     }
+
 
     return errors;
   };
@@ -176,49 +209,136 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     return unit ? unit.unitName : "Unknown";
   };
 
-  const handleAdd = () => {
+  const getDeptHeadName = (empId: string | null): string => {
+    if (!empId) return "-"; // handle null
+    const employee = employees.find(emp => emp.id === empId);
+    return employee ? employee.fullName || "-" : "-";
+  };
+
+
+
+
+  const handleAdd = async () => {
     const errors = validateDeptForm(newDept);
+    console.log(" Validation errors on add:", errors);
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
-    const deptToAdd = {
-      id: departments.length + 1,
-      ...newDept,
-    };
-    setDepartments([...departments, deptToAdd]);
-    setShowAddDialog(false);
-    setNewDept({
-      name: "",
-      code: "",
-      startedOn: "",
-      departmentHead: "",
-      timezone: "Asia/Kolkata [IST]",
-      businessUnit: "",
-    });
-    setFormErrors({});
-    resetNewDept();
-    toast.success("Department added successfully!");
+    try {
+      const payload = {
+        deptName: newDept.deptName,
+        deptCode: newDept.deptCode,
+        startDate: newDept.startedOn,
+        deptHead: newDept.deptHead,
+        timezoneId: newDept.timezoneId,
+        unitId: newDept.businessUnit,
+      };
+
+
+      const response = await api.post(DEPARTMENT_ENDPOINTS.POST_DEPARTMENT, payload);
+      const addedDept = response.data;
+
+      setDepartments([
+        ...departments,
+        {
+          id: addedDept.id,
+          deptName: addedDept.deptName,
+          deptCode: addedDept.deptCode,
+          startedOn: addedDept.startDate ? new Date(addedDept.startDate).toISOString().split('T')[0] : "",
+          deptHead: String(addedDept.deptHead || ""),
+          timezoneId: String(addedDept.timezoneId || ""),
+          businessUnit: String(addedDept.unitId || ""),
+        }
+      ]);
+
+      setShowAddDialog(false);
+
+      resetNewDept();
+      toast.success("Department added successfully!");
+    } catch (err) {
+      console.error("Failed to add department", err);
+      toast.error("Failed to add department");
+    }
   };
 
 
   const handleEdit = (dept: any) => {
-    setEditingDept({ ...dept });
+    setEditingDept({
+      ...dept,
+      id: String(dept.id), // <-- force to string
+      deptHead: dept.deptHead || "",
+      timezoneId: dept.timezoneId || "",
+      businessUnit: dept.businessUnit || "",
+      deptName: dept.deptName || "",
+      deptCode: dept.deptCode || "",
+      startedOn: dept.startedOn || "",
+    });
   };
 
-  const handleUpdate = () => {
+
+
+  const handleUpdate = async () => {
     if (!editingDept) return;
+
+    console.log(" Updating department with data:", editingDept);
 
     const errors = validateDeptForm(editingDept);
     setFormErrors(errors);
+    console.log(" Validation errors:", errors);
     if (Object.keys(errors).length > 0) return;
+    try {
+      // ✅ Prepare correct payload
+      const payload = {
+        id: editingDept.id,
+        deptName: editingDept.deptName,
+        deptCode: editingDept.deptCode,
+        startDate: editingDept.startedOn,
+        deptHead: editingDept.deptHead,
+        timezoneId: editingDept.timezoneId,
+        unitId: editingDept.businessUnit,
+      };
 
-    setDepartments(departments.map(d => d.id === editingDept.id ? editingDept : d));
-    setEditingDept(null);
-    setFormErrors({});
-    toast.success("Department updated successfully!");
+      console.log(" Payload for update:", payload);
+
+
+      const response = await api.put(DEPARTMENT_ENDPOINTS.PUT_DEPARTMENT(editingDept.id),
+        payload
+
+      );
+
+      console.log(" Update API response:", response.data);
+
+      // Get updated data correctly
+      const updatedDept = response.data.data || response.data;
+
+      // Update local state list
+      setDepartments((prev) =>
+        prev.map((d) =>
+          d.id === editingDept.id
+            ? {
+              ...d,
+              deptName: updatedDept.deptName,
+              deptCode: updatedDept.deptCode,
+              startedOn: updatedDept.startDate
+                ? new Date(updatedDept.startDate).toISOString().split("T")[0]
+                : "",
+              deptHead: String(updatedDept.deptHead || ""),
+              timezoneId: String(updatedDept.timezoneId || ""),
+              businessUnit: String(updatedDept.unitId || ""),
+            }
+            : d
+        )
+      );
+
+      // Cleanup UI
+      setEditingDept(null);
+      setFormErrors({});
+      toast.success("Department updated successfully!");
+    } catch (err) {
+      console.error(" Failed to update department", err);
+      toast.error("Failed to update department");
+    }
   };
-
-
 
   const handleDeleteClick = (id: number) => {
     setDeptToDelete(id);
@@ -226,21 +346,20 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
   };
 
   const handleDeleteConfirm = async () => {
-  if (deptToDelete !== null) {
-    try {
-      await api.delete(DEPARTMENT_ENDPOINTS.DELETE_DEPARTMENT(deptToDelete));
-      setDepartments(departments.filter(d => d.id !== deptToDelete));
-      toast.success("Department deleted successfully!");
-    } catch (err) {
-      console.error("Failed to delete department", err);
-      toast.error("Failed to delete department");
-    } finally {
-      setDeleteConfirmOpen(false);
-      setDeptToDelete(null);
+    if (deptToDelete !== null) {
+      try {
+        await api.delete(DEPARTMENT_ENDPOINTS.DELETE_DEPARTMENT(deptToDelete));
+        setDepartments(departments.filter(d => d.id !== deptToDelete));
+        toast.success("Department deleted successfully!");
+      } catch (err) {
+        console.error("Failed to delete department", err);
+        toast.error("Failed to delete department");
+      } finally {
+        setDeleteConfirmOpen(false);
+        setDeptToDelete(null);
+      }
     }
-  }
-};
-
+  };
 
 
   const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>, type: 'csv' | 'xlsx') => {
@@ -250,13 +369,13 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       setShowAddDialog(false);
     }
   };
-
   const filteredDepartments = departments.filter(dept =>
-    dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    dept.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    dept.departmentHead.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    dept.businessUnit.toLowerCase().includes(searchQuery.toLowerCase())
+    (dept.deptName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (dept.deptCode || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (dept.deptHead || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (dept.businessUnit || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
+
 
   return (
     <div className="space-y-6">
@@ -303,113 +422,176 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredDepartments.map((dept) => (
-                  <TableRow key={dept.id}>
-                    <TableCell className="font-medium">
-                      {editingDept?.id === dept.id ? (
-                        <>
-                          <Input
-                            value={editingDept.name}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setEditingDept({ ...editingDept, name: value });
-                              if (formErrors.name) {
-                                setFormErrors((prev) => ({ ...prev, name: null }));
-                              }
-                            }}
+                {filteredDepartments
+                  .filter(dept => dept.id) // render only rows with valid IDs
+                  .map((dept) => (
+                    <TableRow key={dept.id}>
+                      {/* Department Name */}
+                      <TableCell className="font-medium">
+                        {editingDept?.id === dept.id ? (
+                          <>
+                            <Input
+                              value={editingDept?.deptName || ""}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setEditingDept({ ...editingDept, deptName: value });
+                                if (formErrors.deptName) {
+                                  setFormErrors((prev) => ({ ...prev, deptName: null }));
+                                }
+                              }}
+                            />
+                            {formErrors.deptName && (
+                              <p className="text-destructive text-xs mt-1">{formErrors.deptName}</p>
+                            )}
+                          </>
+                        ) : (
+                          dept.deptName
+                        )}
+                      </TableCell>
 
-                          // onChange={(e) => setEditingDept({ ...editingDept, name: e.target.value })}
-                          />
-                          {formErrors.name && <p className="text-destructive text-xs mt-1">{formErrors.name}</p>}
-                        </>
-                      ) : (
-                        dept.name
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editingDept?.id === dept.id ? (
-                        <>
-                          <Input
-                            value={editingDept.code}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setEditingDept({ ...editingDept, code: value });
-                              if (formErrors.code) {
-                                setFormErrors((prev) => ({ ...prev, code: null }));
-                              }
-                            }}
-                          // onChange={(e) => setEditingDept({ ...editingDept, code: e.target.value })}
-                          />
-                          {formErrors.code && <p className="text-destructive text-xs mt-1">{formErrors.code}</p>}
-                        </>
-                      ) : (
-                        dept.code
-                      )}
-                    </TableCell>
-                    <TableCell>{dept.startedOn || "-"}</TableCell>
-                    <TableCell>
-                      {editingDept?.id === dept.id ? (
-                        <>
-                          <Input
-                            value={editingDept.departmentHead}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setEditingDept({ ...editingDept, departmentHead: value });
-                              if (formErrors.departmentHead) {
-                                setFormErrors((prev) => ({ ...prev, departmentHead: null }));
-                              }
-                            }}
-                          // onChange={(e) => setEditingDept({ ...editingDept, departmentHead: e.target.value })}
-                          />
-                          {formErrors.departmentHead && <p className="text-destructive text-xs mt-1">{formErrors.departmentHead}</p>}
-                        </>
-                      ) : (
-                        dept.departmentHead || "-"
-                      )}
-                    </TableCell>
-                    <TableCell>{dept.timezone}</TableCell>
-                    <TableCell>{getBusinessUnitName(dept.businessUnit)}</TableCell>
-                    <TableCell className="text-right">
-                      {!viewOnly && (
-                        <div className="flex items-center justify-end gap-2">
-                          {editingDept?.id === dept.id ? (
-                            <>
-                              <Button size="sm" onClick={handleUpdate}>
-                                Save
-                              </Button>
-                              <Button size="sm" variant="outline" onClick={() => setEditingDept(null)}>
-                                Cancel
-                              </Button>
-                            </>
-                          ) : (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <MoreVertical className="size-4" />
+                      {/* Department Code */}
+                      <TableCell>
+                        {editingDept?.id === dept.id ? (
+                          <>
+                            <Input
+                              value={editingDept?.deptCode || ""}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setEditingDept({ ...editingDept, deptCode: value });
+                                if (formErrors.deptCode) {
+                                  setFormErrors((prev) => ({ ...prev, deptCode: null }));
+                                }
+                              }}
+                            />
+                            {formErrors.deptCode && (
+                              <p className="text-destructive text-xs mt-1">{formErrors.deptCode}</p>
+                            )}
+                          </>
+                        ) : (
+                          dept.deptCode
+                        )}
+                      </TableCell>
+
+                      {/* Started On */}
+                      <TableCell>{dept.startedOn || "-"}</TableCell>
+
+                      {/* Department Head */}
+                      <TableCell>
+                        {editingDept?.id === dept.id ? (
+                          <Select
+                            value={editingDept?.deptHead || ""}
+                            onValueChange={(value) => setEditingDept({ ...editingDept, deptHead: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select employee" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {employees.map((emp) => (
+                                <SelectItem key={emp.id} value={emp.id}>
+                                  {emp.fullName}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          getDeptHeadName(dept.deptHead)
+                        )}
+                      </TableCell>
+
+                      {/* Time Zone */}
+                      <TableCell>
+                        {editingDept?.id === dept.id ? (
+                          <Select
+                            value={editingDept?.timezoneId || ""}
+                            onValueChange={(value) => setEditingDept({ ...editingDept, timezoneId: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select timezone" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {timezones.map((tz) => (
+                                <SelectItem key={tz.id} value={tz.id}>
+                                  {tz.timezone}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (() => {
+                          const tz = timezones.find((tz) => tz.id === dept.timezoneId);
+                          return tz ? tz.timezone : "-";
+                        })()}
+                      </TableCell>
+
+                      {/* Business Unit */}
+                      <TableCell>
+                        {editingDept?.id === dept.id ? (
+                          <Select
+                            value={editingDept?.businessUnit || ""}
+                            onValueChange={(value) =>
+                              setEditingDept({ ...editingDept, businessUnit: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select unit" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {businessUnits.map((unit) => (
+                                <SelectItem key={unit.id} value={String(unit.id)}>
+                                  {unit.unitName}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : getBusinessUnitName(dept.businessUnit)}
+                      </TableCell>
+
+                      {/* Actions */}
+                      <TableCell className="text-right">
+                        {!viewOnly && (
+                          <div className="flex items-center justify-end gap-2">
+                            {editingDept?.id === dept.id ? (
+                              <>
+                                <Button size="sm" onClick={handleUpdate}>
+                                  Save
                                 </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleEdit(dept)}>
-                                  <Edit className="size-4 mr-2" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => handleDeleteClick(dept.id)}
-                                  className="text-destructive focus:text-destructive"
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setEditingDept(null)}
                                 >
-                                  <Trash2 className="size-4 mr-2" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          )}
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                                  Cancel
+                                </Button>
+                              </>
+                            ) : (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreVertical className="size-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleEdit(dept)}>
+                                    <Edit className="size-4 mr-2" />
+                                    Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteClick(dept.id)}
+                                    className="text-destructive focus:text-destructive"
+                                  >
+                                    <Trash2 className="size-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
+
             </Table>
           </div>
 
@@ -466,31 +648,31 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Label>Department Name *</Label>
                   <Input
                     placeholder="e.g., Customer Service"
-                    value={newDept.name}
+                    value={newDept.deptName}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setNewDept({ ...newDept, name: value });
-                      if (formErrors.name) {
-                        setFormErrors((prev) => ({ ...prev, name: null }));
+                      setNewDept({ ...newDept, deptName: value });
+                      if (formErrors.deptName) {
+                        setFormErrors((prev) => ({ ...prev, deptName: null }));
                       }
                     }} />
-                  {formErrors.name && <p className="text-sm text-destructive">{formErrors.name}</p>}
+                  {formErrors.deptName && <p className="text-sm text-destructive">{formErrors.deptName}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Department Code *</Label>
                   <Input
                     placeholder="e.g., CS"
-                    value={newDept.code}
+                    value={newDept.deptCode}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setNewDept({ ...newDept, code: value });
-                      if (formErrors.code) {
-                        setFormErrors((prev) => ({ ...prev, code: null }));
+                      setNewDept({ ...newDept, deptCode: value });
+                      if (formErrors.deptCode) {
+                        setFormErrors((prev) => ({ ...prev, deptCode: null }));
                       }
                     }}
                   //                    onChange={(e) => setNewDept({ ...newDept, code: e.target.value })}
                   />
-                  {formErrors.code && <p className="text-sm text-destructive">{formErrors.code}</p>}
+                  {formErrors.deptCode && <p className="text-sm text-destructive">{formErrors.deptCode}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Started On</Label>
@@ -512,54 +694,78 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                 </div>
                 <div className="space-y-2">
                   <Label>Department Head *</Label>
-                  <Input
-                    placeholder="Enter name"
-                    value={newDept.departmentHead}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setNewDept({ ...newDept, departmentHead: value });
-                      if (formErrors.departmentHead) {
-                        setFormErrors((prev) => ({ ...prev, departmentHead: null }));
+                  <Select
+                    value={newDept.deptHead}
+                    onValueChange={(value) => {
+                      setNewDept({ ...newDept, deptHead: value });
+                      if (formErrors.deptHead) {
+                        setFormErrors((prev) => ({ ...prev, deptHead: null }));
                       }
                     }}
-                  //   onChange={(e) => setNewDept({ ...newDept, departmentHead: e.target.value })}
-                  />
-                  {formErrors.departmentHead && <p className="text-sm text-destructive">{formErrors.departmentHead}</p>}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select employee" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map((emp: any) => (
+                        <SelectItem key={emp.id} value={emp.id}>
+                          {emp.fullName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formErrors.deptHead && (
+                    <p className="text-sm text-destructive">{formErrors.deptHead}</p>
+                  )}
                 </div>
+
                 <div className="space-y-2">
-  <Label>Business Unit *</Label>
-  <Select
-    value={newDept.businessUnit}
-    onValueChange={(value) => {
-      setNewDept({ ...newDept, businessUnit: value });
-      if (formErrors.businessUnit) {
-        setFormErrors((prev) => ({ ...prev, businessUnit: null }));
-      }
-    }}
-  >
-    <SelectTrigger>
-      <SelectValue placeholder="Select an option" />
-    </SelectTrigger>
-    <SelectContent>
-      {businessUnits.map((unit) => (
-        <SelectItem key={unit.id} value={String(unit.id)}>
-          {unit.unitName}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-  {formErrors.businessUnit && (
-    <p className="text-sm text-destructive">{formErrors.businessUnit}</p>
-  )}
-</div>
+                  <Label>Business Unit *</Label>
+                  <Select
+                    value={newDept.businessUnit}
+                    onValueChange={(value) => {
+                      setNewDept({ ...newDept, businessUnit: value });
+                      if (formErrors.businessUnit) {
+                        setFormErrors((prev) => ({ ...prev, businessUnit: null }));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {businessUnits.map((unit) => (
+                        <SelectItem key={unit.id} value={String(unit.id)}>
+                          {unit.unitName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formErrors.businessUnit && (
+                    <p className="text-sm text-destructive">{formErrors.businessUnit}</p>
+                  )}
+                </div>
 
                 <div className="space-y-2">
                   <Label>Time Zone</Label>
-                  <Input
-                    value={newDept.timezone}
-                    onChange={(e) => setNewDept({ ...newDept, timezone: e.target.value })}
-                  />
+                  <Select
+                    value={newDept.timezoneId}
+                    onValueChange={(value) => setNewDept({ ...newDept, timezoneId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timezones.map((tz: any) => (
+                        <SelectItem key={tz.id} value={tz.id}>
+                          {tz.timezone}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formErrors.timezoneId && (<p className="text-sm text-destructive">{formErrors.timezoneId}</p>)}
                 </div>
+
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => { setShowAddDialog(false); resetNewDept(); }}>
