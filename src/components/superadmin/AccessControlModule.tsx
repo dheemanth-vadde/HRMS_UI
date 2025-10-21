@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -48,25 +48,24 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { cn } from "../ui/utils";
+import {getValidationError,isInList} from "../../utils/validations";
+import api from "../../services/interceptors";
+import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
+
 
 interface Role {
   id: number;
   roleName: string;
-  roleType: string;
+  // roleType: string;
   roleDescription: string;
-  group: string;
+  // group: string;
 }
 
 export function AccessControlModule() {
   // Roles State
-  const [roles, setRoles] = useState<Role[]>([
-    { id: 1, roleName: "Employee", roleType: "employee", roleDescription: "Standard employee access", group: "Employees" },
-    { id: 2, roleName: "Manager", roleType: "manager", roleDescription: "Team management capabilities", group: "Management" },
-    { id: 3, roleName: "HR Admin", roleType: "hradmin", roleDescription: "HR operations and reporting", group: "HR" },
-    { id: 4, roleName: "Super Admin", roleType: "superadmin", roleDescription: "Full system access", group: "Administration" },
-  ]);
+  const [roles, setRoles] = useState<Role[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,70 +79,192 @@ export function AccessControlModule() {
 
   const [roleFormData, setRoleFormData] = useState({
     roleName: "",
-    roleType: "",
+    // roleType: "",
     roleDescription: "",
-    group: "",
+    // group: "",
   });
 
-  const groups = ["Employees", "Management", "HR", "Administration"];
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isLoading,setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try{
+        setLoading(true);
+        const response = await api.get(ROLES_ENDPOINTS.GET_ROLES);
+        console.log("Roles fetched:", response);
+        const fetchedRoles = response?.data?.data ;
+        const mappedRoles = fetchedRoles.map((role:any) => {
+          return {
+            id: role.id,
+            roleName: role.roleName,
+            roleDescription: role.roleDescription || "",
+          }
+        })
+        setRoles(mappedRoles);
+      }catch(error){
+          console.log("Error fetching roles",error);
+      }finally{
+        setLoading(false);
+      }
+    }
+    fetchRoles();
+
+  },[]);
+
+  // const groups = ["Employees", "Management", "HR", "Administration"];
 
   // Role Handlers
-  const handleAddRole = () => {
-    if (!roleFormData.roleName || !roleFormData.roleType || !roleFormData.group) {
-      toast.error("Please fill in all required fields");
+  const handleAddRole = async () => {
+    // if (!roleFormData.roleName || !roleFormData.roleType || !roleFormData.group) {
+    //   toast.error("Please fill in all required fields");
+    //   return;
+    // }
+
+    //to validate form data
+    const newErrors = validateRoleFromData(roleFormData);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    //to check if role already exists
+    if(isInList(roles,"roleName",roleFormData.roleName)) {
+      newErrors.roleName ="Role already exists";
+      setErrors(newErrors);
       return;
     }
 
-    const newRole: Role = {
-      id: roles.length + 1,
+    const newRole: any = {
+      // id: roles.length + 1,
       roleName: roleFormData.roleName,
-      roleType: roleFormData.roleType,
+      // roleType: roleFormData.roleType,
       roleDescription: roleFormData.roleDescription,
-      group: roleFormData.group,
+      // group: roleFormData.group,
     };
 
-    setRoles([...roles, newRole]);
-    setIsAddRoleDialogOpen(false);
-    resetRoleForm();
-    toast.success("Role created successfully");
+    try{
+      setLoading(true)
+      const response = await api.post(ROLES_ENDPOINTS.POST_ROLE, newRole);
+      const createdRole = response.data.data;
+      console.log("Role created:", response);
+      setRoles([...roles, createdRole]);
+      setIsAddRoleDialogOpen(false);
+      toast.success("Role added successfully!");
+    }catch(error){
+      console.log("Error creating role",error);
+    }finally{
+       setLoading(false);
+       resetRoleForm();
+      //  toast.success("Role created successfully");
+    }
+   
   };
 
-  const handleEditRole = () => {
+  const handleEditRole = async () => {
     if (!selectedRole) return;
-    if (!roleFormData.roleName || !roleFormData.roleType || !roleFormData.group) {
-      toast.error("Please fill in all required fields");
-      return;
+    // if (!roleFormData.roleName || !roleFormData.roleType || !roleFormData.group) {
+    //   toast.error("Please fill in all required fields");
+    //   return;
+    // }
+
+    //to validate form data
+    const newErrors = validateRoleFromData(roleFormData);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+    
+    //to check if role already exists
+    if(selectedRole.roleName !== roleFormData.roleName && isInList(roles,"roleName",roleFormData.roleName)) {
+      newErrors.roleName ="Role already exists.";
+      setErrors(newErrors);
+      return ;
     }
 
-    setRoles(
-      roles.map((role) =>
-        role.id === selectedRole.id
-          ? { ...role, roleName: roleFormData.roleName, roleType: roleFormData.roleType, roleDescription: roleFormData.roleDescription, group: roleFormData.group }
-          : role
-      )
-    );
-
-    setIsEditRoleDialogOpen(false);
-    setSelectedRole(null);
-    resetRoleForm();
-    toast.success("Role updated successfully");
+    try{
+         const response = await api.put(ROLES_ENDPOINTS.UPDATE_ROLE(selectedRole.id),roleFormData);
+         console.log("Role updated:", response);
+         const updatedRole = response.data.data;
+          setRoles(
+          roles.map((role) =>
+            role.id === updatedRole.id
+              ? { ...role, roleName: updatedRole.roleName,roleDescription: updatedRole.roleDescription}
+              : role
+          )
+        );
+        toast.success("Role updated successfully!");
+    }catch(error){
+      console.log("Error updating role",error);
+    }finally{
+        setIsEditRoleDialogOpen(false);
+        setSelectedRole(null);
+        resetRoleForm();
+    }
+  
   };
 
-  const handleDeleteRole = () => {
+  const handleDeleteRole = async () => {
     if (!selectedRole) return;
-    setRoles(roles.filter((role) => role.id !== selectedRole.id));
-    setIsDeleteRoleDialogOpen(false);
-    setSelectedRole(null);
-    toast.success("Role deleted successfully");
+    try{
+      console.log("Deleting role with ID:", selectedRole.id);
+      await api.delete(ROLES_ENDPOINTS.DELETE_ROLE(selectedRole.id));
+      console.log("Role deleted:", selectedRole.id);
+      setRoles(roles.filter((role) => role.id !== selectedRole.id));
+      toast.success("Role deleted successfully!");
+    }catch(error){
+      console.log("Error deleting role",error);
+    }finally{
+      setIsDeleteRoleDialogOpen(false);
+      setSelectedRole(null);
+      // toast.success("Role deleted successfully");
+    }
+    
+    
   };
+
+  //validation function
+  const validateRoleFromData = (unit: typeof roleFormData) => {
+    const requiredFields: (keyof typeof roleFormData)[] = ["roleName", "roleDescription"];
+    const newErrors: { [key: string]: string } = {};
+
+    for (const field of requiredFields) {
+      const value = unit[field];
+
+      // Leading/trailing space check
+          let error = getValidationError(
+            "noSpaces",
+            value,
+            `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
+          );
+
+          if (error) {
+            newErrors[String(field)] = error;
+            continue;
+          }
+
+          //required check  except for roleDescription(optional)
+          if(field !== "roleDescription") {
+              //required check
+              error = getValidationError(
+                "required",
+                value,
+                `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
+              );
+              
+          }
+          if (error) {
+            newErrors[String(field)] = error;
+    }
+  }
+
+    return newErrors;
+  };
+
 
   const openEditRoleDialog = (role: Role) => {
     setSelectedRole(role);
     setRoleFormData({
       roleName: role.roleName,
-      roleType: role.roleType,
+      // roleType: role.roleType,
       roleDescription: role.roleDescription,
-      group: role.group,
+      // group: role.group,
     });
     setIsEditRoleDialogOpen(true);
   };
@@ -154,15 +275,17 @@ export function AccessControlModule() {
   };
 
   const resetRoleForm = () => {
-    setRoleFormData({ roleName: "", roleType: "", roleDescription: "", group: "" });
+    setRoleFormData({ roleName: "",roleDescription: ""});
+    setErrors({});
   };
 
   // Filtering and Pagination
   const filteredRoles = roles.filter(
     (role) =>
       role.roleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      role.roleType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      role.group.toLowerCase().includes(searchQuery.toLowerCase())
+      role.roleDescription.toLowerCase().includes(searchQuery.toLowerCase())
+      // role.roleType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      // role.group.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
@@ -174,13 +297,13 @@ export function AccessControlModule() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1>Roles & Privileges</h1>
+          <h1>Roles</h1>
           <p className="text-muted-foreground mt-1">
-            Manage roles and privileges across the organization
+            Manage roles across the organization
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Select defaultValue="all">
+          {/* <Select defaultValue="all">
             <SelectTrigger className="w-48">
               <SelectValue placeholder="All Groups" />
             </SelectTrigger>
@@ -190,7 +313,7 @@ export function AccessControlModule() {
                 <SelectItem key={group} value={group}>{group}</SelectItem>
               ))}
             </SelectContent>
-          </Select>
+          </Select> */}
           <div className="relative w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
@@ -219,9 +342,9 @@ export function AccessControlModule() {
                 <TableRow className="bg-muted/50">
                   
                   <TableHead className="font-semibold text-base mb-1">Role Name</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">Role Type</TableHead>
+                  {/* <TableHead className="font-semibold text-base mb-1">Role Type</TableHead> */}
                   <TableHead className="font-semibold text-base mb-1">Role Description</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">Group</TableHead>
+                  {/* <TableHead className="font-semibold text-base mb-1">Group</TableHead> */}
                   <TableHead className="font-semibold text-base mb-1 w-24">Action</TableHead>
                 </TableRow>
               </TableHeader>
@@ -237,13 +360,13 @@ export function AccessControlModule() {
                     <TableRow key={role.id} className="hover:bg-muted/30">
                       
                       <TableCell className="font-medium">{role.roleName}</TableCell>
-                      <TableCell className="text-muted-foreground">{role.roleType}</TableCell>
+                      {/* <TableCell className="text-muted-foreground">{role.roleType}</TableCell> */}
                       <TableCell className="text-muted-foreground">{role.roleDescription || "-"}</TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-sm">
                           {role.group}
                         </span>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
@@ -319,7 +442,10 @@ export function AccessControlModule() {
       </Card>
 
       {/* Add Role Dialog */}
-      <Dialog open={isAddRoleDialogOpen} onOpenChange={setIsAddRoleDialogOpen}>
+      <Dialog open={isAddRoleDialogOpen} onOpenChange={(open:boolean)=>{
+        setIsAddRoleDialogOpen(open);
+        if(!open) { resetRoleForm();}
+      }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add New Role</DialogTitle>
@@ -336,8 +462,9 @@ export function AccessControlModule() {
                 value={roleFormData.roleName}
                 onChange={(e) => setRoleFormData({ ...roleFormData, roleName: e.target.value })}
               />
+              {errors.roleName && <p className="text-sm text-destructive mt-1">{errors.roleName}</p>}
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="add-roleType">
                 Role Type <span className="text-destructive">*</span>
               </Label>
@@ -347,7 +474,8 @@ export function AccessControlModule() {
                 value={roleFormData.roleType}
                 onChange={(e) => setRoleFormData({ ...roleFormData, roleType: e.target.value })}
               />
-            </div>
+              {errors.roleType && <p className="text-sm text-destructive mt-1">{errors.roleType}</p>}
+            </div> */}
             <div className="space-y-2 col-span-2">
               <Label htmlFor="add-roleDescription">Role Description</Label>
               <Textarea
@@ -357,8 +485,9 @@ export function AccessControlModule() {
                 onChange={(e) => setRoleFormData({ ...roleFormData, roleDescription: e.target.value })}
                 rows={3}
               />
+              {errors.roleDescription && <p className="text-sm text-destructive mt-1">{errors.roleDescription}</p>}
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="add-group">
                 Group <span className="text-destructive">*</span>
               </Label>
@@ -374,7 +503,8 @@ export function AccessControlModule() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+              {errors.group && <p className="text-sm text-destructive mt-1">{errors.group}</p>}
+            </div> */}
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => { setIsAddRoleDialogOpen(false); resetRoleForm(); }}>
@@ -389,7 +519,10 @@ export function AccessControlModule() {
       </Dialog>
 
       {/* Edit Role Dialog */}
-      <Dialog open={isEditRoleDialogOpen} onOpenChange={setIsEditRoleDialogOpen}>
+      <Dialog open={isEditRoleDialogOpen} onOpenChange={(open:boolean)=>{
+        setIsEditRoleDialogOpen(open);
+        if(!open) { setSelectedRole(null); resetRoleForm(); }
+      }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit Role</DialogTitle>
@@ -406,8 +539,9 @@ export function AccessControlModule() {
                 value={roleFormData.roleName}
                 onChange={(e) => setRoleFormData({ ...roleFormData, roleName: e.target.value })}
               />
+              {errors.roleName && <p className="text-sm text-destructive mt-1">{errors.roleName}</p>}
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="edit-roleType">
                 Role Type <span className="text-destructive">*</span>
               </Label>
@@ -417,7 +551,8 @@ export function AccessControlModule() {
                 value={roleFormData.roleType}
                 onChange={(e) => setRoleFormData({ ...roleFormData, roleType: e.target.value })}
               />
-            </div>
+              {errors.roleType && <p className="text-sm text-destructive mt-1">{errors.roleType}</p>}
+            </div> */}
             <div className="space-y-2 col-span-2">
               <Label htmlFor="edit-roleDescription">Role Description</Label>
               <Textarea
@@ -427,8 +562,9 @@ export function AccessControlModule() {
                 onChange={(e) => setRoleFormData({ ...roleFormData, roleDescription: e.target.value })}
                 rows={3}
               />
+              {errors.roleDescription && <p className="text-sm text-destructive mt-1">{errors.roleDescription}</p>}
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="edit-group">
                 Group <span className="text-destructive">*</span>
               </Label>
@@ -444,7 +580,8 @@ export function AccessControlModule() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+              {errors.group && <p className="text-sm text-destructive mt-1">{errors.group}</p>}
+            </div> */}
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => { setIsEditRoleDialogOpen(false); setSelectedRole(null); resetRoleForm(); }}>

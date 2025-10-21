@@ -23,10 +23,16 @@ export const hasLeadingOrTrailingSpaces = (value: string): boolean => {
   return value.startsWith(" ") || value.endsWith(" ");
 };
 
+//to check if a value exists in a list of objects based on a specific property
+export const isInList = (list:any[],propertyName:string,value:string): boolean => {
+    return list.some(
+    (item) => item[propertyName].toLowerCase() === value.toLowerCase());// returns true if value is in the list
+}
+
 // --- Get Validation Error ---
 // Returns a specific error message if validation fails, otherwise null
 export const getValidationError = (
-  type: "email" | "phone" | "required" | "numeric" | "noSpaces",
+  type: "email" | "phone" | "required" | "numeric" | "noSpaces" | "alphabetical",
   value: string,
   customMessage?: string
 ): string | null => {
