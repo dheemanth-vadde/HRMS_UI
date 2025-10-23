@@ -60,6 +60,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
   const [businessUnits, setBusinessUnits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingUnit, setEditingUnit] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [unitToDelete, setUnitToDelete] = useState<number | null>(null);
@@ -79,9 +80,12 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
   const [states, setStates] = useState<any[]>([]);
   const [countries, setCountries] = useState<any[]>([]);
   const [timezones, setTimezones] = useState<any[]>([]);
+  const [filteredStates, setFilteredStates] = useState<any[]>([]);
+  const [filteredCities, setFilteredCities] = useState<any[]>([]);
 
 
-  const validateUnit = (unit: typeof newUnit) => {
+
+  const validateUnit = (unit: typeof newUnit, idToExclude?: string) => {
     const requiredFields: (keyof typeof unit)[] = [
       "name",
       "code",
@@ -97,33 +101,43 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
 
     for (const field of requiredFields) {
       const value = unit[field];
+      let error: string | null = null;
 
-      // --- Check for leading/trailing spaces for string fields ---
-      if (typeof value === "string") {
-        const spaceError = getValidationError(
-          "noSpaces",
-          value,
-          `${field} cannot start or end with a space`
-        );
-        if (spaceError) {
-          errors[field] = spaceError;
-          continue; // skip required check if space error exists
+      if (typeof value === "string" && !["cityId", "stateId", "countryId", "timezoneId"].includes(field)) {
+        error = getValidationError("noSpaces", value, `This feild is invalid`);
+        if (error) {
+          errors[field] = error;
+          continue;
         }
       }
 
-      // --- Required field check ---
-      const requiredError = getValidationError(
-        "required",
-        value ?? "", // convert null/undefined to empty string
-        `${field} is required`
-      );
-      if (requiredError) {
-        errors[field] = requiredError;
+      if (["cityId", "stateId", "countryId", "timezoneId"].includes(field)) {
+        error = getValidationError("required", value, "Please select an option");
+      } else {
+        error = getValidationError("required", value ?? "", `This field is required`);
       }
+
+      if (error) {
+        errors[String(field)] = error;
+        continue;
+      }
+
+      // Unique validation
+      if (["name", "code"].includes(field)) {
+        error = getValidationError("unique", value, "This field already exists", {
+          list: businessUnits.filter((u) => u.id !== idToExclude),
+          propertyName: field,
+        });
+        if (error) errors[field] = error;
+      }
+
     }
 
     return errors;
   };
+
+
+
 
 
 
@@ -274,13 +288,33 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
     });
   };
 
+  // New useEffect to handle State/City filtering on dialog open (for Edit only)
+  useEffect(() => {
+    if (showEditDialog && editingUnit) {
+      // 1. Filter States based on the initial countryId
+      const initialFilteredStates = states.filter(
+        (s) => s.countryId === editingUnit.countryId
+      );
+      setFilteredStates(initialFilteredStates);
+
+      // 2. Filter Cities based on the initial countryId and stateId
+      const initialFilteredCities = cities.filter(
+        (c) =>
+          c.stateId === editingUnit.stateId &&
+          c.countryId === editingUnit.countryId
+      );
+      setFilteredCities(initialFilteredCities);
+    }
+  }, [showEditDialog, editingUnit, states, cities]); // Dependencies: dialog open, unit data, all states/cities
+
 
   const handleUpdate = async () => {
     if (!editingUnit) return;
 
-    const newErrors = validateUnit(editingUnit);
+    const newErrors = validateUnit(editingUnit, editingUnit.id); // pass current unit id
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
+
 
     try {
       const payload = {
@@ -293,7 +327,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
         countryId: editingUnit.countryId,
         timezoneId: editingUnit.timezoneId,
       };
-console.log("Update Payload:", payload); // Debug log
+
       const response = await api.put(
         BUSSINESSUNIT_ENDPOINTS.PUT_BUSSINESSUNIT(editingUnit.id),
         payload
@@ -324,6 +358,9 @@ console.log("Update Payload:", payload); // Debug log
       );
 
       toast.success("Business unit updated successfully!");
+
+      // ✅ Close the dialog after successful update
+      setShowEditDialog(false);
       setEditingUnit(null);
       setErrors({});
     } catch (err) {
@@ -331,6 +368,7 @@ console.log("Update Payload:", payload); // Debug log
       toast.error("Failed to update business unit");
     }
   };
+
 
 
 
@@ -364,7 +402,11 @@ console.log("Update Payload:", payload); // Debug log
     unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     unit.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
     unit.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    unit.state.toLowerCase().includes(searchQuery.toLowerCase())
+    unit.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    unit.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    unit.timezone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    unit.streetAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    unit.startedOn.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const resetNewUnit = () => {
@@ -395,7 +437,7 @@ console.log("Update Payload:", payload); // Debug log
           <div className="relative w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
-              placeholder="Search business units..."
+              placeholder="Search"
               className="pl-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -417,233 +459,57 @@ console.log("Update Payload:", payload); // Debug log
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="font-semibold text-base mb-1">Name</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">Code</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">Started On</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">Street Address</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">City</TableHead>
-                  <TableHead className="font-semibold text-base mb-1"> State</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">Country</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">Time zone</TableHead>
-                  <TableHead className="font-semibold text-base mb-1"> Actions</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Started On</TableHead>
+                  <TableHead>Street Address</TableHead>
+                  <TableHead>Country</TableHead>
+                  <TableHead>State</TableHead>
+                  <TableHead>City</TableHead>
+                  <TableHead>Time zone</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUnits.map((unit) => (
                   <TableRow key={unit.id}>
-                    <TableCell className="font-medium">
-                      {editingUnit?.id === unit.id ? (
-                        <>
-                          <Input
-                            value={editingUnit.name}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setEditingUnit({ ...editingUnit, name: value });
-                              if (errors.name) {
-                                setErrors((prev) => ({ ...prev, name: "" }));
-                              }
-                            }}
-                          // onChange={(e) => setEditingUnit({ ...editingUnit, name: e.target.value })}
-                          />
-                          {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
-                        </>
-                      ) : (
-                        unit.name
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editingUnit?.id === unit.id ? (
-                        <>
-                          <Input
-                            value={editingUnit.code}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setEditingUnit({ ...editingUnit, code: value });
-                              if (errors.code) {
-                                setErrors((prev) => ({ ...prev, code: "" }));
-                              }
-                            }}
-                          // onChange={(e) => setEditingUnit({ ...editingUnit, code: e.target.value })}
-                          />
-                          {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
-                        </>
-                      ) : (
-                        unit.code
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editingUnit?.id === unit.id ? (
-                        <>
-                          <Input
-                            type="date"
-                            value={editingUnit.startedOn}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setEditingUnit({ ...editingUnit, startedOn: value });
-                              if (errors.startedOn) {
-                                setErrors((prev) => ({ ...prev, startedOn: "" }));
-                              }
-                            }}
-                          //onChange={(e) => setEditingUnit({ ...editingUnit, startedOn: e.target.value }) }
-                          />
-                          {errors.startedOn && (
-                            <p className="text-destructive text-sm mt-1">{errors.startedOn}</p>
-                          )}
-                        </>
-                      ) : (
-                        unit.startedOn
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      {editingUnit?.id === unit.id ? (
-                        <>
-                          <Input
-                            value={editingUnit.streetAddress}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setEditingUnit({ ...editingUnit, streetAddress: value });
-                              if (errors.streetAddress) {
-                                setErrors((prev) => ({ ...prev, streetAddress: "" }));
-                              }
-                            }}
-                          //   onChange={(e) => setEditingUnit({ ...editingUnit, streetAddress: e.target.value })}
-                          />
-                          {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
-                        </>
-                      ) : (
-                        unit.streetAddress
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editingUnit?.id === unit.id ? (
-                        <Select
-                          value={editingUnit.cityId}
-                          onValueChange={(value: any) => setEditingUnit({ ...editingUnit, cityId: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select city" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {cities.map((c) => (
-                              <SelectItem key={c.id} value={c.id}>
-                                {c.city}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        unit.city
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      {editingUnit?.id === unit.id ? (
-                        <Select
-                          value={editingUnit.stateId}
-                          onValueChange={(value: any) => setEditingUnit({ ...editingUnit, stateId: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select state" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {states.map((s) => (
-                              <SelectItem key={s.id} value={s.id}>
-                                {s.state}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        unit.state
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      {editingUnit?.id === unit.id ? (
-                        <Select
-                          value={editingUnit.countryId}
-                          onValueChange={(value: any) => setEditingUnit({ ...editingUnit, countryId: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select country" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {countries.map((c) => (
-                              <SelectItem key={c.id} value={c.id}>
-                                {c.country}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        unit.country
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      {editingUnit?.id === unit.id ? (
-                        <Select
-                          value={editingUnit.timezoneId}
-                          onValueChange={(value: any) => setEditingUnit({ ...editingUnit, timezoneId: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select timezone" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {timezones.map((tz) => (
-                              <SelectItem key={tz.id} value={tz.id}>
-                                {tz.timezone}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        unit.timezone
-                      )}
-                    </TableCell>
+                    <TableCell className="font-medium">{unit.name}</TableCell>
+                    <TableCell>{unit.code}</TableCell>
+                    <TableCell>{unit.startedOn}</TableCell>
+                    <TableCell>{unit.streetAddress}</TableCell>
+                    <TableCell>{unit.country}</TableCell>
+                    <TableCell>{unit.state}</TableCell>
+                    <TableCell>{unit.city}</TableCell>
+                    <TableCell>{unit.timezone}</TableCell>
 
                     <TableCell className="text-right">
                       {!viewOnly && (
                         <div className="flex items-center justify-end gap-2">
-                          {editingUnit?.id === unit.id ? (
-                            <>
-                              <Button size="sm" onClick={handleUpdate}>
-                                Save
-                              </Button>
-                              <Button size="sm" variant="outline" onClick={() => setEditingUnit(null)}>
-                                Cancel
-                              </Button>
-                            </>
-                          ) : (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <MoreVertical className="size-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleEdit(unit)}>
-                                  <Edit className="size-4 mr-2" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => handleDeleteClick(unit.id)}
-                                  className="text-destructive focus:text-destructive"
-                                >
-                                  <Trash2 className="size-4 mr-2" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              handleEdit(unit);
+                              setShowEditDialog(true); // open dialog
+                            }}
+                          >
+                            <Edit className="size-4 text-gray-500" />
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(unit.id)}
+                          >
+                            <Trash2 className="size-4 text-gray-500" />
+                          </Button>
                         </div>
                       )}
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
+
             </Table>
           </div>
 
@@ -756,50 +622,15 @@ console.log("Update Payload:", payload); // Debug log
                 {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
               </div>
               <div className="space-y-2">
-                <Label>City *</Label>
-                <Select
-                  value={newUnit.cityId}
-                  onValueChange={(value: any) => setNewUnit({ ...newUnit, cityId: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select city" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cities.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.cityId && <p className="text-destructive text-sm mt-1">{errors.cityId}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label>State *</Label>
-                <Select
-                  value={newUnit.stateId}
-                  onValueChange={(value: any) => setNewUnit({ ...newUnit, stateId: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {states.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.state}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.stateId && <p className="text-destructive text-sm mt-1">{errors.stateId}</p>}
-              </div>
-
-              <div className="space-y-2">
                 <Label>Country *</Label>
                 <Select
                   value={newUnit.countryId}
-                  onValueChange={(value: any) => setNewUnit({ ...newUnit, countryId: value })}
+                  onValueChange={(value) => {
+                    setNewUnit({ ...newUnit, countryId: value, stateId: "", cityId: "" });
+                    setFilteredStates(states.filter((s) => s.countryId === value));
+                    setFilteredCities([]);
+                    if (errors.countryId) setErrors((prev) => ({ ...prev, countryId: "" }));
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select country" />
@@ -814,12 +645,59 @@ console.log("Update Payload:", payload); // Debug log
                 </Select>
                 {errors.countryId && <p className="text-destructive text-sm mt-1">{errors.countryId}</p>}
               </div>
+              <div className="space-y-2">
+                <Label>State *</Label>
+                <Select
+                  value={newUnit.stateId}
+                  onValueChange={(value) => {
+                    setNewUnit({ ...newUnit, stateId: value, cityId: "" });
+                    setFilteredCities(cities.filter((c) => c.stateId === value && c.countryId === newUnit.countryId));
+                    if (errors.stateId) setErrors((prev) => ({ ...prev, stateId: "" }));
+                  }}
+                >
+
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredStates.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.stateId && <p className="text-destructive text-sm mt-1">{errors.stateId}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label>City *</Label>
+                <Select
+                  value={newUnit.cityId}
+                  onValueChange={(value) => setNewUnit({ ...newUnit, cityId: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredCities.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.cityId && <p className="text-destructive text-sm mt-1">{errors.cityId}</p>}
+              </div>
+
+
+
+
 
               <div className="space-y-2">
                 <Label>Timezone *</Label>
                 <Select
                   value={newUnit.timezoneId}
-                  onValueChange={(value: any) => {
+                  onValueChange={(value) => {
                     setNewUnit({ ...newUnit, timezoneId: value });
                     if (errors.timezoneId) {
                       setErrors((prev) => ({ ...prev, timezoneId: "" }));
@@ -838,7 +716,7 @@ console.log("Update Payload:", payload); // Debug log
                   </SelectContent>
                 </Select>
 
-                {errors.timezone && <p className="text-destructive text-sm mt-1">{errors.timezone}</p>}
+                {errors.timezoneId && <p className="text-destructive text-sm mt-1">{errors.timezoneId}</p>}
               </div>
             </div>
             <DialogFooter>
@@ -853,14 +731,234 @@ console.log("Update Payload:", payload); // Debug log
           </div>
         </DialogContent>
       </Dialog>
+      {/* Edit Business Unit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={(open) => {
+        if (!open) setEditingUnit(null);
+        setShowEditDialog(open);
+      }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Business Unit</DialogTitle>
+            <DialogDescription>Update business unit information</DialogDescription>
+          </DialogHeader>
+
+          {editingUnit && (
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Unit Name *</Label>
+                  <Input
+                    placeholder="e.g., Delhi Regional Office"
+                    value={editingUnit.name}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditingUnit({ ...editingUnit, name: value });
+
+                      // Clear error for this field as soon as user types
+                      if (errors.name) {
+                        setErrors((prev) => ({ ...prev, name: "" }));
+                      }
+                    }}
+                  />
+
+                  {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Unit Code *</Label>
+                  <Input
+                    placeholder="e.g., PNB-DEL"
+                    value={editingUnit.code}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      setEditingUnit({ ...editingUnit, code: value });
+                      // Clear error for this field as soon as user types
+                      if (errors.code) {
+                        setErrors((prev) => ({ ...prev, code: "" }));
+                      }
+                    }}
+                  //   onChange={(e) => setEditingUnit({ ...editingUnit, code: e.target.value })}
+                  />
+                  {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Started On *</Label>
+                  <Input
+                    type="date"
+                    value={editingUnit.startedOn}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditingUnit({ ...editingUnit, startedOn: value });
+                      // Clear error for this field as soon as user types
+                      if (errors.startedOn) {
+                        setErrors((prev) => ({ ...prev, startedOn: "" }));
+                      }
+                    }}
+                  //onChange={(e) => setEditingUnit({ ...editingUnit, startedOn: e.target.value })}
+                  />
+                  {errors.startedOn && <p className="text-destructive text-sm mt-1">{errors.startedOn}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Street Address *</Label>
+                  <Input
+                    value={editingUnit.streetAddress}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditingUnit({ ...editingUnit, streetAddress: value });
+                      // Clear error for this field as soon as user types
+                      if (errors.streetAddress) {
+                        setErrors((prev) => ({ ...prev, streetAddress: "" }));
+                      }
+                    }}
+                  //onChange={(e) => setEditingUnit({ ...editingUnit, streetAddress: e.target.value })}
+                  />
+                  {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label>Country *</Label>
+                  <Select
+                    value={editingUnit.countryId}
+                    onValueChange={(value) => {
+                      setEditingUnit({
+                        ...editingUnit,
+                        countryId: value,
+                        // Reset state and city when country changes
+                        stateId: "",
+                        cityId: "",
+                      });
+                      setFilteredStates(states.filter((s) => s.countryId === value));
+                      // 2. Clear filtered cities
+                      setFilteredCities([]);
+                      // Clear error for country as soon as user selects
+                      if (errors.countryId) {
+                        setErrors((prev) => ({ ...prev, countryId: "" }));
+                      }
+                    }}
+                  // onValueChange={(value) => setEditingUnit({ ...editingUnit, countryId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.country}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.countryId && <p className="text-destructive text-sm mt-1">{errors.countryId}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label>State</Label>
+                  <Select
+                    value={editingUnit.stateId}
+                    onValueChange={(value) => {
+                      setEditingUnit({
+                        ...editingUnit,
+                        stateId: value,
+                        // Reset city when state changes
+                        cityId: ""
+                      });
+
+                      // 1. Filter cities for the new state (must also check country)
+                      setFilteredCities(
+                        cities.filter(
+                          (c) => c.stateId === value && c.countryId === editingUnit.countryId
+                        )
+                      );
+
+                      if (errors.stateId) {
+                        setErrors((prev) => ({ ...prev, stateId: "" }));
+                      }
+                    }}
+
+                  // onValueChange={(value) => setEditingUnit({ ...editingUnit, stateId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select state" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredStates.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>{s.state}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.stateId && <p className="text-destructive text-sm mt-1">{errors.stateId}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label>City *</Label>
+                  <Select
+                    value={editingUnit.cityId}
+                    onValueChange={(value) => {
+                      setEditingUnit({ ...editingUnit, cityId: value });
+                      // Clear error for city as soon as user selects
+                      if (errors.cityId) {
+                        setErrors((prev) => ({ ...prev, cityId: "" }));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select city" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredCities.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.cityId && <p className="text-destructive text-sm mt-1">{errors.cityId}</p>}
+                </div>
+
+
+
+                <div className="space-y-2">
+                  <Label>Timezone *</Label>
+                  <Select
+                    value={editingUnit.timezoneId}
+                    onValueChange={(value) => {
+                      setEditingUnit({ ...editingUnit, timezoneId: value });
+                      // Clear error for timezone as soon as user selects
+                      if (errors.timezoneId) {
+                        setErrors((prev) => ({ ...prev, timezoneId: "" }));
+                      }
+                    }}
+                  //  onValueChange={(value) => setEditingUnit({ ...editingUnit, timezoneId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timezones.map((tz) => (
+                        <SelectItem key={tz.id} value={tz.id}>{tz.timezone}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.timezoneId && <p className="text-destructive text-sm mt-1">{errors.timezoneId}</p>}
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleUpdate}>Save Changes</Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the business unit from the system.
+              Are you sure you want to delete this?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

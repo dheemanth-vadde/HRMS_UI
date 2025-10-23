@@ -24,17 +24,18 @@ export const hasLeadingOrTrailingSpaces = (value: string): boolean => {
 };
 
 //to check if a value exists in a list of objects based on a specific property
-export const isInList = (list:any[],propertyName:string,value:string): boolean => {
-    return list.some(
+export const isInList = (list: any[], propertyName: string, value: string): boolean => {
+  return list.some(
     (item) => item[propertyName].toLowerCase() === value.toLowerCase());// returns true if value is in the list
 }
 
 // --- Get Validation Error ---
 // Returns a specific error message if validation fails, otherwise null
 export const getValidationError = (
-  type: "email" | "phone" | "required" | "numeric" | "noSpaces" | "alphabetical",
+  type: "email" | "phone" | "required" | "numeric" | "noSpaces" | "alphabetical" | "unique",
   value: string,
-  customMessage?: string
+  customMessage?: string,
+  extra?: { list?: any[]; propertyName?: string } // extra param for unique validation
 ): string | null => {
   switch (type) {
     case "email":
@@ -52,6 +53,11 @@ export const getValidationError = (
     case "noSpaces":
       return hasLeadingOrTrailingSpaces(value)
         ? customMessage || "Value cannot start or end with a space"
+        : null;
+    case "unique":
+      if (!extra?.list || !extra.propertyName) return null;
+      return isInList(extra.list, extra.propertyName, value)
+        ? customMessage || `${extra.propertyName} already exists`
         : null;
     default:
       return "Invalid validation type.";

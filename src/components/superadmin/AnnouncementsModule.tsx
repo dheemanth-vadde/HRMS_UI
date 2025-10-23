@@ -6,6 +6,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { Megaphone, Plus, Search, Filter, Edit, Trash2, Upload, FileSpreadsheet, MoreVertical } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { cn } from "../ui/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,10 +60,10 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
   const [loading, setLoading] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<any>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [announcementToDelete, setAnnouncementToDelete] = useState<number | null>(null);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string | null }>({});
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: "",
@@ -83,7 +84,10 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
   };
 
   //  Validation logic (same style as DepartmentsModule)
-  const validateAnnouncementForm = (announcement: typeof newAnnouncement) => {
+  const validateAnnouncementForm = (
+    announcement: typeof newAnnouncement,
+    existingAnnouncements: any[] = []
+  ) => {
     const errors: { [key: string]: string | null } = {};
 
     const requiredFields: (keyof typeof newAnnouncement)[] = [
@@ -95,34 +99,51 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
     for (const field of requiredFields) {
       const value = announcement[field];
 
-      // --- Check for leading/trailing spaces for string fields only ---
+      // Check for leading/trailing spaces
       if (typeof value === "string") {
         const spaceError = getValidationError(
           "noSpaces",
           value,
-          `${field.charAt(0).toUpperCase() + field.slice(1)} cannot start or end with a space`
+          `This field cannot start or end with a space`
         );
         if (spaceError) {
           errors[field] = spaceError;
-          continue; 
+          continue;
         }
       }
-   
-      const safeValue =
-        typeof value === "boolean" ? String(value) : (value ?? "");
+
+      const safeValue = typeof value === "boolean" ? String(value) : (value ?? "");
 
       const requiredError = getValidationError(
         "required",
         safeValue,
-        `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+        `This field is required`
       );
       if (requiredError) {
         errors[field] = requiredError;
       }
     }
 
+    // --- Unique Title Validation ---
+    const uniqueError = getValidationError("unique", announcement.title, "This field already exists", {
+      list: existingAnnouncements,
+      propertyName: "title",
+    });
+    if (uniqueError) {
+      errors.title = uniqueError;
+    }
+
     return errors;
   };
+
+
+  // const filteredUnits = businessUnits.filter(unit =>
+  //   unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   unit.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   unit.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   unit.state.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
+
   useEffect(() => {
     const fetchAnnouncements = async () => {
       setLoading(true);
@@ -156,16 +177,15 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
 
   //  Add with validation
   const handleAdd = async () => {
-    //  Validate form
-    const errors = validateAnnouncementForm(newAnnouncement);
+    // Validate form including unique title
+    const errors = validateAnnouncementForm(newAnnouncement, announcements);
     setFormErrors(errors);
-    if (Object.keys(errors).length > 0) return; // stop if there are validation errors
+    if (Object.keys(errors).length > 0) return; // stop if errors exist
 
-    //  Prepare payload
     const payload = {
       title: newAnnouncement.title,
       message: newAnnouncement.message,
-      startDate: new Date(newAnnouncement.startDate).toISOString(), // backend expects ISO
+      startDate: new Date(newAnnouncement.startDate).toISOString(),
       announcementType: newAnnouncement.announcementType,
       isPinned: newAnnouncement.isPinned,
     };
@@ -173,7 +193,6 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
     try {
       const response = await api.post(ANNOUNCEMENTS_ENDPOINTS.POST_ANNOUNCEMENTS, payload);
 
-      // Map response to frontend structure
       const newItem = {
         id: response.data.data.id,
         title: response.data.data.title,
@@ -196,61 +215,62 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
 
 
   const handleEdit = (announcement: any) => {
-  setEditingAnnouncement({
-    ...announcement,
-    startDate: announcement.startDate
-      ? new Date(announcement.startDate).toISOString().split("T")[0]
-      : "",
-  });
-  setFormErrors({});
-};
+    setEditingAnnouncement({
+      ...announcement,
+      startDate: announcement.startDate
+        ? new Date(announcement.startDate).toISOString().split("T")[0]
+        : "",
+    });
+    setFormErrors({});
+    setShowEditDialog(true);
+  };
+
 
 
   const handleUpdate = async () => {
-  if (!editingAnnouncement) return;
+    if (!editingAnnouncement) return true;
 
-  //  Validate form
-  const errors = validateAnnouncementForm(editingAnnouncement);
-  setFormErrors(errors);
-  if (Object.keys(errors).length > 0) return;
+    const errors = validateAnnouncementForm(editingAnnouncement);
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return true; // return true = errors exist
 
-  // Convert priority back to boolean for backend
-  const payload = {
-    title: editingAnnouncement.title,
-    message: editingAnnouncement.message,
-    startDate: new Date(editingAnnouncement.startDate).toISOString(),
-    announcementType: editingAnnouncement.announcementType,
-    isPinned: editingAnnouncement.priority === "High",
-  };
-
-  try {
-    const response = await api.put(
-      ANNOUNCEMENTS_ENDPOINTS.PUT_ANNOUNCEMENTS(editingAnnouncement.id),
-      payload
-    );
-
-    //  Update frontend state so the changes appear immediately
-    const updatedItem = {
-      id: response.data.data.id,
-      title: response.data.data.title,
-      message: response.data.data.message,
-      startDate: response.data.data.startDate,
-      announcementType: response.data.data.announcementType,
-      priority: response.data.data.isPinned ? "High" : "Low",
+    const payload = {
+      title: editingAnnouncement.title,
+      message: editingAnnouncement.message,
+      startDate: new Date(editingAnnouncement.startDate).toISOString(),
+      announcementType: editingAnnouncement.announcementType,
+      isPinned: editingAnnouncement.priority === "High",
     };
 
-    setAnnouncements((prev) =>
-      prev.map((a) => (a.id === updatedItem.id ? updatedItem : a))
-    );
+    try {
+      const response = await api.put(
+        ANNOUNCEMENTS_ENDPOINTS.PUT_ANNOUNCEMENTS(editingAnnouncement.id),
+        payload
+      );
 
-    setEditingAnnouncement(null);
-    setFormErrors({});
-    toast.success("Announcement updated successfully!");
-  } catch (err) {
-    console.error("Failed to update announcement", err);
-    toast.error("Failed to update announcement");
-  }
-};
+      const updatedItem = {
+        id: response.data.data.id,
+        title: response.data.data.title,
+        message: response.data.data.message,
+        startDate: response.data.data.startDate,
+        announcementType: response.data.data.announcementType,
+        priority: response.data.data.isPinned ? "High" : "Low",
+      };
+
+      setAnnouncements((prev) =>
+        prev.map((a) => (a.id === updatedItem.id ? updatedItem : a))
+      );
+
+      setFormErrors({});
+      toast.success("Announcement updated successfully!");
+      return false; // no errors
+    } catch (err) {
+      console.error("Failed to update announcement", err);
+      toast.error("Failed to update announcement");
+      return true;
+    }
+  };
+
 
   const handleDeleteClick = (id: number) => {
     setAnnouncementToDelete(id);
@@ -282,7 +302,14 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
   const filteredAnnouncements = announcements.filter(
     (a) =>
       a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.message.toLowerCase().includes(searchQuery.toLowerCase())
+      a.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.announcementType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      new Date(a.startDate).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.priority.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -295,10 +322,22 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Filter className="size-4 mr-2" />
-            Filter
-          </Button>
+          {/* <Input
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-xs"
+          /> */}
+
+          <div className="relative w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Search"
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
           {!viewOnly && (
             <Button className="btn-add-purple" onClick={() => setShowAddDialog(true)}>
               <Plus className="size-4 mr-2" />
@@ -308,138 +347,86 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
+
+      <Card className="announcement_card">
+        <CardContent className="p-6 announcements_hr">
           <div className="space-y-4">
-            {announcements.map((announcement) => (
-              <Card key={announcement.id} className="border-l-4 border-l-primary hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  {editingAnnouncement?.id === announcement.id ? (
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Title *</Label>
-                        <Input
-                          value={editingAnnouncement.title}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setEditingAnnouncement({ ...editingAnnouncement, title: value });
-                            if (formErrors.title) {
-                              setFormErrors((prev) => ({ ...prev, title: "" }));
-                            }
-                          }}
-                        />
-                        {formErrors.title && <p className="text-sm text-destructive">{formErrors.title}</p>}
+            {filteredAnnouncements.length > 0 ? (
+              filteredAnnouncements.map((announcement) => (
+                <Card
+                  key={announcement.id}
+                  className="border-l-4 border-l-primary hover:shadow-md transition-shadow"
+                >
+                  <CardContent className="p-4 flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold">{announcement.title}</h3>
+                        <Badge
+                          variant={announcement.priority === "High" ? "destructive" : "secondary"}
+                        >
+                          {announcement.priority}
+                        </Badge>
+                        <Badge variant="outline">{announcement.announcementType}</Badge>
                       </div>
-
-                      <div className="space-y-2">
-                        <Label>Description</Label>
-                        <Textarea
-                          value={editingAnnouncement.message}
-                          onChange={(e) =>
-                            setEditingAnnouncement({ ...editingAnnouncement, message: e.target.value })
-                          }
-                          rows={3}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label>Date *</Label>
-                          <Input
-                            type="date"
-                            value={editingAnnouncement.startDate}
-                            onChange={(e) =>
-                              setEditingAnnouncement({ ...editingAnnouncement, startDate: e.target.value })
-                            }
-                          />
-                          {formErrors.startDate && <p className="text-sm text-destructive">{formErrors.startDate}</p>}
-                        </div>
-
-                        <div className="space-y-2 col-span-2">
-                          <Label>Category *</Label>
-                          <Input
-                            placeholder="Enter category"
-                            value={editingAnnouncement.announcementType || ""}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setEditingAnnouncement({ ...editingAnnouncement, announcementType: value });
-                              if (formErrors.announcementType) {
-                                setFormErrors((prev) => ({ ...prev, announcementType: "" }));
-                              }
-                            }}
-                          />
-                          {formErrors.announcementType && (
-                            <p className="text-sm text-destructive">{formErrors.announcementType}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Priority</Label>
-                        <input
-                          type="checkbox"
-                          checked={editingAnnouncement.priority === "High"}
-                          onChange={(e) =>
-                            setEditingAnnouncement({
-                              ...editingAnnouncement,
-                              priority: e.target.checked ? "High" : "Low",
-                            })
-                          }
-                        />
-
-                      </div>
-
-                      <div className="flex gap-2 justify-end">
-                        <Button variant="outline" onClick={() => setEditingAnnouncement(null)}>
-                          Cancel
+                      <p className="text-muted-foreground text-sm mb-2">
+                        {announcement.message}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Posted on:{" "}
+                        {new Date(announcement.startDate).toLocaleDateString("en-IN", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                    {!viewOnly && (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(announcement)}
+                        >
+                          <Edit className="size-4 text-gray-500" />
                         </Button>
-                        <Button onClick={handleUpdate}>Save Changes</Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteClick(announcement.id)}
+                        >
+                          <Trash2 className="size-4 text-gray-500" />
+                        </Button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold">{announcement.title}</h3>
-                          <Badge variant={announcement.priority === "High" ? "destructive" : "secondary"}>
-                            {announcement.priority}
-                          </Badge>
-                          <Badge variant="outline">{announcement.announcementType}</Badge>
-                        </div>
-                        <p className="text-muted-foreground text-sm mb-2">{announcement.message}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Posted on: {new Date(announcement.startDate).toLocaleDateString("en-IN", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(announcement)}>
-                            <Edit className="size-4 mr-2" /> Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteClick(announcement.id)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="size-4 mr-2" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <Megaphone className="size-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No announcements found</p>
+                {!viewOnly && (
+                  <Button className="mt-4" onClick={() => setShowAddDialog(true)}>
+                    <Plus className="size-4 mr-2" />
+                    Create Announcement
+                  </Button>
+                )}
+              </div>
+            )}
+
+
+            {announcements.length === 0 && (
+              <div className="text-center py-12">
+                <Megaphone className="size-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No announcements yet</p>
+                <Button className="mt-4" onClick={() => setShowAddDialog(true)}>
+                  <Plus className="size-4 mr-2" />
+                  Create First Announcement
+                </Button>
+              </div>
+            )}
           </div>
+
           {announcements.length === 0 && (
             <div className="text-center py-12">
               <Megaphone className="size-12 mx-auto text-muted-foreground mb-4" />
@@ -538,13 +525,35 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
 
                     <div className="space-y-2">
                       <Label>Priority</Label>
-                      <input
-                        type="checkbox"
-                        checked={newAnnouncement.isPinned}
-                        onChange={(e) => setNewAnnouncement({ ...newAnnouncement, isPinned: e.target.checked })}
-                      />
-                      {formErrors.priority && <p className="text-sm text-destructive">{formErrors.priority}</p>}
+                      <div className="flex rounded-lg border border-input overflow-hidden borderpri">
+                        <button
+                          type="button"
+                          onClick={() => setNewAnnouncement({ ...newAnnouncement, isPinned: false })}
+                          className={cn(
+                            "flex-1 px-4 py-2 text-sm transition-colors",
+                            !newAnnouncement.isPinned
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-background hover:bg-muted"
+                          )}
+                        >
+                          Low
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNewAnnouncement({ ...newAnnouncement, isPinned: true })}
+                          className={cn(
+                            "flex-1 px-4 py-2 text-sm transition-colors",
+                            newAnnouncement.isPinned
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-background hover:bg-muted"
+                          )}
+                        >
+                          High
+                        </button>
+                      </div>
+
                     </div>
+
 
 
                   </div>
@@ -609,6 +618,144 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
           </Tabs>
         </DialogContent>
       </Dialog>
+
+
+      <Dialog
+        open={showEditDialog && !!editingAnnouncement}
+        onOpenChange={(open) => {
+          if (!open) setEditingAnnouncement(null);
+          setShowEditDialog(open);
+        }}
+      >
+        {editingAnnouncement && showEditDialog && (
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Announcement</DialogTitle>
+              <DialogDescription>Update announcement information</DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>Title *</Label>
+                <Input
+                  value={editingAnnouncement.title}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setEditingAnnouncement({ ...editingAnnouncement, title: value });
+                    if (formErrors.title) {
+                      setFormErrors((prev) => ({ ...prev, title: "" }));
+                    }
+                  }}
+                />
+                {formErrors.title && (
+                  <p className="text-sm text-destructive">{formErrors.title}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={editingAnnouncement.message}
+                  onChange={(e) =>
+                    setEditingAnnouncement({ ...editingAnnouncement, message: e.target.value })
+                  }
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Date *</Label>
+                  <Input
+                    type="date"
+                    value={editingAnnouncement.startDate}
+                    onChange={(e) =>
+                      setEditingAnnouncement({ ...editingAnnouncement, startDate: e.target.value })
+                    }
+                  />
+                  {formErrors.startDate && (
+                    <p className="text-sm text-destructive">{formErrors.startDate}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Category *</Label>
+                  <Input
+                    placeholder="Enter category"
+                    value={editingAnnouncement.announcementType || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditingAnnouncement({ ...editingAnnouncement, announcementType: value });
+                      if (formErrors.announcementType) {
+                        setFormErrors((prev) => ({ ...prev, announcementType: "" }));
+                      }
+                    }}
+                  />
+                  {formErrors.announcementType && (
+                    <p className="text-sm text-destructive">{formErrors.announcementType}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label>Priority</Label>
+                  <div className="flex rounded-lg border border-input overflow-hidden borderpri">
+                    <button
+                      type="button"
+                      onClick={() => setEditingAnnouncement({ ...editingAnnouncement, priority: 'Low' })}
+                      className={cn(
+                        "flex-1 px-4 py-2 text-sm transition-colors",
+                        editingAnnouncement.priority === 'Low'
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-background hover:bg-muted"
+                      )}
+                    >
+                      Low
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingAnnouncement({ ...editingAnnouncement, priority: 'High' })}
+                      className={cn(
+                        "flex-1 px-4 py-2 text-sm transition-colors",
+                        editingAnnouncement.priority === 'High'
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-background hover:bg-muted"
+                      )}
+                    >
+                      High
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowEditDialog(false);
+                    setEditingAnnouncement(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    const hasErrors = await handleUpdate();
+                    if (!hasErrors) {
+                      setShowEditDialog(false);
+                      setEditingAnnouncement(null);
+                    }
+                  }}
+                >
+                  Save Changes
+                </Button>
+
+              </DialogFooter>
+            </div>
+          </DialogContent>
+        )}
+      </Dialog>
+
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>

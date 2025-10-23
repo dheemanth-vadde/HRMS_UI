@@ -71,6 +71,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
   const [timezones, setTimezones] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingDept, setEditingDept] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deptToDelete, setDeptToDelete] = useState<number | null>(null);
@@ -86,12 +87,12 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
   const resetNewDept = () => {
     setNewDept({
-     deptName: "",
-    deptCode: "",
-    startedOn: "",
-    deptHead: "",
-    timezoneId: "",
-    businessUnit: "",
+      deptName: "",
+      deptCode: "",
+      startedOn: "",
+      deptHead: "",
+      timezoneId: "",
+      businessUnit: "",
     });
     setFormErrors({});
   };
@@ -164,17 +165,23 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string | null }>({});
-  const validateDeptForm = (dept: typeof newDept) => {
+  const validateDeptForm = (dept: typeof newDept, idToExclude?: string) => {
     const errors: { [key: string]: string | null } = {};
-    const requiredFields: (keyof typeof newDept)[] = ["deptName", "deptCode", "deptHead", "startedOn", "businessUnit", "timezoneId"];
+    const requiredFields: (keyof typeof newDept)[] = [
+      "deptName",
+      "deptCode",
+      "deptHead",
+      "startedOn",
+      "businessUnit",
+      "timezoneId",
+    ];
 
     for (const field of requiredFields) {
       let value = dept[field];
 
-      // Make sure value is a string
       if (value === undefined || value === null) value = "";
 
-      // --- Check for leading/trailing spaces ---
+      // --- No leading/trailing spaces ---
       let error = getValidationError(
         "noSpaces",
         value,
@@ -186,23 +193,33 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
         continue;
       }
 
-      // --- Required field validation ---
-      if (field === "businessUnit" || field === "deptHead" || field === "timezoneId") {
+      // --- Required validation ---
+      if (["businessUnit", "deptHead", "timezoneId"].includes(field)) {
         error = getValidationError("required", value, "Please select an option");
       } else {
-        error = getValidationError(
-          "required",
-          value,
-          `This feild is required`
-        );
+        error = getValidationError("required", value, `This field is required`);
       }
 
-      if (error) errors[String(field)] = error;
-    }
+      if (error) {
+        errors[String(field)] = error;
+        continue;
+      }
 
+      // --- Unique validation ---
+      if (["deptName", "deptCode"].includes(field)) {
+        error = getValidationError("unique", value, "This field already exists", {
+          list: departments.filter((d) => d.id !== idToExclude),
+          propertyName: field,
+        });
+        if (error) errors[field] = error;
+      }
+
+
+    }
 
     return errors;
   };
+
 
   const getBusinessUnitName = (unitId: string): string => {
     const unit = businessUnits.find(u => u.id === unitId);
@@ -220,7 +237,6 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
   const handleAdd = async () => {
     const errors = validateDeptForm(newDept);
-    console.log(" Validation errors on add:", errors);
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
@@ -234,25 +250,22 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
         unitId: newDept.businessUnit,
       };
 
-
       const response = await api.post(DEPARTMENT_ENDPOINTS.POST_DEPARTMENT, payload);
-      const addedDept = response.data;
+      const addedDept = response.data.data || response.data;
 
-      setDepartments([
-        ...departments,
-        {
-          id: addedDept.id,
-          deptName: addedDept.deptName,
-          deptCode: addedDept.deptCode,
-          startedOn: addedDept.startDate ? new Date(addedDept.startDate).toISOString().split('T')[0] : "",
-          deptHead: String(addedDept.deptHead || ""),
-          timezoneId: String(addedDept.timezoneId || ""),
-          businessUnit: String(addedDept.unitId || ""),
-        }
-      ]);
+      // Map the API response just like your fetchDepartments
+      const mappedDept = {
+        id: addedDept.id,
+        deptName: addedDept.deptName || "",
+        deptCode: addedDept.deptCode || "",
+        startedOn: addedDept.startDate ? new Date(addedDept.startDate).toISOString().split("T")[0] : "",
+        deptHead: addedDept.deptHead || "",
+        timezoneId: addedDept.timezoneId || "",
+        businessUnit: addedDept.unitId || "",
+      };
 
+      setDepartments((prev) => [...prev, mappedDept]);
       setShowAddDialog(false);
-
       resetNewDept();
       toast.success("Department added successfully!");
     } catch (err) {
@@ -260,6 +273,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       toast.error("Failed to add department");
     }
   };
+
 
 
   const handleEdit = (dept: any) => {
@@ -280,12 +294,10 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
   const handleUpdate = async () => {
     if (!editingDept) return;
 
-    console.log(" Updating department with data:", editingDept);
-
-    const errors = validateDeptForm(editingDept);
+const errors = validateDeptForm(editingDept, editingDept.id); // pass current unit id
     setFormErrors(errors);
-    console.log(" Validation errors:", errors);
     if (Object.keys(errors).length > 0) return;
+   
     try {
       // ✅ Prepare correct payload
       const payload = {
@@ -332,6 +344,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
       // Cleanup UI
       setEditingDept(null);
+      setShowEditDialog(false);
       setFormErrors({});
       toast.success("Department updated successfully!");
     } catch (err) {
@@ -372,8 +385,10 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
   const filteredDepartments = departments.filter(dept =>
     (dept.deptName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
     (dept.deptCode || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (dept.deptHead || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (dept.businessUnit || "").toLowerCase().includes(searchQuery.toLowerCase())
+    (dept.startedOn || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    getDeptHeadName(dept.deptHead).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (timezones.find(t => t.id === dept.timezoneId)?.timezone || "-").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    getBusinessUnitName(dept.businessUnit).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
 
@@ -390,7 +405,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
           <div className="relative w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
-              placeholder="Search departments..."
+              placeholder="Search"
               className="pl-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -426,168 +441,46 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   .filter(dept => dept.id) // render only rows with valid IDs
                   .map((dept) => (
                     <TableRow key={dept.id}>
-                      {/* Department Name */}
-                      <TableCell className="font-medium">
-                        {editingDept?.id === dept.id ? (
-                          <>
-                            <Input
-                              value={editingDept?.deptName || ""}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                setEditingDept({ ...editingDept, deptName: value });
-                                if (formErrors.deptName) {
-                                  setFormErrors((prev) => ({ ...prev, deptName: null }));
-                                }
-                              }}
-                            />
-                            {formErrors.deptName && (
-                              <p className="text-destructive text-xs mt-1">{formErrors.deptName}</p>
-                            )}
-                          </>
-                        ) : (
-                          dept.deptName
-                        )}
-                      </TableCell>
-
-                      {/* Department Code */}
-                      <TableCell>
-                        {editingDept?.id === dept.id ? (
-                          <>
-                            <Input
-                              value={editingDept?.deptCode || ""}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                setEditingDept({ ...editingDept, deptCode: value });
-                                if (formErrors.deptCode) {
-                                  setFormErrors((prev) => ({ ...prev, deptCode: null }));
-                                }
-                              }}
-                            />
-                            {formErrors.deptCode && (
-                              <p className="text-destructive text-xs mt-1">{formErrors.deptCode}</p>
-                            )}
-                          </>
-                        ) : (
-                          dept.deptCode
-                        )}
-                      </TableCell>
-
-                      {/* Started On */}
-                      <TableCell>{dept.startedOn || "-"}</TableCell>
-
-                      {/* Department Head */}
-                      <TableCell>
-                        {editingDept?.id === dept.id ? (
-                          <Select
-                            value={editingDept?.deptHead || ""}
-                            onValueChange={(value) => setEditingDept({ ...editingDept, deptHead: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select employee" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {employees.map((emp) => (
-                                <SelectItem key={emp.id} value={emp.id}>
-                                  {emp.fullName}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          getDeptHeadName(dept.deptHead)
-                        )}
-                      </TableCell>
-
-                      {/* Time Zone */}
-                      <TableCell>
-                        {editingDept?.id === dept.id ? (
-                          <Select
-                            value={editingDept?.timezoneId || ""}
-                            onValueChange={(value) => setEditingDept({ ...editingDept, timezoneId: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select timezone" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {timezones.map((tz) => (
-                                <SelectItem key={tz.id} value={tz.id}>
-                                  {tz.timezone}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (() => {
-                          const tz = timezones.find((tz) => tz.id === dept.timezoneId);
-                          return tz ? tz.timezone : "-";
-                        })()}
-                      </TableCell>
-
-                      {/* Business Unit */}
-                      <TableCell>
-                        {editingDept?.id === dept.id ? (
-                          <Select
-                            value={editingDept?.businessUnit || ""}
-                            onValueChange={(value) =>
-                              setEditingDept({ ...editingDept, businessUnit: value })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select unit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {businessUnits.map((unit) => (
-                                <SelectItem key={unit.id} value={String(unit.id)}>
-                                  {unit.unitName}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : getBusinessUnitName(dept.businessUnit)}
-                      </TableCell>
-
-                      {/* Actions */}
+                      <TableCell>{dept.deptName}</TableCell>
+                      <TableCell>{dept.deptCode}</TableCell>
+                      <TableCell>{dept.startedOn}</TableCell>
+                      <TableCell>{getDeptHeadName(dept.deptHead)}</TableCell>
+                      <TableCell>{timezones.find(t => t.id === dept.timezoneId)?.timezone || "-"}</TableCell>
+                      <TableCell>{getBusinessUnitName(dept.businessUnit)}</TableCell>
+                      {/* <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => { handleEdit(dept); setShowEditDialog(true); }}>
+                          <Edit className="size-4 text-gray-500" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(dept.id)}>
+                          <Trash2 className="size-4 text-gray-500" />
+                        </Button>
+                      </TableCell> */}
                       <TableCell className="text-right">
-                        {!viewOnly && (
-                          <div className="flex items-center justify-end gap-2">
-                            {editingDept?.id === dept.id ? (
-                              <>
-                                <Button size="sm" onClick={handleUpdate}>
-                                  Save
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setEditingDept(null)}
-                                >
-                                  Cancel
-                                </Button>
-                              </>
-                            ) : (
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <MoreVertical className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleEdit(dept)}>
-                                    <Edit className="size-4 mr-2" />
-                                    Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => handleDeleteClick(dept.id)}
-                                    className="text-destructive focus:text-destructive"
-                                  >
-                                    <Trash2 className="size-4 mr-2" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            )}
-                          </div>
-                        )}
-                      </TableCell>
+                      {!viewOnly && (
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              handleEdit(dept);
+                              setShowEditDialog(true); // open dialog
+                            }}
+                          >
+                            <Edit className="size-4 text-gray-500" />
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(dept.id)}
+                          >
+                            <Trash2 className="size-4 text-gray-500" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                      
+
                     </TableRow>
                   ))}
               </TableBody>
@@ -664,7 +557,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                     placeholder="e.g., CS"
                     value={newDept.deptCode}
                     onChange={(e) => {
-                      const value = e.target.value;
+                      const value = e.target.value.toUpperCase();
                       setNewDept({ ...newDept, deptCode: value });
                       if (formErrors.deptCode) {
                         setFormErrors((prev) => ({ ...prev, deptCode: null }));
@@ -830,13 +723,153 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
         </DialogContent>
       </Dialog>
 
+      <Dialog
+        open={showEditDialog}
+        onOpenChange={(open) => {
+          setShowEditDialog(open);
+          if (!open) {
+            setEditingDept(null);
+            setFormErrors({});
+          }
+        }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Department</DialogTitle>
+            <DialogDescription>
+              Update department information
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingDept && (
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Department Name */}
+                <div className="space-y-2">
+                  <Label>Department Name *</Label>
+                  <Input
+                    value={editingDept.deptName}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditingDept({ ...editingDept, deptName: value });
+                      if (formErrors.deptName) setFormErrors(prev => ({ ...prev, deptName: null }));
+                    }}
+                  />
+                  {formErrors.deptName && <p className="text-destructive text-sm">{formErrors.deptName}</p>}
+                </div>
+
+                {/* Department Code */}
+                <div className="space-y-2">
+                  <Label>Department Code *</Label>
+                  <Input
+                    value={editingDept.deptCode}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      setEditingDept({ ...editingDept, deptCode: value });
+                      if (formErrors.deptCode) setFormErrors(prev => ({ ...prev, deptCode: null }));
+                    }}
+                  />
+                  {formErrors.deptCode && <p className="text-destructive text-sm">{formErrors.deptCode}</p>}
+                </div>
+
+                {/* Started On */}
+                <div className="space-y-2">
+                  <Label>Started On *</Label>
+                  <Input
+                    type="date"
+                    value={editingDept.startedOn}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditingDept({ ...editingDept, startedOn: value });
+                      if (formErrors.startedOn) setFormErrors(prev => ({ ...prev, startedOn: null }));
+                    }}
+                  />
+                  {formErrors.startedOn && <p className="text-destructive text-sm">{formErrors.startedOn}</p>}
+                </div>
+
+                {/* Department Head */}
+                <div className="space-y-2">
+                  <Label>Department Head *</Label>
+                  <Select
+                    value={editingDept.deptHead}
+                    onValueChange={(value) => {
+                      setEditingDept({ ...editingDept, deptHead: value });
+                      if (formErrors.deptHead) setFormErrors(prev => ({ ...prev, deptHead: null }));
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select employee" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map(emp => (
+                        <SelectItem key={emp.id} value={emp.id}>{emp.fullName}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formErrors.deptHead && <p className="text-destructive text-sm">{formErrors.deptHead}</p>}
+                </div>
+
+                {/* Business Unit */}
+                <div className="space-y-2">
+                  <Label>Business Unit *</Label>
+                  <Select
+                    value={editingDept.businessUnit}
+                    onValueChange={(value) => {
+                      setEditingDept({ ...editingDept, businessUnit: value });
+                      if (formErrors.businessUnit) setFormErrors(prev => ({ ...prev, businessUnit: null }));
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {businessUnits.map(unit => (
+                        <SelectItem key={unit.id} value={String(unit.id)}>{unit.unitName}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formErrors.businessUnit && <p className="text-destructive text-sm">{formErrors.businessUnit}</p>}
+                </div>
+
+                {/* Time Zone */}
+                <div className="space-y-2">
+                  <Label>Time Zone *</Label>
+                  <Select
+                    value={editingDept.timezoneId}
+                    onValueChange={(value) => {
+                      setEditingDept({ ...editingDept, timezoneId: value });
+                      if (formErrors.timezoneId) setFormErrors(prev => ({ ...prev, timezoneId: null }));
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timezones.map(tz => (
+                        <SelectItem key={tz.id} value={tz.id}>{tz.timezone}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formErrors.timezoneId && <p className="text-destructive text-sm">{formErrors.timezoneId}</p>}
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
+                <Button onClick={handleUpdate}>Save Changes</Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the department from the system.
+              Are you sure you want to delete this?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
