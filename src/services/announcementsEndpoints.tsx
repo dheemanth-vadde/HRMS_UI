@@ -1,4 +1,4 @@
-const BASE_URL = "http://192.168.20.111:8081/api/employees";
+const BASE_URL = "https://bobjava.sentrifugo.com:8443/hrms-employees-app/api/employees";
 
 export const ANNOUNCEMENTS_ENDPOINTS = {
   GET_ANNOUNCEMENTS: `${BASE_URL}/announcements`,

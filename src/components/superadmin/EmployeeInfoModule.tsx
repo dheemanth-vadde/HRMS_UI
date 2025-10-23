@@ -6,7 +6,8 @@ import { Label } from "../ui/label";
 import { Search, Plus, Upload, Edit, Trash2, FileSpreadsheet, Mail, Phone, MoreVertical, FileDown, FileUp, Grid3x3, List, Briefcase, Eye, Filter, Delete, LucideDelete } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { EmployeeDetailsView } from "./EmployeeDetailsView";
-import { Trash } from "lucide-react";
+import { Trash, UserCircle } from "lucide-react";
+import { ImageWithFallback } from "../figma/ImageWithFallback";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -102,6 +103,32 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
   const [designations, setDesignations] = useState<{ id: string; name: string }[]>([]);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const statusOptions = ["Active", "Inactive", "On Leave"];
+  const [showFilters, setShowFilters] = useState(false);
+
+  const mapEmployeeForUI = (emp: any) => {
+    return {
+      ...emp,
+      department:
+        departments.find((d) => d.id === emp.deptId || d.name === emp.deptId)?.name ||
+        emp.department ||
+        "",
+      designation:
+        designations.find((d) => d.id === emp.designationId || d.name === emp.designationId)?.name ||
+        emp.designation ||
+        "",
+      role:
+        roles.find((r) => r.id === emp.empRole || r.name === emp.empRole)?.name ||
+        emp.role ||
+        "",
+      // unify status field used in UI
+      status: emp.userStatus || emp.status || "",
+    };
+  };
+ 
+  // remap existing employee list when lookup lists (departments/designations/roles) change
+  useEffect(() => {
+    setEmployees((prev) => prev.map((e) => mapEmployeeForUI(e)));
+  }, [departments, designations, roles]);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -109,7 +136,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         setLoading(true);
         const response = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEES);
         // Assuming API returns data in response.data
-        setEmployees(response?.data?.data);
+        const list = response?.data?.data || [];
+        setEmployees(list.map((emp: any) => mapEmployeeForUI(emp)));
         console.log(response?.data?.data);
       } catch (err) {
         console.error("Error fetching employees:", err);
@@ -180,9 +208,31 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
 
     try {
       setLoading(true);
-      const response = await api.post(EMPLOYEE_ENDPOINTS.POST_EMPLOYEE, newEmployee);
+      const deptId =
+        departments.find((d) => d.id === newEmployee.deptId)?.id ||
+        departments.find((d) => d.name === newEmployee.deptId)?.id ||
+        "";
+      const designationId =
+        designations.find((d) => d.id === newEmployee.designationId)?.id ||
+        designations.find((d) => d.name === newEmployee.designationId)?.id ||
+        "";
+      const empRole =
+        roles.find((r) => r.id === newEmployee.empRole)?.id ||
+        roles.find((r) => r.name === newEmployee.empRole)?.id ||
+        "";
+
+      const payload = {
+        ...newEmployee,
+        deptId,
+        designationId,
+        empRole,
+        selectedDate: newEmployee.selectedDate || "",
+        userStatus: newEmployee.userStatus || "Active",
+        firstName: newEmployee.fullName
+      };
+      const response = await api.post(EMPLOYEE_ENDPOINTS.POST_EMPLOYEE, payload);
       const createdEmployee = response.data.data;
-      setEmployees([...employees, createdEmployee]);
+      setEmployees([...employees, mapEmployeeForUI(createdEmployee)]);
       setShowAddDialog(false);
       setNewEmployee({
         fullName: "",
@@ -248,9 +298,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       const response = await api.put(EMPLOYEE_ENDPOINTS.UPDATE_EMPLOYEE(editingEmployee.id), payload);
       const updatedEmployee = response.data.data;
       setEmployees((prev) =>
-        prev.map((emp) =>
-          emp.id === editingEmployee.id ? updatedEmployee : emp
-        )
+        prev.map((emp) => (emp.id === editingEmployee.id ? mapEmployeeForUI(updatedEmployee) : emp))
       );
       setEditingEmployee(null);
       setShowAddDialog(false);
@@ -262,7 +310,9 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         return copy;
       });
       const usersResponse = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEES);
-      setEmployees(usersResponse.data.data);
+      if (usersResponse?.data?.data) {
+        setEmployees(usersResponse.data.data.map((emp: any) => mapEmployeeForUI(emp)));
+      }
       toast.success("Employee updated successfully!");
     } catch (error: any) {
       console.error("Error updating employee:", error);
@@ -432,7 +482,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         setShowAddDialog(false);
         const usersResponse = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEES);
         if (usersResponse?.data?.data) {
-          setEmployees(usersResponse.data.data);
+          setEmployees(usersResponse.data.data.map((emp: any) => mapEmployeeForUI(emp)));
         }
       } catch (error) {
         console.error("Bulk upload error:", error);
@@ -502,17 +552,20 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     // if any error exists -> return false (invalid)
     return !Object.values(newErrors).some(v => v !== null);
   };
-  console.log(employees)
+
   const filteredEmployees = Array.isArray(employees)
-  ? employees.filter(emp => {
-      const matchesSearch = emp.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.deptId.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesDepartment = filterDepartment === "all" || emp.deptId === filterDepartment;
-      const matchesStatus = filterStatus === "all" || emp.status === filterStatus;
-      const matchesLocation = filterLocation === "all" || emp.location === filterLocation;
-      return matchesSearch && matchesDepartment && matchesStatus && matchesLocation;
-    })
-  : [];
+    ? employees.filter((emp) => {
+        const q = searchQuery.toLowerCase();
+        const matchesSearch =
+          (emp.fullName || "").toLowerCase().includes(q) ||
+          (emp.department || "").toLowerCase().includes(q) ||
+          (emp.emailAddress || "").toLowerCase().includes(q);
+        const matchesDepartment = filterDepartment === "all" || emp.department === filterDepartment;
+        const matchesStatus = filterStatus === "all" || emp.status === filterStatus;
+        const matchesLocation = filterLocation === "all" || emp.location === filterLocation;
+        return matchesSearch && matchesDepartment && matchesStatus && matchesLocation;
+      })
+    : [];
 
   const getInitials = (name: string) => {
     return name
@@ -523,7 +576,19 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       .slice(0, 2);
   };
 
-  const getAvatarColor = (id: number) => {
+  const getAvatarColor = (id: any) => {
+    // stable hash function for strings (works for numbers too)
+    const hashString = (s: any) => {
+      const str = String(s ?? "");
+      let h = 0;
+      for (let i = 0; i < str.length; i++) {
+        h = (h << 5) - h + str.charCodeAt(i);
+        h |= 0;
+      }
+      return Math.abs(h);
+    };
+
+    const seed = typeof id === "number" && !Number.isNaN(id) ? Math.floor(id) : hashString(id);
     const colors = [
       "from-blue-400 to-cyan-300",
       "from-purple-400 to-pink-300",
@@ -531,7 +596,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       "from-orange-400 to-amber-300",
       "from-pink-400 to-rose-300",
     ];
-    return colors[id % colors.length];
+    return colors[seed % colors.length];
   };
 
   // If viewing an employee, show the details view
@@ -555,16 +620,44 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="size-4 mr-2" />
+              Filters
+            </Button>
+            <div className="flex border rounded-md">
+              <Button
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                size="icon"
+                className={cn("rounded-r-none", viewMode === "grid" && "bg-primary text-white hover:bg-primary/90")}
+                onClick={() => setViewMode("grid")}
+              >
+                <Grid3x3 className="size-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size="icon"
+                className={cn("rounded-l-none border-l", viewMode === "list" && "bg-primary text-white hover:bg-primary/90")}
+                onClick={() => setViewMode("list")}
+              >
+                <List className="size-4" />
+              </Button>
+            </div>
+          </div>
           {!viewOnly && (
             <>
-              <Button variant="outline" size="sm">
+              {/* <Button variant="outline" size="sm">
                 <FileUp className="size-4 mr-2" />
                 Import
               </Button>
               <Button variant="outline" size="sm">
                 <FileDown className="size-4 mr-2" />
                 Export
-              </Button>
+              </Button> */}
               <Button className="btn-add-purple" onClick={() => setShowAddDialog(true)}>
                 <Plus className="size-4 mr-2" />
                 Add Employee
@@ -575,88 +668,71 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       </div>
 
       {/* Filters Bar */}
-      <Card className="border-[#e5e7eb]">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 flex-1">
-              <div className="relative flex-1 max-w-xs">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search employees..."
-                  className="pl-9"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="All Departments" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  {departments.map(dept => (
-                    <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                  <SelectItem value="On Leave">On Leave</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filterLocation} onValueChange={setFilterLocation}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="All Locations" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {data.locations.map(loc => (
-                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="sm">
-                <Filter className="size-4 mr-2" />
-                More Filters
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex border rounded-md">
-                <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
-                  size="icon"
-                  className={cn("rounded-r-none", viewMode === "grid" && "bg-primary text-white hover:bg-primary/90")}
-                  onClick={() => setViewMode("grid")}
-                >
-                  <Grid3x3 className="size-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "list" ? "default" : "ghost"}
-                  size="icon"
-                  className={cn("rounded-l-none border-l", viewMode === "list" && "bg-primary text-white hover:bg-primary/90")}
-                  onClick={() => setViewMode("list")}
-                >
-                  <List className="size-4" />
-                </Button>
+      {showFilters && (
+        <Card className="border-[#e5e7eb]">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-1 justify-between">
+                <div className="relative flex-1 max-w-xs justify-between">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search employees..."
+                    className="pl-9"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="relative flex gap-1">
+                  <Select value={filterDepartment} onValueChange={setFilterDepartment}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="All Departments" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Departments</SelectItem>
+                      {departments.map(dept => (
+                        <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="On Leave">On Leave</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {/* <Select value={filterLocation} onValueChange={setFilterLocation}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="All Locations" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      {data.locations.map(loc => (
+                        <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select> */}
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Employee Grid */}
       {viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredEmployees.map((employee) => (
-            <Card key={employee.id} className="relative hover:shadow-xl transition-all duration-300 bg-white overflow-hidden group">
-              {/* Edit Menu - Top Right */}
-              {!viewOnly && (
+            <Card
+              key={employee.id}
+              onClick={() => setViewingEmployee(employee)}
+              className="relative hover:shadow-lg transition-all duration-300 bg-white overflow-hidden group cursor-pointer border-[#e5e7eb]"
+            >
+              {/* {!viewOnly && (
                 <div className="absolute top-3 right-3 z-10">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -680,52 +756,70 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+              )} */}
+              {!viewOnly && (
+                <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(employee);
+                    }}
+                    className="size-8 rounded-full bg-[#f5f5f5] hover:bg-gray-300 flex items-center justify-center shadow-sm transition-colors"
+                  >
+                    <Edit className="size-4 text-gray-600" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(employee.id);
+                    }}
+                    className="size-8 rounded-full bg-[#f5f5f5] hover:bg-gray-300 flex items-center justify-center shadow-sm transition-colors"
+                  >
+                    <Trash2 className="size-4 text-gray-600" />
+                  </button>
+                </div>
               )}
-
-              <CardContent className="p-6 flex flex-col items-center text-center">
+              <CardContent className="p-5">
                 {/* Profile Image */}
-                <div className="mb-4 relative">
-                  <div className={cn(
-                    "size-20 rounded-full bg-gradient-to-br flex items-center justify-center text-white shadow-lg",
-                    getAvatarColor(employee.employeeId)
-                  )}>
-                    <span className="text-xl font-bold">{getInitials(employee.fullName)}</span>
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="relative flex-shrink-0">
+                    {employee.avatar ? (
+                      <ImageWithFallback
+                        src={employee?.avatar}
+                        alt={employee?.fullName}
+                        className="size-12 rounded-full object-cover ring-2 ring-offset-2 ring-gray-100"
+                      />
+                    ) : (
+                      <div className={cn(
+                        "size-12 rounded-full bg-gradient-to-br flex items-center justify-center text-white ring-2 ring-offset-2 ring-gray-100",
+                        getAvatarColor(employee.employeeId ?? employee.id)
+                      )}>
+                        <span className="text-sm font-semibold">{getInitials(employee.fullName)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm mb-0.5 truncate">{employee.fullName}</h3>
+                    <p className="text-xs text-muted-foreground truncate">{employee.designation}</p>
                   </div>
                 </div>
-
-                {/* Employee Name */}
-                <h3 className="font-semibold text-base mb-1">{employee.fullName}</h3>
-                
-                {/* Designation */}
-                <p className="text-sm text-muted-foreground mb-1">{employee.designation}</p>
-
-                {/* Project Name */}
-                {employee.project && (
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
-                    <Briefcase className="size-3" />
-                    <span>{employee.project}</span>
-                  </div>
-                )}
 
                 {/* Contact Info */}
-                <div className="w-full space-y-2 mb-4">
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                    <Phone className="size-3.5 flex-shrink-0" />
-                    <span>{employee.contactNumber}</span>
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                    <UserCircle className="size-3.5 flex-shrink-0 text-gray-400" />
+                    <span>{employee.employeeId}</span>
                   </div>
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                    <Mail className="size-3.5 flex-shrink-0" />
+                  <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                    <Mail className="size-3.5 flex-shrink-0 text-gray-400" />
                     <span className="truncate">{employee.emailAddress}</span>
                   </div>
+                  <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                    <Phone className="size-3.5 flex-shrink-0 text-gray-400" />
+                    <span>{employee.contactNumber}</span>
+                  </div>
                 </div>
-
-                {/* View Profile Button */}
-                <button 
-                  onClick={() => setViewingEmployee(employee)}
-                  className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                >
-                  View profile &rarr;
-                </button>
               </CardContent>
             </Card>
           ))}
@@ -743,14 +837,16 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
               <TableHeader>
                 <TableRow className="bg-muted/30 hover:bg-muted/30">
                   <TableHead className="font-semibold">Employee</TableHead>
-                  <TableHead className="font-semibold">Position</TableHead>
+                  {/* <TableHead className="font-semibold">Position</TableHead> */}
                   <TableHead className="font-semibold">Department</TableHead>
                   <TableHead className="font-semibold">Location</TableHead>
+                  <TableHead className="font-semibold">Designation</TableHead>
                   <TableHead className="font-semibold">Status</TableHead>
-                  <TableHead className="font-semibold">Type</TableHead>
+                  <TableHead className="font-semibold">Role</TableHead>
+                  {/* <TableHead className="font-semibold">Type</TableHead> */}
                   <TableHead className="font-semibold">Manager</TableHead>
-                  <TableHead className="font-semibold">Reports</TableHead>
-                  <TableHead className="font-semibold text-right">Actions</TableHead>
+                  {/* <TableHead className="font-semibold">Reports</TableHead> */}
+                  <TableHead className="font-semibold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -758,26 +854,26 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   <TableRow key={employee.id} className="hover:bg-muted/20">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="size-9">
-                          <AvatarFallback 
-                            className="text-sm font-medium"
-                            style={{
-                              backgroundColor: `hsl(${(employee.id * 137.5) % 360}, 65%, 85%)`,
-                              color: `hsl(${(employee.id * 137.5) % 360}, 45%, 35%)`
-                            }}
-                          >
+                        <div
+                          className={cn(
+                            "size-9 rounded-full bg-gradient-to-br flex items-center justify-center text-white",
+                            // use the same color selector as grid view
+                            getAvatarColor(employee.employeeId ?? employee.id)
+                          )}
+                        >
+                          <span className="text-sm font-medium">
                             {getInitials(employee.fullName)}
-                          </AvatarFallback>
-                        </Avatar>
+                          </span>
+                        </div>
                         <div>
                           <div className="font-medium text-sm">{employee.fullName}</div>
                           <div className="text-xs text-muted-foreground">{employee.employeeId}</div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{employee.designation}</TableCell>
                     <TableCell className="text-sm">{employee.department}</TableCell>
-                    <TableCell className="text-sm">{employee.location}</TableCell>
+                    <TableCell className="text-sm">{employee?.location || ''}</TableCell>
+                    <TableCell className="text-sm">{employee.designation}</TableCell>
                     <TableCell>
                       <Badge 
                         variant="outline" 
@@ -796,13 +892,13 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                         variant="outline" 
                         className="font-medium bg-blue-50 text-blue-700 border-blue-200"
                       >
-                        {employee.type}
+                        {employee.role}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm">{employee.manager}</TableCell>
-                    <TableCell className="text-sm">{employee.reports}</TableCell>
+                    <TableCell className="text-sm">{employee?.manager || ''}</TableCell>
+                    {/* <TableCell className="text-sm">{employee.reports}</TableCell> */}
                     <TableCell>
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex gap-1">
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -1124,14 +1220,14 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-4 mt-4">
-              {/* <div className="space-y-2">
+              <div className="space-y-2">
                 <Label>Employee ID *</Label>
                 <Input
                   value={editingEmployee.employeeId}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, employeeId: e.target.value })}
                   disabled
                 />
-              </div> */}
+              </div>
               <div className="space-y-2">
                 <Label>Full Name *</Label>
                 <Input

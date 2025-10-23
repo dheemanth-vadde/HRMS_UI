@@ -24,7 +24,7 @@ interface Employee {
   division?: string;
   l1Manager?: string;
   l2Manager?: string;
-  cupManager?: string;
+  coeManager?: string;
   dob?: string;
   dateOfLeaving?: string;
   prefix?: string;
@@ -172,10 +172,10 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
 
   const renderOfficialTab = () => (
     <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-      <div className="space-y-1">
+      {/* <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Employee Id</label>
         <p className="text-sm font-medium text-primary">{employeeDetails.employeeId}</p>
-      </div>
+      </div> */}
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">First Name</label>
         <p className="text-sm">{employeeDetails.firstName || employeeDetails.fullName.split(" ")[0]}</p>
@@ -196,10 +196,10 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
         <label className="text-xs text-muted-foreground">Mode of Employment</label>
         <p className="text-sm">{employee.modeOfEmployment || employee.employmentType}</p>
       </div> */}
-      <div className="space-y-1">
+      {/* <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Email</label>
         <p className="text-sm text-primary">{employeeDetails.emailAddress || '-'}</p>
-      </div>
+      </div> */}
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Department</label>
         <p className="text-sm">{getDepartmentName(employeeDetails.deptId) || '-'}</p>
@@ -229,13 +229,13 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
         <p className="text-sm">{employeeDetails.selectedDate}</p>
       </div>
       <div className="space-y-1">
-        <label className="text-xs text-muted-foreground">CUP Manager</label>
-        <p className="text-sm">{employeeDetails.cupManager || "-"}</p>
+        <label className="text-xs text-muted-foreground">COE Manager</label>
+        <p className="text-sm">{employeeDetails.coeManager || "-"}</p>
       </div>
-      <div className="space-y-1">
+      {/* <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Extension</label>
         <p className="text-sm">-</p>
-      </div>
+      </div> */}
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Designation</label>
         <p className="text-sm">{getDesignationName(employeeDetails.designationId) || '-'}</p>
@@ -253,13 +253,13 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
         <p className="text-sm">{employeeDetails.dateOfLeaving || "--"}</p>
       </div>
       <div className="space-y-1">
-        <label className="text-xs text-muted-foreground">Previous Experience(months)</label>
+        <label className="text-xs text-muted-foreground">Previous Experience (months)</label>
         <p className="text-sm">{employeeDetails.previousExperience || "--"}</p>
       </div>
-      <div className="space-y-1">
+      {/* <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Work Telephone Number</label>
         <p className="text-sm">{employeeDetails.workTelephone || employeeDetails.contactNumber || '-'}</p>
-      </div>
+      </div> */}
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Extension</label>
         <p className="text-sm">-</p>

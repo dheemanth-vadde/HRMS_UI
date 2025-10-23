@@ -519,7 +519,7 @@ console.log("Update Payload:", payload); // Debug log
                       {editingUnit?.id === unit.id ? (
                         <Select
                           value={editingUnit.cityId}
-                          onValueChange={(value) => setEditingUnit({ ...editingUnit, cityId: value })}
+                          onValueChange={(value: any) => setEditingUnit({ ...editingUnit, cityId: value })}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select city" />
@@ -541,7 +541,7 @@ console.log("Update Payload:", payload); // Debug log
                       {editingUnit?.id === unit.id ? (
                         <Select
                           value={editingUnit.stateId}
-                          onValueChange={(value) => setEditingUnit({ ...editingUnit, stateId: value })}
+                          onValueChange={(value: any) => setEditingUnit({ ...editingUnit, stateId: value })}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select state" />
@@ -563,7 +563,7 @@ console.log("Update Payload:", payload); // Debug log
                       {editingUnit?.id === unit.id ? (
                         <Select
                           value={editingUnit.countryId}
-                          onValueChange={(value) => setEditingUnit({ ...editingUnit, countryId: value })}
+                          onValueChange={(value: any) => setEditingUnit({ ...editingUnit, countryId: value })}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select country" />
@@ -585,7 +585,7 @@ console.log("Update Payload:", payload); // Debug log
                       {editingUnit?.id === unit.id ? (
                         <Select
                           value={editingUnit.timezoneId}
-                          onValueChange={(value) => setEditingUnit({ ...editingUnit, timezoneId: value })}
+                          onValueChange={(value: any) => setEditingUnit({ ...editingUnit, timezoneId: value })}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select timezone" />
@@ -759,7 +759,7 @@ console.log("Update Payload:", payload); // Debug log
                 <Label>City *</Label>
                 <Select
                   value={newUnit.cityId}
-                  onValueChange={(value) => setNewUnit({ ...newUnit, cityId: value })}
+                  onValueChange={(value: any) => setNewUnit({ ...newUnit, cityId: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select city" />
@@ -779,7 +779,7 @@ console.log("Update Payload:", payload); // Debug log
                 <Label>State *</Label>
                 <Select
                   value={newUnit.stateId}
-                  onValueChange={(value) => setNewUnit({ ...newUnit, stateId: value })}
+                  onValueChange={(value: any) => setNewUnit({ ...newUnit, stateId: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select state" />
@@ -799,7 +799,7 @@ console.log("Update Payload:", payload); // Debug log
                 <Label>Country *</Label>
                 <Select
                   value={newUnit.countryId}
-                  onValueChange={(value) => setNewUnit({ ...newUnit, countryId: value })}
+                  onValueChange={(value: any) => setNewUnit({ ...newUnit, countryId: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select country" />
@@ -819,7 +819,7 @@ console.log("Update Payload:", payload); // Debug log
                 <Label>Timezone *</Label>
                 <Select
                   value={newUnit.timezoneId}
-                  onValueChange={(value) => {
+                  onValueChange={(value: any) => {
                     setNewUnit({ ...newUnit, timezoneId: value });
                     if (errors.timezoneId) {
                       setErrors((prev) => ({ ...prev, timezoneId: "" }));

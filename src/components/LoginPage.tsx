@@ -1,16 +1,17 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { SagarsoftLogo } from "./SagarsoftLogo";
 import sagarsoftBuilding from "figma:asset/fa9eebd15dda20079679d5553e33bd622584070f.png";
+import { useAppDispatch } from "../store/hooks";
+import { loginSuccess } from "../store/authSlice";
 
-interface LoginPageProps {
-  onLogin: (role: "employee" | "manager" | "hr" | "superadmin") => void;
-}
-
-export function LoginPage({ onLogin }: LoginPageProps) {
+export function LoginPage() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   // dispatch(login({ id: '1', name: 'Dheemanth', email: 'dheemanth@sagarsoft.com' }));
@@ -18,16 +19,33 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    let role: "employee" | "manager" | "hr" | "superadmin";
+    
     // Demo login - assign role based on username
     if (username.includes("super") || username === "superadmin") {
-      onLogin("superadmin");
+      role = "superadmin";
     } else if (username.includes("hr") || username.includes("admin")) {
-      onLogin("hr");
+      role = "hr";
     } else if (username.includes("manager")) {
-      onLogin("manager");
+      role = "manager";
     } else {
-      onLogin("employee");
+      role = "employee";
     }
+
+    // Simulate login success
+    dispatch(loginSuccess({
+      user: {
+        id: '1',
+        name: username,
+        email: `${username}@sagarsoft.com`
+      },
+      token: 'demo-token',
+      role
+    }));
+
+    // Navigate to dashboard
+    navigate('/dashboard');
   };
 
   return (

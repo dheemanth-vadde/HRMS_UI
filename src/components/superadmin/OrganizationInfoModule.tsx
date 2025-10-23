@@ -9,18 +9,20 @@ import { toast } from "sonner";
 import { getValidationError } from "../../utils/validations";
 import api from "../../services/interceptors";
 import ORGANIZATION_ENDPOINTS from "../../services/organizationEndpoints";
+import STATE_ENDPOINTS from "../../services/stateEndpoints";
+import COUNTRY_ENDPOINTS from "../../services/countryEndpoints";
 
 interface OrganizationInfoModuleProps {
   viewOnly?: boolean;
 }
 
 export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoModuleProps) {
-  
   const [isEditing, setIsEditing] = useState(false);
   const [hasOrganization, setHasOrganization] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [orgData, setOrgData] = useState({
+    id: "",
     name: "",
     domain: "",
     website: "",
@@ -34,31 +36,100 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     regionalOffice: "",
     logo: "",
   });
-  const resetOrgData = () => {
-  setOrgData({
-    name: "",
-    domain: "",
-    website: "",
-    employees: "",
-    established: "",
-    customerCare: "",
-    country: "",
-    state: "",
-    category: "",
-    headOffice: "",
-    regionalOffice: "",
-    logo: "",
-  });
-  setLogoPreview(null);
-  setErrors({}); // ✅ clear all validation errors
-};
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+  // const userInfo = useSelector(selectUserInfo);
+
+  useEffect(() => {
+    fetchOrganizationData();
+    fetchCountries();
+    // fetchStates();
+  }, []);
+
+  const fetchCountries = async () => {
+    try {
+      const response = await api.get(COUNTRY_ENDPOINTS.GET_COUNTRY);
+      setCountries(response.data?.data || []);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (orgData.country) {
+      fetchStates(orgData.country);
+    }
+  }, [orgData.country]);
+
+  const fetchStates = async (countryId: string) => {
+    if (!countryId) {
+      setStates([]); // clear states if no country selected
+      return;
+    }
+ 
+    try {
+      const response = await api.get(`${STATE_ENDPOINTS.GET_STATE}`);
+      const allStates = response.data?.data || [];
+ 
+      // Filter states based on selected country
+      const filteredStates = allStates.filter((state: any) => state.countryId === countryId);
+      setStates(filteredStates);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+    }
+  };
+
+
+  const getCountryName = (id: string) => {
+    const country = countries.find((c) => c.id === id);
+    return country ? country.country || country.name : "-";
+  };
+
+  const getStateName = (id: string) => {
+    const state = states.find((s) => s.id === id);
+    return state ? state.state || state.name : "-";
+  };
+
+
+  const fetchOrganizationData = async () => {
+    try {
+      const response = await api.get(ORGANIZATION_ENDPOINTS.GET_ORGANIZATION);
+      const result = response.data;
+      const org = Array.isArray(result?.data) ? result.data[0] : result.data; // ✅ handle both cases
+
+      if (org) {
+        setOrgData({
+          id: org.id || "",
+          name: org.organisationName || "",
+          domain: org.domain || "",
+          website: org.website || "",
+          employees: org.totalEmployees?.toString() || "",
+          established: org.orgStartDate || "",
+          customerCare: org.phoneNumber || "",
+          country: org.countryId || "",
+          state: org.stateId || "",
+          category: org.orgCode || "",
+          headOffice: org.address1 || "",
+          regionalOffice: org.address2 || "",
+          logo: org.orgImage ? `data:image/png;base64,${org.orgImage}` : "",
+        });
+        setHasOrganization(true); // ✅
+      } else {
+        setHasOrganization(false);
+      }
+    } catch (error) {
+      console.error("Error fetching organization:", error);
+      setHasOrganization(false);
+    }
+  };
 
 
   const validateOrgData = () => {
     const newErrors: { [key: string]: string } = {};
 
     // --- Required fields ---
-    const requiredFields: (keyof typeof orgData)[] = ["name", "domain", "website", "employees", "established", "customerCare", "country", "state", "category", "headOffice", "logo"];
+    const requiredFields: (keyof typeof orgData)[] = ["name"];
     requiredFields.forEach((field) => {
       const error =
         getValidationError("required", orgData[field], `${field} is required`) ||
@@ -104,57 +175,125 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
   };
 
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const isValid = validateOrgData();
     if (!isValid) {
       setIsEditing(true);
       return;
     }
-    console.log("Saved organization data:", orgData); // check your data
-    setIsEditing(false);
-    setHasOrganization(true);
-    toast.success("Organization data saved locally");
+
+    try {
+      const data = new FormData();
+
+      // Build formData dynamically
+      data.append("organisationName", orgData.name);
+      data.append("orgCode", orgData.category || "");
+      data.append("totalEmployees", orgData.employees);
+      data.append("orgStartDate", orgData.established);
+      data.append("countryId", orgData.country || "3fa85f64-5717-4562-b3fc-2c963f66afa6");
+      data.append("stateId", orgData.state || "3fa85f64-5717-4562-b3fc-2c963f66afa6");
+      data.append("cityId", "3fa85f64-5717-4562-b3fc-2c963f66afa6");
+      data.append("phoneNumber", orgData.customerCare);
+      data.append("secondaryPhone", "");
+      data.append("email", "");
+      data.append("secondaryEmail", "");
+      data.append("faxNumber", "");
+      data.append("description", orgData.regionalOffice);
+      data.append("orgHead", "");
+      data.append("designation", orgData.category);
+      data.append("address1", orgData.headOffice);
+      data.append("orgImage", "string");
+      data.append("domain", orgData.domain);
+      data.append("website", orgData.website);
+      data.append("orgDescription", "");
+      data.append("address2", "");
+      data.append("registrationNumber", "");
+      data.append("address3", "");
+
+      // Add the logo file if uploaded
+      const fileInput = document.getElementById("logo-upload") as HTMLInputElement;
+      if (fileInput?.files?.[0]) {
+        data.append("orgImageFile", fileInput.files[0]);
+      }
+
+      let response;
+
+      if (orgData.id) {
+        // ✅ Update existing organization
+        response = await api.put(
+          ORGANIZATION_ENDPOINTS.PUT_ORGANIZATION(orgData.id),
+          data,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        toast.success("Organization updated successfully");
+      } else {
+        // ✅ Create new organization
+        response = await api.post(
+          ORGANIZATION_ENDPOINTS.POST_ORGANIZATION,
+          data,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        toast.success("Organization created successfully");
+      }
+
+      console.log("API response:", response.data);
+
+      setIsEditing(false);
+      setHasOrganization(true);
+      fetchOrganizationData(); // refresh updated data
+      window.dispatchEvent(new Event("orgLogoUpdated"));
+    } catch (error: any) {
+      console.error("Error saving organization:", error);
+      toast.error(error?.response?.data?.message || "Failed to save organization");
+    }
   };
 
 
- const handleCancel = () => {
-  if (!hasOrganization) {
-    resetOrgData(); // ✅ reset all fields and errors
-  }
-  setIsEditing(false);
-};
+  const handleAddOrganization = () => {
+    setIsEditing(true);
+    setHasOrganization(false);
+  };
 
-const handleAddOrganization = () => {
-  resetOrgData(); // ✅ start fresh
-  setIsEditing(true);
-  setHasOrganization(false);
-};
-
+  const handleCancel = () => {
+    if (!hasOrganization) {
+      // If no organization exists, reset all fields
+      setOrgData({
+        id: "",
+        name: "",
+        domain: "",
+        website: "",
+        employees: "",
+        established: "",
+        customerCare: "",
+        country: "",
+        state: "",
+        category: "",
+        headOffice: "",
+        regionalOffice: "",
+        logo: "",
+      });
+      setLogoPreview(null);
+    }
+    setIsEditing(false);
+  };
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  if (file) {
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size should be less than 5MB");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setLogoPreview(reader.result as string);
-      setOrgData({ ...orgData, logo: reader.result as string });
-
-      // ✅ Clear logo error if exists
-      if (errors.logo) {
-        setErrors((prev) => ({ ...prev, logo: "" }));
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size should be less than 5MB");
+        return;
       }
-
-      toast.success("Logo uploaded successfully");
-    };
-    reader.readAsDataURL(file);
-  }
-};
-
-
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+        setOrgData({ ...orgData, logo: reader.result as string });
+        toast.success("Logo uploaded successfully");
+        // dispatch(setLogo(reader.result as string));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -207,14 +346,22 @@ const handleAddOrganization = () => {
 
       {(hasOrganization || isEditing || viewOnly) && (
         <Card>
-          {/* <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-secondary/5">
+          <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-secondary/5">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-lg bg-white shadow-sm">
-                <Building2 className="size-6 text-primary" />
+                {logoPreview || orgData.logo ? (
+                  <img
+                    src={logoPreview || orgData.logo}
+                    alt="Organization Logo"
+                    className="size-10 object-contain rounded-md"
+                  />
+                ) : (
+                  <Building2 className="size-6 text-primary" />
+                )}
               </div>
               <CardTitle>{orgData.name || "Organization Information"}</CardTitle>
             </div>
-          </CardHeader> */}
+          </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
@@ -222,7 +369,7 @@ const handleAddOrganization = () => {
                 <div className="space-y-2 border-b pb-4">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <Image className="size-4" />
-                    Organization Logo *
+                    Organization Logo
                   </Label>
                   {isEditing && !viewOnly ? (
                     <div className="space-y-3">
@@ -234,7 +381,6 @@ const handleAddOrganization = () => {
                               alt="Organization Logo"
                               className="size-24 object-contain border-2 border-primary/20 rounded-lg p-2 bg-white"
                             />
-
                           </div>
                         ) : (
                           <div className="size-24 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center bg-muted/30">
@@ -279,7 +425,6 @@ const handleAddOrganization = () => {
                       )}
                     </div>
                   )}
-                  {errors.logo && <p className="text-sm text-red-600">{errors.logo}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -288,14 +433,7 @@ const handleAddOrganization = () => {
                     <>
                       <Input
                         value={orgData.name}
-                        onChange={(e) => {
-                          const value = e.target.value; 
-                          setOrgData({ ...orgData, name: value });
-                          if (errors.name) {
-                            setErrors((prev) => ({ ...prev, name: "" }));
-                          }
-                        }}
-                        //onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
+                        onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
                         placeholder="Enter organization name"
                       />
                       {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
@@ -306,19 +444,12 @@ const handleAddOrganization = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Business Domain *</Label>
+                  <Label className="text-sm text-muted-foreground">Business Domain</Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.domain}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setOrgData({ ...orgData, domain: value });
-                          if (errors.domain) {
-                            setErrors((prev) => ({ ...prev, domain: "" }));
-                          }
-                        }}
-                       // onChange={(e) => setOrgData({ ...orgData, domain: e.target.value })}
+                        onChange={(e) => setOrgData({ ...orgData, domain: e.target.value })}
                         placeholder="Enter business domain"
                       />
                       {errors.domain && <p className="text-sm text-red-600">{errors.domain}</p>}
@@ -331,23 +462,16 @@ const handleAddOrganization = () => {
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <Globe className="size-4" />
-                    Website *
+                    Website
                   </Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.website}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setOrgData({ ...orgData, website: value });
-                          if (errors.website) {
-                            setErrors((prev) => ({ ...prev, website: "" }));
-                          }
-                        }}
-                        //onChange={(e) => setOrgData({ ...orgData, website: e.target.value })}
+                        onChange={(e) => setOrgData({ ...orgData, website: e.target.value })}
                         placeholder="Enter website URL"
                       />
-                      {errors.website && <p className="text-sm text-red-600">{errors.website}</p>}
+                      {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
                     </>
                   ) : orgData.website ? (
                     <a href={`https://${orgData.website}`} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">
@@ -359,19 +483,12 @@ const handleAddOrganization = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Total Employees *</Label>
+                  <Label className="text-sm text-muted-foreground">Total Employees</Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.employees}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setOrgData({ ...orgData, employees: value });
-                          if (errors.employees) {
-                            setErrors((prev) => ({ ...prev, employees: "" }));
-                          }
-                        }}
-                       // onChange={(e) => setOrgData({ ...orgData, employees: e.target.value })}
+                        onChange={(e) => setOrgData({ ...orgData, employees: e.target.value })}
                         placeholder="Enter total employees"
                       />
                       {errors.employees && <p className="text-sm text-red-600">{errors.employees}</p>}
@@ -384,22 +501,15 @@ const handleAddOrganization = () => {
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <Calendar className="size-4" />
-                    Established On *
+                    Established On
                   </Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
-                      type="date"
                         value={orgData.established}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setOrgData({ ...orgData, established: value });
-                          if (errors.established) {
-                            setErrors((prev) => ({ ...prev, established: "" }));
-                          }
-                        }}
-                       // onChange={(e) => setOrgData({ ...orgData, established: e.target.value })}
+                        onChange={(e) => setOrgData({ ...orgData, established: e.target.value })}
                         placeholder="DD-MM-YYYY"
+                        type="date"
                       />
                       {errors.established && <p className="text-sm text-red-600">{errors.established}</p>}
                     </>
@@ -407,23 +517,17 @@ const handleAddOrganization = () => {
                     <p className="font-medium">{orgData.established || "-"}</p>
                   )}
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <Phone className="size-4" />
-                    Customer Care *
+                    Customer Care
                   </Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.customerCare}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setOrgData({ ...orgData, customerCare: value });
-                          if (errors.customerCare) {
-                            setErrors((prev) => ({ ...prev, customerCare: "" }));
-                          }
-                        }}
-                      //  onChange={(e) => setOrgData({ ...orgData, customerCare: e.target.value })}
+                        onChange={(e) => setOrgData({ ...orgData, customerCare: e.target.value })}
                         placeholder="Enter customer care number"
                       />
                       {errors.customerCare && <p className="text-sm text-red-600">{errors.customerCare}</p>}
@@ -432,69 +536,69 @@ const handleAddOrganization = () => {
                     <p className="font-medium">{orgData.customerCare || "-"}</p>
                   )}
                 </div>
-              </div>
 
-              <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Country *</Label>
+                  <Label className="text-sm text-muted-foreground">Country</Label>
                   {isEditing && !viewOnly ? (
                     <>
-                      <Input
+                      <select
                         value={orgData.country}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          setOrgData({ ...orgData, country: value });
-                          if (errors.country) {
-                            setErrors((prev) => ({ ...prev, country: "" }));
-                          }
+                          const selectedCountryId = e.target.value;
+                          setOrgData({ ...orgData, country: selectedCountryId, state: "" }); // reset state when country changes
+                          fetchStates(selectedCountryId); // 🔥 fetch only relevant states
                         }}
-                      //  onChange={(e) => setOrgData({ ...orgData, country: e.target.value })}
-                        placeholder="Enter country"
-                      />
+                        className="w-full border rounded-md p-2 text-sm"
+                      >
+                        <option value="">Select Country</option>
+                        {countries.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.country || c.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
+
                       {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
                     </>
                   ) : (
-                    <p className="font-medium">{orgData.country || "-"}</p>
+                    <p className="font-medium">{getCountryName(orgData.country)}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Headquarters State *</Label>
+                  <Label className="text-sm text-muted-foreground">Headquarters State</Label>
                   {isEditing && !viewOnly ? (
                     <>
-                      <Input
+                      <select
                         value={orgData.state}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setOrgData({ ...orgData, state: value });
-                          if (errors.state) {
-                            setErrors((prev) => ({ ...prev, state: "" }));
-                          }
-                        }}
-                       // onChange={(e) => setOrgData({ ...orgData, state: e.target.value })}
-                        placeholder="Enter state"
-                      />
+                        onChange={(e) => setOrgData({ ...orgData, state: e.target.value })}
+                        className="w-full border rounded-md p-2 text-sm"
+                      >
+                        <option value="">Select State</option>
+                        {states.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.state || s.name}
+                          </option>
+                        ))}
+                      </select>
                       {errors.state && <p className="text-sm text-red-600">{errors.state}</p>}
+
+                      {/* {errors.state && <p className="text-sm text-red-600">{errors.state}</p>} */}
                     </>
                   ) : (
-                    <p className="font-medium">{orgData.state || "-"}</p>
+                    <p className="font-medium">{getStateName(orgData.state)}</p>
+
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Organization Category *</Label>
+                  <Label className="text-sm text-muted-foreground">Organization Code</Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
                         value={orgData.category}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setOrgData({ ...orgData, category: value });
-                          if (errors.category) {
-                            setErrors((prev) => ({ ...prev, category: "" }));
-                          }
-                        }}
-                        //onChange={(e) => setOrgData({ ...orgData, category: e.target.value })}
+                        onChange={(e) => setOrgData({ ...orgData, category: e.target.value })}
                         placeholder="Enter category"
                       />
                       {errors.category && <p className="text-sm text-red-600">{errors.category}</p>}
@@ -503,23 +607,19 @@ const handleAddOrganization = () => {
                     <p className="font-medium">{orgData.category || "-"}</p>
                   )}
                 </div>
+              </div>
+
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     <MapPin className="size-4" />
-                    Head Office Address *
+                    Head Office Address
                   </Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Textarea
                         value={orgData.headOffice}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setOrgData({ ...orgData, headOffice: value });
-                          if (errors.headOffice) {
-                            setErrors((prev) => ({ ...prev, headOffice: "" }));
-                          }
-                        }}
-                      //  onChange={(e) => setOrgData({ ...orgData, headOffice: e.target.value })}
+                        onChange={(e) => setOrgData({ ...orgData, headOffice: e.target.value })}
                         rows={4}
                         placeholder="Enter head office address"
                       />
@@ -529,22 +629,25 @@ const handleAddOrganization = () => {
                     <p className="font-medium">{orgData.headOffice || "-"}</p>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground flex items-center gap-2">
-                    <MapPin className="size-4" />
-                    Regional Office
-                  </Label>
+
+                <div className="p-4 border rounded-lg bg-muted/30">
+                  <Label className="text-sm text-muted-foreground mb-2">Regional Office</Label>
                   {isEditing && !viewOnly ? (
-                    <Textarea
-                      value={orgData.headOffice}
-                      onChange={(e) => setOrgData({ ...orgData, headOffice: e.target.value })}
-                      rows={4}
-                      placeholder="Enter regional office address (optional)"
-                    />
+                    <>
+                      <Textarea
+                        value={orgData.regionalOffice}
+                        onChange={(e) => setOrgData({ ...orgData, regionalOffice: e.target.value })}
+                        rows={4}
+                        className="mt-2"
+                        placeholder="Enter regional office address (optional)"
+                      />
+                      {errors.regionalOffice && <p className="text-sm text-red-600">{errors.regionalOffice}</p>}
+                    </>
                   ) : (
-                    <p className="font-medium">{orgData.headOffice || "-"}</p>
+                    <p className="font-medium mt-2">{orgData.regionalOffice || "-"}</p>
                   )}
                 </div>
+
                 {!isEditing && hasOrganization && !viewOnly && (
                   <div className="flex gap-2 pt-4">
                     <Button variant="outline" className="flex-1">
