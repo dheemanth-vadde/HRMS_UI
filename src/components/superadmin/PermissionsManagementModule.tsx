@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect,useCallback  } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -27,8 +27,15 @@ import {
   RefreshCw,
   FileText,
 } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { cn } from "../ui/utils";
+import api from "../../services/interceptors";
+import PERMISSIONS_ENDPOINTS from "../../services/permissionsEndPoints";
+import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
+interface Role {
+  id: string;
+  roleName: string;
+}
 
 interface Screen {
   id: string;
@@ -41,180 +48,407 @@ interface Screen {
     delete: boolean;
   };
 }
-
+interface Group {
+  id: string;
+  groupName: string;
+}
+// Add this interface at the top
+interface Menu {
+  id: string;
+  menuName: string;
+}
 export function PermissionsManagementModule() {
-  const [selectedRole, setSelectedRole] = useState("manager");
+   const [roles, setRoles] = useState<Role[]>([]);
+  const [selectedRole, setSelectedRole] = useState("");
   const [copyFromRole, setCopyFromRole] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [isSaving, setIsSaving] = useState(false);
+   const [isLoading, setIsLoading] = useState(true);
+   const [error, setError] = useState<string | null>(null);
+   const [groups, setGroups] = useState<Group[]>([]);
+const [selectedGroup, setSelectedGroup] = useState("");
+const [hasExistingPrivileges, setHasExistingPrivileges] = useState(false);
+  const [screens, setScreens] = useState<Screen[]>([]);
+  const [isLoadingMenus, setIsLoadingMenus] = useState(true);
+  //   // Dashboard
+  //   {
+  //     id: "dashboard",
+  //     name: "Dashboard",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: true },
+  //   },
+    
+  //   // Organization Management
+  //   {
+  //     id: "organization-info",
+  //     name: "Organization Info",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "business-units",
+  //     name: "Business Units",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "departments",
+  //     name: "Departments",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "announcements",
+  //     name: "Announcements",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Employee Management
+  //   {
+  //     id: "my-profile",
+  //     name: "My Profile",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "employees",
+  //     name: "Employees",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "master-data",
+  //     name: "Master Data",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Attendance Management
+  //   {
+  //     id: "my-attendance",
+  //     name: "My Attendance",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "team-attendance",
+  //     name: "Team Attendance",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Leave Management
+  //   {
+  //     id: "my-leave",
+  //     name: "My Leave",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "team-leave",
+  //     name: "Team Leave",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Performance Management
+  //   {
+  //     id: "performance",
+  //     name: "Performance",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Payroll
+  //   {
+  //     id: "payroll",
+  //     name: "Payroll",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // HR Policies
+  //   {
+  //     id: "hr-policies",
+  //     name: "HR Policies",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Recruitment
+  //   {
+  //     id: "recruitment",
+  //     name: "Recruitment",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Expenses Management
+  //   {
+  //     id: "receipts",
+  //     name: "Receipts",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "trips",
+  //     name: "Trips",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "advances",
+  //     name: "Advances",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "my-expenses",
+  //     name: "My Expenses",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Grievances
+  //   {
+  //     id: "grievances",
+  //     name: "Grievances",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Exit Process
+  //   {
+  //     id: "exit-process",
+  //     name: "Exit Process",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Reports & Analytics
+  //   {
+  //     id: "reports",
+  //     name: "Reports",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+    
+  //   // Access Control (Super Admin)
+  //   {
+  //     id: "access-control",
+  //     name: "Roles & Privileges",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "permissions",
+  //     name: "Permissions",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  //   {
+  //     id: "site-configuration",
+  //     name: "Site Configuration",
+  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
+  //   },
+  // ]);
+  
+  // Fetch menus on component mount
+  useEffect(() => {
+    const fetchMenus = async () => {
+      try {
+        setIsLoadingMenus(true);
+        const response = await api.get(PERMISSIONS_ENDPOINTS.GET_MENUS);
+        console.log("menus response", response);
+        if (response.data && Array.isArray(response.data.data)) {
+          // Transform the API response into the screens format
+          const menuScreens = response.data.data.map((menu: Menu) => ({
+            id: menu.id,
+            name: menu.menuName,
+            permissions: {
+              all: false,
+              view: false,
+              create: false,
+              edit: false,
+              delete: false
+            }
+          }));
+          
+          setScreens(menuScreens);
+        }
+      } catch (error) {
+        console.error('Error fetching menus:', error);
+        toast.error('Failed to load menus');
+      } finally {
+        setIsLoadingMenus(false);
+      }
+    };
 
-  const [screens, setScreens] = useState<Screen[]>([
-    // Dashboard
-    {
-      id: "dashboard",
-      name: "Dashboard",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Organization Management
-    {
-      id: "organization-info",
-      name: "Organization Info",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "business-units",
-      name: "Business Units",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "departments",
-      name: "Departments",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "announcements",
-      name: "Announcements",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Employee Management
-    {
-      id: "my-profile",
-      name: "My Profile",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "employees",
-      name: "Employees",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "master-data",
-      name: "Master Data",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Attendance Management
-    {
-      id: "my-attendance",
-      name: "My Attendance",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "team-attendance",
-      name: "Team Attendance",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Leave Management
-    {
-      id: "my-leave",
-      name: "My Leave",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "team-leave",
-      name: "Team Leave",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Performance Management
-    {
-      id: "performance",
-      name: "Performance",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Payroll
-    {
-      id: "payroll",
-      name: "Payroll",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // HR Policies
-    {
-      id: "hr-policies",
-      name: "HR Policies",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Recruitment
-    {
-      id: "recruitment",
-      name: "Recruitment",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Expenses Management
-    {
-      id: "receipts",
-      name: "Receipts",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "trips",
-      name: "Trips",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "advances",
-      name: "Advances",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "my-expenses",
-      name: "My Expenses",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Grievances
-    {
-      id: "grievances",
-      name: "Grievances",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Exit Process
-    {
-      id: "exit-process",
-      name: "Exit Process",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Reports & Analytics
-    {
-      id: "reports",
-      name: "Reports",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    
-    // Access Control (Super Admin)
-    {
-      id: "access-control",
-      name: "Roles & Privileges",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "permissions",
-      name: "Permissions",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-    {
-      id: "site-configuration",
-      name: "Site Configuration",
-      permissions: { all: false, view: true, create: false, edit: false, delete: false },
-    },
-  ]);
+    fetchMenus();
+  }, []);
 
-  const roles = [
-    { id: "employee", name: "Employee" },
-    { id: "manager", name: "Manager" },
-    { id: "hr", name: "HR Admin" },
-    { id: "superadmin", name: "Super Admin" },
-  ];
+// Add this useEffect to fetch groups
+useEffect(() => {
+  const fetchGroups = async () => {
+    try {
+      const response = await api.get(PERMISSIONS_ENDPOINTS.GET_GROUPS);
+      if (response.data && Array.isArray(response.data.data)) {
+        setGroups(response.data.data);
+        if (response.data.data.length > 0) {
+          setSelectedGroup(response.data.data[0].id);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching groups:', err);
+      toast.error('Failed to load groups');
+    }
+  };
 
+  fetchGroups();
+}, []); // No dependencies needed here
+
+const fetchPrivileges = async (roleId: string, groupId: string) => {
+  try {
+    setIsLoading(true);
+    const response = await api.get(PERMISSIONS_ENDPOINTS.GET_PERMISSIONS(roleId, groupId));
+    console.log("fetchPrivileges response:", response.data);
+
+    const responseData = response?.data?.data;
+    console.log("Privileges data:", responseData);
+
+    if (responseData && responseData.rolePermissions) {
+      setHasExistingPrivileges(true);
+      
+      // Parse the rolePermissions string into an object
+      const screensData = typeof responseData.rolePermissions === 'string' 
+        ? JSON.parse(responseData.rolePermissions) 
+        : responseData.rolePermissions;
+
+      console.log("Parsed screens data:", screensData);
+
+      // Update screens with the fetched permissions
+      setScreens(prevScreens => 
+        prevScreens.map(screen => {
+          // Convert screen name to match the key format used in the response
+          const screenKey = screen.name.toLowerCase().replace(/\s+/g, '-');
+          const permissions = screensData[screenKey];
+          
+          return permissions 
+            ? { ...screen, permissions }
+            : { 
+                ...screen, 
+                permissions: { 
+                  all: false, 
+                  view: false, 
+                  create: false, 
+                  edit: false, 
+                  delete: false 
+                } 
+              };
+        })
+      );
+    } else {
+      setHasExistingPrivileges(false);
+      // Reset all permissions to false if no privileges found
+      setScreens(prevScreens => 
+        prevScreens.map(screen => ({
+          ...screen,
+          permissions: { 
+            all: false, 
+            view: false, 
+            create: false, 
+            edit: false, 
+            delete: false 
+          }
+        }))
+      );
+    }
+  } catch (err) {
+    console.error('Error fetching privileges:', err);
+    toast.error('Failed to load role privileges');
+    setHasExistingPrivileges(false);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  const fetchRoles = useCallback(async () => {
+  if (!selectedGroup) return; // Add guard clause
+  
+  try {
+    setIsLoading(true);
+    console.log("selectedGroup", selectedGroup);
+    const response = await api.get(PERMISSIONS_ENDPOINTS.GET_ROLES(selectedGroup));
+    console.log("response", response.data.data);
+    
+    if (response.data && Array.isArray(response.data.data)) {
+      const rolesData = response.data.data;
+      setRoles(rolesData);
+      
+      if (rolesData.length > 0) {
+        const firstRoleId = rolesData[0].id;
+        setSelectedRole(firstRoleId);
+        await fetchPrivileges(firstRoleId,selectedGroup);
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching roles:', err);
+    setError('Failed to load roles. Please try again later.');
+    toast.error('Failed to load roles');
+  } finally {
+    setIsLoading(false);
+  }
+}, [selectedGroup]); // Add dependencies
+
+// Fetch roles when selectedGroup changes
+useEffect(() => {
+  fetchRoles();
+}, [fetchRoles]); // fetchRoles is now memoized with useCallback
+
+  const handleSaveChanges = async () => {
+  try {
+    // Check if at least one permission is selected
+    const hasAnyPermission = screens.some((screen) =>
+      Object.values(screen.permissions).some((val) => val === true)
+    );
+
+    if (!hasAnyPermission) {
+      toast.error("Please select at least one permission before saving.");
+      return;
+    }
+
+    setIsSaving(true);
+
+    // Transform screens into the required format
+    const screensObject: Record<string, any> = {};
+    console.log("screens", screens);
+    screens.forEach(screen => {
+      // Convert screen ID to lowercase and replace spaces with hyphens
+      //const screenKey = screen.id.toLowerCase().replace(/\s+/g, '-');
+      const screenKey = screen.name.toLowerCase().replace(/\s+/g, '-');
+      screensObject[screenKey] = screen.permissions;
+    });
+
+    // Prepare the final payload
+    const payload = {
+      roleId: selectedRole,
+      groupId: selectedGroup,
+      rolePermissions:  JSON.stringify(screensObject)
+    };
+
+    console.log("Saving payload:", payload);// return false;
+
+    let response;
+    if (hasExistingPrivileges) {
+      // Update existing privileges
+      response = await api.put(
+        PERMISSIONS_ENDPOINTS.PUT_PERMISSIONS(selectedRole, selectedGroup),
+        payload
+      );
+      if (response.status === 200) {
+        toast.success("Permissions updated successfully!");
+      } else {
+        toast.error("Failed to update permissions.");
+      }
+    } else {
+      // Create new privileges
+      response = await api.post(
+        PERMISSIONS_ENDPOINTS.POST_PERMISSIONS,
+        payload
+      );
+        if (response.status === 200) {
+        toast.success("Permissions created successfully!");
+        setHasExistingPrivileges(true);
+      } else {
+        toast.error("Failed to create permissions.");
+      }
+    }
+
+   
+  } catch (error: any) {
+    console.error("Error saving permissions:", error);
+    toast.error("Something went wrong while saving permissions.");
+  } finally {
+    setIsSaving(false);
+  }
+};
   const togglePermission = (screenId: string, permissionType: keyof Screen["permissions"]) => {
     setScreens((prev) =>
       prev.map((screen) => {
@@ -249,15 +483,6 @@ export function PermissionsManagementModule() {
     );
   };
 
-  const handleApplyCopyFrom = () => {
-    if (!copyFromRole) {
-      toast.error("Please select a role to copy from");
-      return;
-    }
-    toast.success(`Permissions copied from ${roles.find(r => r.id === copyFromRole)?.name}`);
-    setCopyFromRole("");
-  };
-
   const handleQuickAction = (action: string) => {
     switch (action) {
       case "enable-all":
@@ -287,15 +512,15 @@ export function PermissionsManagementModule() {
         );
         toast.success("Set to view-only permissions");
         break;
-      case "export":
-        toast.success("Permissions exported");
-        break;
-      case "import":
-        toast.info("Import functionality");
-        break;
-      case "reset":
-        toast.info("Reset to default permissions");
-        break;
+      // case "export":
+      //   toast.success("Permissions exported");
+      //   break;
+      // case "import":
+      //   toast.info("Import functionality");
+      //   break;
+      // case "reset":
+      //   toast.info("Reset to default permissions");
+      //   break;
     }
   };
 
@@ -329,24 +554,53 @@ export function PermissionsManagementModule() {
       <Card className="border shadow-md">
         <CardContent className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            {/* Row 1: Role Selection & Copy From */}
+
+            {/* Groups Dropdown */}
             <div className="lg:col-span-3">
-              <label className="text-sm text-muted-foreground mb-2 block">Selected Role</label>
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <label className="text-sm text-muted-foreground mb-2 block">Select Group</label>
+              <Select 
+                value={selectedGroup} 
+                onValueChange={setSelectedGroup}
+                disabled={isLoading || groups.length === 0}
+              >
                 <SelectTrigger className="bg-input-background border-input-border">
-                  <SelectValue />
+                  <SelectValue placeholder={groups.length === 0 ? "No groups available" : "Select group"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map((role) => (
-                    <SelectItem key={role.id} value={role.id}>
-                      {role.name}
+                  {groups.map((group) => (
+                    <SelectItem key={group.id} value={group.id}>
+                      {group.groupName}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+            {/* Row 1: Role Selection & Copy From */}
+           <div className="lg:col-span-3">
+            <label className="text-sm text-muted-foreground mb-2 block">
+              Selected Role
+              {isLoading && <span className="ml-2 text-xs text-muted-foreground">(Loading...)</span>}
+              {error && !isLoading && <span className="ml-2 text-xs text-destructive">(Error loading roles)</span>}
+            </label>
+            <Select 
+              value={selectedRole} 
+              onValueChange={setSelectedRole}
+              disabled={isLoading || roles.length === 0}
+            >
+              <SelectTrigger className="bg-input-background border-input-border">
+                <SelectValue placeholder={roles.length === 0 ? "No roles available" : "Select role"} />
+              </SelectTrigger>
+              <SelectContent>
+                {roles.map((role) => (
+                  <SelectItem key={role.id} value={role.id}>
+                    {role.roleName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            <div className="lg:col-span-3">
+            {/* <div className="lg:col-span-3">
               <label className="text-sm text-muted-foreground mb-2 block">Copy from Role</label>
               <Select value={copyFromRole} onValueChange={setCopyFromRole}>
                 <SelectTrigger className="bg-input-background border-input-border">
@@ -371,7 +625,7 @@ export function PermissionsManagementModule() {
                 <Copy className="size-4 mr-2" />
                 Apply
               </Button>
-            </div>
+            </div> */}
 
             {/* Row 2: Search & Filter */}
             <div className="lg:col-span-3">
@@ -408,18 +662,18 @@ export function PermissionsManagementModule() {
                     <FileText className="size-4 mr-2 text-primary" />
                     View Only
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleQuickAction("export")}>
+                  {/* <DropdownMenuItem onClick={() => handleQuickAction("export")}>
                     <Download className="size-4 mr-2" />
                     Export
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleQuickAction("import")}>
                     <Upload className="size-4 mr-2" />
                     Import
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleQuickAction("reset")}>
+                  </DropdownMenuItem> */}
+                  {/* <DropdownMenuItem onClick={() => handleQuickAction("reset")}>
                     <RefreshCw className="size-4 mr-2" />
                     Reset
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -601,7 +855,7 @@ export function PermissionsManagementModule() {
           <X className="size-4 mr-2" />
           Cancel
         </Button>
-        <Button className="bg-gradient-to-r from-primary to-[#2171b5] hover:from-[#2171b5] hover:to-[#1a5a8a] text-white shadow-lg hover:shadow-xl transition-all">
+        <Button   onClick={handleSaveChanges} className="bg-gradient-to-r from-primary to-[#2171b5] hover:from-[#2171b5] hover:to-[#1a5a8a] text-white shadow-lg hover:shadow-xl transition-all">
           <Check className="size-4 mr-2" />
           Save Changes
         </Button>
