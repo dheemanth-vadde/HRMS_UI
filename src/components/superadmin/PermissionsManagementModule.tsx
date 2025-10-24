@@ -36,10 +36,11 @@ interface Role {
   id: string;
   roleName: string;
 }
-
 interface Screen {
   id: string;
   name: string;
+  url: string;
+  menuName?: string;  // Added menuName as an optional property
   permissions: {
     all: boolean;
     view: boolean;
@@ -56,6 +57,7 @@ interface Group {
 interface Menu {
   id: string;
   menuName: string;
+  url:string;
 }
 export function PermissionsManagementModule() {
    const [roles, setRoles] = useState<Role[]>([]);
@@ -242,6 +244,7 @@ const [hasExistingPrivileges, setHasExistingPrivileges] = useState(false);
           const menuScreens = response.data.data.map((menu: Menu) => ({
             id: menu.id,
             name: menu.menuName,
+            url:menu.url,
             permissions: {
               all: false,
               view: false,
@@ -303,25 +306,42 @@ const fetchPrivileges = async (roleId: string, groupId: string) => {
 
       console.log("Parsed screens data:", screensData);
 
+      // Extract menuName if it exists at the root level
+      const menuName = screensData.menuname || '';
+
       // Update screens with the fetched permissions
       setScreens(prevScreens => 
         prevScreens.map(screen => {
-          // Convert screen name to match the key format used in the response
-          const screenKey = screen.name.toLowerCase().replace(/\s+/g, '-');
+          // First try to find by URL path
+          const screenKey = screen.url;
           const permissions = screensData[screenKey];
           
-          return permissions 
-            ? { ...screen, permissions }
-            : { 
-                ...screen, 
-                permissions: { 
-                  all: false, 
-                  view: false, 
-                  create: false, 
-                  edit: false, 
-                  delete: false 
-                } 
-              };
+          if (permissions) {
+            return { 
+              ...screen, 
+              menuName: menuName || screen.menuName || '', // Preserve existing menuName or use the one from response
+              permissions: {
+                all: permissions.all || false,
+                view: permissions.view || false,
+                create: permissions.create || false,
+                edit: permissions.edit || false,
+                delete: permissions.delete || false
+              }
+            };
+          }
+          
+          // If no permissions found, return default false values
+          return { 
+            ...screen,
+            menuName: screen.menuName || '', // Preserve existing menuName
+            permissions: { 
+              all: false, 
+              view: false, 
+              create: false, 
+              edit: false, 
+              delete: false 
+            }
+          };
         })
       );
     } else {
@@ -348,7 +368,6 @@ const fetchPrivileges = async (roleId: string, groupId: string) => {
     setIsLoading(false);
   }
 };
-
   const fetchRoles = useCallback(async () => {
   if (!selectedGroup) return; // Add guard clause
   
@@ -398,50 +417,59 @@ useEffect(() => {
 
     // Transform screens into the required format
     const screensObject: Record<string, any> = {};
-    console.log("screens", screens);
+    
+    // Add menu name at the root level
+    if (screens.length > 0) {
+      screensObject.menuname = screens[0].menuName || 'default';
+    }
+    
     screens.forEach(screen => {
-      // Convert screen ID to lowercase and replace spaces with hyphens
-      //const screenKey = screen.id.toLowerCase().replace(/\s+/g, '-');
-      const screenKey = screen.name.toLowerCase().replace(/\s+/g, '-');
-      screensObject[screenKey] = screen.permissions;
+      // Use URL as the primary key
+      const screenKey = screen.url;
+      screensObject[screenKey] = {
+        all: screen.permissions.all,
+        view: screen.permissions.view,
+        create: screen.permissions.create,
+        edit: screen.permissions.edit,
+        delete: screen.permissions.delete
+      };
     });
 
     // Prepare the final payload
     const payload = {
       roleId: selectedRole,
       groupId: selectedGroup,
-      rolePermissions:  JSON.stringify(screensObject)
+      rolePermissions: JSON.stringify(screensObject)
     };
 
-    console.log("Saving payload:", payload);// return false;
-
+    console.log("Saving payload:", payload);
+    
+    // ... rest of your save logic
     let response;
     if (hasExistingPrivileges) {
-      // Update existing privileges
       response = await api.put(
         PERMISSIONS_ENDPOINTS.PUT_PERMISSIONS(selectedRole, selectedGroup),
         payload
       );
+      console.log("response", response.status);
       if (response.status === 200) {
         toast.success("Permissions updated successfully!");
       } else {
         toast.error("Failed to update permissions.");
       }
     } else {
-      // Create new privileges
       response = await api.post(
         PERMISSIONS_ENDPOINTS.POST_PERMISSIONS,
         payload
       );
-        if (response.status === 200) {
+      console.log("response", response.status);
+      if (response.status === 200) {
         toast.success("Permissions created successfully!");
         setHasExistingPrivileges(true);
       } else {
         toast.error("Failed to create permissions.");
       }
     }
-
-   
   } catch (error: any) {
     console.error("Error saving permissions:", error);
     toast.error("Something went wrong while saving permissions.");
