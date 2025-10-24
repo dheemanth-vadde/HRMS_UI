@@ -178,7 +178,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       let error = getValidationError(
         "noSpaces",
         value,
-        `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
+        `Field has extra spaces`
       );
 
       if (error) {
@@ -503,7 +503,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
               <span className="text-sm text-muted-foreground">Records per page:</span>
               <Select
                 value={pageSize.toString()}  // CHANGED: Controlled by pageSize state
-                onValueChange={(value) => {
+                onValueChange={(value: any) => {
                   setPageSize(Number(value));  // CHANGED: Update pageSize
                   setCurrentPage(1);  // CHANGED: Reset to page 1
                 }}
@@ -593,7 +593,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Label>Department Head *</Label>
                   <Select
                     value={newDept.deptHead}
-                    onValueChange={(value) => {
+                    onValueChange={(value: any) => {
                       setNewDept({ ...newDept, deptHead: value });
                       if (formErrors.deptHead) {
                         setFormErrors((prev) => ({ ...prev, deptHead: null }));
@@ -620,7 +620,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Label>Business Unit *</Label>
                   <Select
                     value={newDept.businessUnit}
-                    onValueChange={(value) => {
+                    onValueChange={(value: any) => {
                       setNewDept({ ...newDept, businessUnit: value });
                       if (formErrors.businessUnit) {
                         setFormErrors((prev) => ({ ...prev, businessUnit: null }));
@@ -647,7 +647,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Label>Time Zone</Label>
                   <Select
                     value={newDept.timezoneId}
-                    onValueChange={(value) => setNewDept({ ...newDept, timezoneId: value })}
+                    onValueChange={(value: any) => setNewDept({ ...newDept, timezoneId: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select timezone" />
@@ -729,7 +729,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
       <Dialog
         open={showEditDialog}
-        onOpenChange={(open) => {
+        onOpenChange={(open: any) => {
           setShowEditDialog(open);
           if (!open) {
             setEditingDept(null);
@@ -796,7 +796,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Label>Department Head *</Label>
                   <Select
                     value={editingDept.deptHead}
-                    onValueChange={(value) => {
+                    onValueChange={(value: any) => {
                       setEditingDept({ ...editingDept, deptHead: value });
                       if (formErrors.deptHead) setFormErrors(prev => ({ ...prev, deptHead: null }));
                     }}
@@ -818,7 +818,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Label>Business Unit *</Label>
                   <Select
                     value={editingDept.businessUnit}
-                    onValueChange={(value) => {
+                    onValueChange={(value: any) => {
                       setEditingDept({ ...editingDept, businessUnit: value });
                       if (formErrors.businessUnit) setFormErrors(prev => ({ ...prev, businessUnit: null }));
                     }}
@@ -840,7 +840,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Label>Time Zone *</Label>
                   <Select
                     value={editingDept.timezoneId}
-                    onValueChange={(value) => {
+                    onValueChange={(value: any) => {
                       setEditingDept({ ...editingDept, timezoneId: value });
                       if (formErrors.timezoneId) setFormErrors(prev => ({ ...prev, timezoneId: null }));
                     }}

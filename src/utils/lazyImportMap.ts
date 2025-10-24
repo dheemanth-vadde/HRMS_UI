@@ -36,7 +36,7 @@ export const lazyImportMap: Record<string, React.LazyExoticComponent<any>> = {
   "superadmin/departments": React.lazy(() => import("../components/superadmin/DepartmentsModule").then(m => ({ default: m.DepartmentsModule }))),
   "superadmin/announcements": React.lazy(() => import("../components/superadmin/AnnouncementsModule").then(m => ({ default: m.AnnouncementsModule }))),
   "superadmin/access": React.lazy(() => import("../components/superadmin/AccessControlModule").then(m => ({ default: m.AccessControlModule }))),
-  "superadmin/roles": React.lazy(() => import("../components/superadmin/RolesPrivilegesModule").then(m => ({ default: m.RolesPrivilegesModule }))),
+  "superadmin/roles": React.lazy(() => import("../components/superadmin/AccessControlModule").then(m => ({ default: m.AccessControlModule }))),
   // "superadmin/users": React.lazy(() => import("../components/superadmin/UserManagementModule").then(m => ({ default: m.UserManagementModule }))),
   "superadmin/permissions": React.lazy(() => import("../components/superadmin/PermissionsManagementModule").then(m => ({ default: m.PermissionsManagementModule }))),
   "superadmin/employee-info": React.lazy(() => import("../components/superadmin/EmployeeInfoModule").then(m => ({ default: m.EmployeeInfoModule }))),

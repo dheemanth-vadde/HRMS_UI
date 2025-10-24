@@ -102,7 +102,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
     for (const field of requiredFields) {
       const value = unit[field];
       let error: string | null = null;
-
+ 
       // Handle City, State, Country, and Employment Types
       if (["cityId", "stateId", "countryId", "empTypes"].includes(field)) {
         // For empTypes, check array length
@@ -118,12 +118,22 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       else {
         error = getValidationError("required", value as any ?? "", "This field is required");
       }
-
+ 
       if (error) {
         errors[String(field)] = error;
         continue;
       }
-
+      if ((field === "name" || field === "code" || field === "empPrefix" || field === "streetAddress") && typeof value === "string") {
+        const spaceError = getValidationError(
+          "noSpaces",
+          value,
+          `Field has extra spaces`
+        );
+        if (spaceError) {
+          errors[field] = spaceError;
+          continue;
+        }
+      }
       // Unique validation for name/code
       if (["name", "code"].includes(field)) {
         error = getValidationError("unique", value as any, "This field already exists", {
@@ -429,7 +439,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
     // Check employment types (array of strings)
     const empTypesMatch =
       Array.isArray(unit.empTypes) &&
-      unit.empTypes.some(type => type.toLowerCase().includes(query));
+      unit.empTypes.some((type: any) => type.toLowerCase().includes(query));
 
     // Check other fields
     const otherFieldsMatch =
@@ -519,7 +529,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   paginatedUnits.map((unit) => (
                     <TableRow key={unit.id}>
                       <TableCell>{unit.empPrefix || "-"}</TableCell>
-                      <TableCell className="font-medium">{unit.name}</TableCell>
+                      <TableCell>{unit.name}</TableCell>
                       <TableCell>{unit.code}</TableCell>
                       <TableCell>{unit.startedOn}</TableCell>
                       <TableCell>
@@ -593,7 +603,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
               <span className="text-sm text-muted-foreground">Records per page:</span>
               <Select
                 value={pageSize.toString()}  // CHANGED: Controlled by pageSize state
-                onValueChange={(value) => {
+                onValueChange={(value: any) => {
                   setPageSize(Number(value));  // CHANGED: Update pageSize
                   setCurrentPage(1);  // CHANGED: Reset to page 1
                 }}
@@ -778,7 +788,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 <Label>Country *</Label>
                 <Select
                   value={newUnit.countryId}
-                  onValueChange={(value) => {
+                  onValueChange={(value: any) => {
                     setNewUnit({ ...newUnit, countryId: value, stateId: "", cityId: "" });
                     setFilteredStates(states.filter((s) => s.countryId === value));
                     setFilteredCities([]);
@@ -802,7 +812,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 <Label>State *</Label>
                 <Select
                   value={newUnit.stateId}
-                  onValueChange={(value) => {
+                  onValueChange={(value: any) => {
                     setNewUnit({ ...newUnit, stateId: value, cityId: "" });
                     setFilteredCities(cities.filter((c) => c.stateId === value && c.countryId === newUnit.countryId));
                     if (errors.stateId) setErrors((prev) => ({ ...prev, stateId: "" }));
@@ -826,7 +836,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 <Label>City *</Label>
                 <Select
                   value={newUnit.cityId}
-                  onValueChange={(value) => {
+                  onValueChange={(value: any) => {
                     setNewUnit({ ...newUnit, cityId: value });
                     if (errors.cityId) {
                       setErrors((prev) => ({ ...prev, cityId: "" }));
@@ -861,7 +871,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
         </DialogContent>
       </Dialog>
       {/* Edit Business Unit Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={(open) => {
+      <Dialog open={showEditDialog} onOpenChange={(open: any) => {
         if (!open) setEditingUnit(null);
         setShowEditDialog(open);
       }}>
@@ -933,12 +943,12 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   <Select
                     value={editingUnit.empTypes || []}
                     onValueChange={(value: any) => {
-                      setEditingUnit((prev) => {
+                      setEditingUnit((prev: any) => {
                         if (!prev) return prev;
                         const exists = prev.empTypes.includes(value);
                         let updated: string[];
                         if (exists) {
-                          updated = prev.empTypes.filter((v) => v !== value);
+                          updated = prev.empTypes.filter((v: any) => v !== value);
                         } else {
                           updated = [...prev.empTypes, value];
                         }
@@ -965,9 +975,9 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                             key={type.id}
                             onClick={() => {
                               const updated = isSelected
-                                ? editingUnit.empTypes.filter((v) => v !== type.typeName)
+                                ? editingUnit.empTypes.filter((v: any) => v !== type.typeName)
                                 : [...(editingUnit.empTypes || []), type.typeName];
-                              setEditingUnit((prev) => prev ? { ...prev, empTypes: updated } : prev);
+                              setEditingUnit((prev: any) => prev ? { ...prev, empTypes: updated } : prev);
                               if (errors.empTypes) setErrors((prev) => ({ ...prev, empTypes: "" }));
                             }}
                             className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent ${isSelected ? "bg-accent text-primary font-medium" : ""
@@ -1023,7 +1033,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   <Label>Country *</Label>
                   <Select
                     value={editingUnit.countryId}
-                    onValueChange={(value) => {
+                    onValueChange={(value: any) => {
                       setEditingUnit({
                         ...editingUnit,
                         countryId: value,
@@ -1053,10 +1063,10 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   {errors.countryId && <p className="text-destructive text-sm mt-1">{errors.countryId}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label>State</Label>
+                  <Label>State *</Label>
                   <Select
                     value={editingUnit.stateId}
-                    onValueChange={(value) => {
+                    onValueChange={(value: any) => {
                       setEditingUnit({
                         ...editingUnit,
                         stateId: value,
@@ -1091,7 +1101,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   <Label>City *</Label>
                   <Select
                     value={editingUnit.cityId}
-                    onValueChange={(value) => {
+                    onValueChange={(value: any) => {
                       setEditingUnit({ ...editingUnit, cityId: value });
                       // Clear error for city as soon as user selects
                       if (errors.cityId) {

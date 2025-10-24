@@ -131,7 +131,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
         const spaceError = getValidationError(
           "noSpaces",
           value,
-          `This field cannot start or end with a space`
+          `Field has extra space`
         );
         if (spaceError) {
           errors[field] = spaceError;
@@ -247,7 +247,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       newIds = [...currentIds, selectedId];
     }
 
-    stateUpdater(prev => ({ ...prev, [field]: newIds }));
+    stateUpdater((prev: any) => ({ ...prev, [field]: newIds }));
     setFormErrors(prev => ({ ...prev, [field]: "" }));
   };
 
@@ -288,7 +288,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       setShowAddDialog(false);
       resetNewAnnoc();
       setCurrentPage(1);
-      toast.success("Announcement added successfully! 🎉");
+      toast.success("Announcement added successfully!");
     } catch (err) {
       console.error("Failed to add announcement", err);
       toast.error("Failed to add announcement");
@@ -352,7 +352,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
 
       setFormErrors({});
       setCurrentPage(1);
-      toast.success("Announcement updated successfully! ✏️");
+      toast.success("Announcement updated successfully!");
       return false;
     } catch (err) {
       console.error("Failed to update announcement", err);
@@ -372,7 +372,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       await api.delete(ANNOUNCEMENTS_ENDPOINTS.DELETE_ANNOUNCEMENTS(announcementToDelete));
       setAnnouncements(announcements.filter((a) => a.id !== announcementToDelete));
       setCurrentPage(1);
-      toast.success("Announcement deleted successfully! 🗑️");
+      toast.success("Announcement deleted successfully!");
     } catch (err) {
       console.error("Failed to delete announcement", err);
       toast.error("Failed to delete announcement");
@@ -639,7 +639,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                     <Label>Business Unit(s) *</Label>
                     <Select
                       value={newAnnouncement.unitId.join(',')} // Join array to string for SelectValue to display
-                      onValueChange={(value) => {
+                      onValueChange={(value: any) => {
                         // value is the clicked unit ID
                         handleMultiSelectChange(newAnnouncement.unitId, value, setNewAnnouncement, 'unitId');
                       }}
@@ -853,7 +853,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       {/* Edit Dialog with validation */}
       <Dialog
         open={showEditDialog && !!editingAnnouncement}
-        onOpenChange={(open) => {
+        onOpenChange={(open: any) => {
           if (!open) setEditingAnnouncement(null);
           setShowEditDialog(open);
         }}
@@ -920,9 +920,9 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                             key={unit.id}
                             onClick={() => {
                               const updated = isSelected
-                                ? editingAnnouncement.unitId.filter((id) => id !== unit.id)
+                                ? editingAnnouncement.unitId.filter((id: any) => id !== unit.id)
                                 : [...editingAnnouncement.unitId, unit.id];
-                              setEditingAnnouncement((prev) => ({ ...prev, unitId: updated }));
+                              setEditingAnnouncement((prev: any) => ({ ...prev, unitId: updated }));
                               setFormErrors((prev) => ({ ...prev, unitId: "" }));
                             }}
                             className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent text-sm ${isSelected ? "bg-accent text-primary" : ""

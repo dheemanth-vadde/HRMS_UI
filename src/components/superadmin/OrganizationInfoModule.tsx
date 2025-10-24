@@ -6,6 +6,13 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { getValidationError } from "../../utils/validations";
 import api from "../../services/interceptors";
 import ORGANIZATION_ENDPOINTS from "../../services/organizationEndpoints";
@@ -190,7 +197,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     requiredFields.forEach((field) => {
       const error =
         getValidationError("required", orgData[field], `This field is required`) ||
-        getValidationError("noSpaces", orgData[field], `This field is required`);
+        getValidationError("noSpaces", orgData[field], `Field has extra spaces`);
       if (error) newErrors[field] = error;
     });
 
@@ -423,7 +430,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 {/* Logo Upload Section */}
                 <div className="space-y-2 border-b pb-4">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Image className="size-4" />
+                    {/* <Image className="size-4" /> */}
                     Organization Logo
                   </Label>
                   {isEditing && !viewOnly ? (
@@ -488,7 +495,15 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     <>
                       <Input
                         value={orgData.name}
-                        onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, name: value });
+                
+                          // Clear the error as soon as user starts typing
+                          if (errors.name && value.trim() !== "") {
+                            setErrors((prev) => ({ ...prev, name: "" }));
+                          }
+                        }}
                         placeholder="Enter organization name"
                       />
                       {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
@@ -523,7 +538,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
 
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Globe className="size-4" />
+                    {/* <Globe className="size-4" /> */}
                     Website
                   </Label>
                   {isEditing && !viewOnly ? (
@@ -562,7 +577,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
 
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Calendar className="size-4" />
+                    {/* <Calendar className="size-4" /> */}
                     Established On
                   </Label>
                   {isEditing && !viewOnly ? (
@@ -582,7 +597,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
 
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Phone className="size-4" />
+                    {/* <Phone className="size-4" /> */}
                     Customer Care
                   </Label>
                   {isEditing && !viewOnly ? (
@@ -601,58 +616,73 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
 
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Country</Label>
+
                   {isEditing && !viewOnly ? (
                     <>
-                      <select
+                      <Select
                         value={orgData.country}
-                        onChange={(e) => {
-                          const selectedCountry = e.target.value;
+                        onValueChange={(selectedCountry: any) => {
                           setOrgData({ ...orgData, country: selectedCountry, state: "", city: "" });
                           fetchStates(selectedCountry);
                         }}
-                        className="w-full border rounded-md p-2 text-sm"
                       >
-                        <option value="">Select Country</option>
-                        {countries.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.country}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
+                        <SelectTrigger className="w-full border rounded-md p-2 text-sm">
+                          <SelectValue placeholder="Select Country" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          {countries.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.country}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {errors.country && (
+                        <p className="text-sm text-red-600">{errors.country}</p>
+                      )}
                     </>
                   ) : (
                     <p className="font-medium">{getCountryName(orgData.country)}</p>
                   )}
                 </div>
 
+
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Headquarters State</Label>
+                  <Label className="text-sm text-muted-foreground">State</Label>
+
                   {isEditing && !viewOnly ? (
                     <>
-                      <select
+                      <Select
                         value={orgData.state}
-                        onChange={(e) => {
-                          const selectedState = e.target.value;
+                        onValueChange={(selectedState: any) => {
                           setOrgData({ ...orgData, state: selectedState, city: "" });
                           // useEffect will automatically fetch cities
                         }}
-                        className="w-full border rounded-md p-2 text-sm"
                       >
-                        <option value="">Select State</option>
-                        {states.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.state}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.state && <p className="text-sm text-red-600">{errors.state}</p>}
+                        <SelectTrigger className="w-full border rounded-md p-2 text-sm">
+                          <SelectValue placeholder="Select State" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          {states.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>
+                              {s.state}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {errors.state && (
+                        <p className="text-sm text-red-600">{errors.state}</p>
+                      )}
                     </>
                   ) : (
                     <p className="font-medium">{getStateName(orgData.state)}</p>
-
                   )}
                 </div>
+
 
                 {/* <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Organization Code</Label>
@@ -672,32 +702,43 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
 
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">City</Label>
+
                   {isEditing && !viewOnly ? (
                     <>
-                      <select
+                      <Select
                         value={orgData.city}
-                        onChange={(e) => setOrgData({ ...orgData, city: e.target.value })}
-                        className="w-full border rounded-md p-2 text-sm"
+                        onValueChange={(selectedCity: any) =>
+                          setOrgData({ ...orgData, city: selectedCity })
+                        }
                       >
-                        <option value="">Select City</option>
-                        {cities.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.city}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.city && <p className="text-sm text-red-600">{errors.city}</p>}
+                        <SelectTrigger className="w-full border rounded-md p-2 text-sm">
+                          <SelectValue placeholder="Select City" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          {cities.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {errors.city && (
+                        <p className="text-sm text-red-600">{errors.city}</p>
+                      )}
                     </>
                   ) : (
                     <p className="font-medium">{getCityName(orgData.city)}</p>
                   )}
                 </div>
+
               </div>
 
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
-                    <MapPin className="size-4" />
+                    {/* <MapPin className="size-4" /> */}
                     Head Office Address
                   </Label>
                   {isEditing && !viewOnly ? (

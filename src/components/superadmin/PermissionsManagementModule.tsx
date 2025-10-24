@@ -718,7 +718,7 @@ useEffect(() => {
               <thead className="sticky top-0 z-10">
                 <tr>
                   <th className="text-left px-6 py-4 font-semibold text-foreground border-b border-border">
-                    Screen
+                    Screens
                   </th>
                   <th className="text-center px-4 py-4 font-semibold text-foreground border-b border-border w-24">
                     All
@@ -875,14 +875,14 @@ useEffect(() => {
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between gap-4">
-        <Button
+      <div className="flex justify-end gap-4">
+        {/* <Button
           variant="outline"
           className="border-input-border"
         >
           <X className="size-4 mr-2" />
           Cancel
-        </Button>
+        </Button> */}
         <Button   onClick={handleSaveChanges} className="bg-gradient-to-r from-primary to-[#2171b5] hover:from-[#2171b5] hover:to-[#1a5a8a] text-white shadow-lg hover:shadow-xl transition-all">
           <Check className="size-4 mr-2" />
           Save Changes
