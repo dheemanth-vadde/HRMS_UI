@@ -11,6 +11,7 @@ import api from "../../services/interceptors";
 import ORGANIZATION_ENDPOINTS from "../../services/organizationEndpoints";
 import STATE_ENDPOINTS from "../../services/stateEndpoints";
 import COUNTRY_ENDPOINTS from "../../services/countryEndpoints";
+import CITY_ENDPOINTS from "../../services/cityEndpoints";
 
 interface OrganizationInfoModuleProps {
   viewOnly?: boolean;
@@ -31,7 +32,8 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     customerCare: "",
     country: "",
     state: "",
-    category: "",
+    city: "",
+    // category: "",
     headOffice: "",
     regionalOffice: "",
     logo: "",
@@ -39,13 +41,53 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
-  // const userInfo = useSelector(selectUserInfo);
+
+  const businessDomains = [
+    "Automotive",
+    "Construction",
+    "Consulting",
+    "Education",
+    "Engineering",
+    "Government",
+    "Healthcare",
+    "Hospitality",
+    "Insurance/Finance",
+    "Manufacturing",
+    "Marketing/PR",
+    "Media",
+    "Not for profit",
+    "Oil/Gas/Utilities",
+    "Pharmaceutical",
+    "Real Estate",
+    "Retail and Consumer",
+    "Technology",
+    "Telecommunications",
+    "Travel and Leisure",
+    "Other",
+  ];
 
   useEffect(() => {
-    fetchOrganizationData();
-    fetchCountries();
-    // fetchStates();
-  }, []);
+    // Initial fetch on mount
+    if (!countries.length && !hasOrganization) {
+      fetchOrganizationData();
+      fetchCountries();
+    }
+
+    // Fetch states when country changes
+    if (orgData.country) {
+      fetchStates(orgData.country);
+    } else {
+      setStates([]);
+      setCities([]);
+    }
+
+    // Fetch cities when state changes
+    if (orgData.state) {
+      fetchCities(orgData.state);
+    } else {
+      setCities([]);
+    }
+  }, [orgData.country, orgData.state]);
 
   const fetchCountries = async () => {
     try {
@@ -56,22 +98,16 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     }
   };
 
-  useEffect(() => {
-    if (orgData.country) {
-      fetchStates(orgData.country);
-    }
-  }, [orgData.country]);
-
   const fetchStates = async (countryId: string) => {
     if (!countryId) {
       setStates([]); // clear states if no country selected
       return;
     }
- 
+
     try {
       const response = await api.get(`${STATE_ENDPOINTS.GET_STATE}`);
       const allStates = response.data?.data || [];
- 
+
       // Filter states based on selected country
       const filteredStates = allStates.filter((state: any) => state.countryId === countryId);
       setStates(filteredStates);
@@ -80,6 +116,23 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     }
   };
 
+  const fetchCities = async (stateId: string) => {
+    if (!stateId) {
+      setCities([]); // clear states if no country selected
+      return;
+    }
+
+    try {
+      const response = await api.get(`${CITY_ENDPOINTS.GET_CITY}`);
+      const allCities = response.data?.data || [];
+
+      // Filter states based on selected country
+      const filteredCities = allCities.filter((city: any) => city.stateId === stateId);
+      setCities(filteredCities);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+    }
+  };
 
   const getCountryName = (id: string) => {
     const country = countries.find((c) => c.id === id);
@@ -91,6 +144,10 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     return state ? state.state || state.name : "-";
   };
 
+  const getCityName = (id: string) => {
+    const city = cities.find((s) => s.id === id);
+    return city ? city.city || city.name : "-";
+  };
 
   const fetchOrganizationData = async () => {
     try {
@@ -109,7 +166,8 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
           customerCare: org.phoneNumber || "",
           country: org.countryId || "",
           state: org.stateId || "",
-          category: org.orgCode || "",
+          city: org.cityId || "",
+          // category: org.orgCode || "",
           headOffice: org.address1 || "",
           regionalOffice: org.address2 || "",
           logo: org.orgImage ? `data:image/png;base64,${org.orgImage}` : "",
@@ -124,7 +182,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     }
   };
 
-
   const validateOrgData = () => {
     const newErrors: { [key: string]: string } = {};
 
@@ -132,8 +189,8 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     const requiredFields: (keyof typeof orgData)[] = ["name"];
     requiredFields.forEach((field) => {
       const error =
-        getValidationError("required", orgData[field], `${field} is required`) ||
-        getValidationError("noSpaces", orgData[field], `${field} cannot start or end with a space`);
+        getValidationError("required", orgData[field], `This field is required`) ||
+        getValidationError("noSpaces", orgData[field], `This field is required`);
       if (error) newErrors[field] = error;
     });
 
@@ -153,7 +210,8 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
       "website",
       "country",
       "state",
-      "category",
+      "city",
+      // "category",
       "headOffice",
       "regionalOffice",
     ];
@@ -174,7 +232,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     return Object.keys(newErrors).length === 0; // valid if no errors
   };
 
-
   const handleSave = async () => {
     const isValid = validateOrgData();
     if (!isValid) {
@@ -184,15 +241,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
 
     try {
       const data = new FormData();
-
       // Build formData dynamically
       data.append("organisationName", orgData.name);
-      data.append("orgCode", orgData.category || "");
+      // data.append("orgCode", orgData.category || "");
       data.append("totalEmployees", orgData.employees);
       data.append("orgStartDate", orgData.established);
-      data.append("countryId", orgData.country || "3fa85f64-5717-4562-b3fc-2c963f66afa6");
-      data.append("stateId", orgData.state || "3fa85f64-5717-4562-b3fc-2c963f66afa6");
-      data.append("cityId", "3fa85f64-5717-4562-b3fc-2c963f66afa6");
+      data.append("countryId", orgData.country);
+      data.append("stateId", orgData.state);
+      data.append("cityId", orgData.city);
       data.append("phoneNumber", orgData.customerCare);
       data.append("secondaryPhone", "");
       data.append("email", "");
@@ -200,7 +256,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
       data.append("faxNumber", "");
       data.append("description", orgData.regionalOffice);
       data.append("orgHead", "");
-      data.append("designation", orgData.category);
+      // data.append("designation", orgData.category);
       data.append("address1", orgData.headOffice);
       data.append("orgImage", "string");
       data.append("domain", orgData.domain);
@@ -216,7 +272,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
         data.append("orgImageFile", fileInput.files[0]);
       }
 
-      let response;
+      let response: any;
 
       if (orgData.id) {
         // ✅ Update existing organization
@@ -235,7 +291,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
         );
         toast.success("Organization created successfully");
       }
-
       console.log("API response:", response.data);
 
       setIsEditing(false);
@@ -247,7 +302,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
       toast.error(error?.response?.data?.message || "Failed to save organization");
     }
   };
-
 
   const handleAddOrganization = () => {
     setIsEditing(true);
@@ -267,7 +321,8 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
         customerCare: "",
         country: "",
         state: "",
-        category: "",
+        city: "",
+        // category: "",
         headOffice: "",
         regionalOffice: "",
         logo: "",
@@ -447,11 +502,18 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                   <Label className="text-sm text-muted-foreground">Business Domain</Label>
                   {isEditing && !viewOnly ? (
                     <>
-                      <Input
+                      <select
                         value={orgData.domain}
                         onChange={(e) => setOrgData({ ...orgData, domain: e.target.value })}
-                        placeholder="Enter business domain"
-                      />
+                        className="w-full border rounded-md p-2 text-sm"
+                      >
+                        <option value="">Select Business Domain</option>
+                        {businessDomains.map((domain) => (
+                          <option key={domain} value={domain}>
+                            {domain}
+                          </option>
+                        ))}
+                      </select>
                       {errors.domain && <p className="text-sm text-red-600">{errors.domain}</p>}
                     </>
                   ) : (
@@ -544,21 +606,19 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                       <select
                         value={orgData.country}
                         onChange={(e) => {
-                          const selectedCountryId = e.target.value;
-                          setOrgData({ ...orgData, country: selectedCountryId, state: "" }); // reset state when country changes
-                          fetchStates(selectedCountryId); // 🔥 fetch only relevant states
+                          const selectedCountry = e.target.value;
+                          setOrgData({ ...orgData, country: selectedCountry, state: "", city: "" });
+                          fetchStates(selectedCountry);
                         }}
                         className="w-full border rounded-md p-2 text-sm"
                       >
                         <option value="">Select Country</option>
                         {countries.map((c) => (
                           <option key={c.id} value={c.id}>
-                            {c.country || c.name}
+                            {c.country}
                           </option>
                         ))}
                       </select>
-                      {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
-
                       {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
                     </>
                   ) : (
@@ -572,19 +632,21 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     <>
                       <select
                         value={orgData.state}
-                        onChange={(e) => setOrgData({ ...orgData, state: e.target.value })}
+                        onChange={(e) => {
+                          const selectedState = e.target.value;
+                          setOrgData({ ...orgData, state: selectedState, city: "" });
+                          // useEffect will automatically fetch cities
+                        }}
                         className="w-full border rounded-md p-2 text-sm"
                       >
                         <option value="">Select State</option>
                         {states.map((s) => (
                           <option key={s.id} value={s.id}>
-                            {s.state || s.name}
+                            {s.state}
                           </option>
                         ))}
                       </select>
                       {errors.state && <p className="text-sm text-red-600">{errors.state}</p>}
-
-                      {/* {errors.state && <p className="text-sm text-red-600">{errors.state}</p>} */}
                     </>
                   ) : (
                     <p className="font-medium">{getStateName(orgData.state)}</p>
@@ -592,7 +654,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                   )}
                 </div>
 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Organization Code</Label>
                   {isEditing && !viewOnly ? (
                     <>
@@ -605,6 +667,29 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     </>
                   ) : (
                     <p className="font-medium">{orgData.category || "-"}</p>
+                  )}
+                </div> */}
+
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">City</Label>
+                  {isEditing && !viewOnly ? (
+                    <>
+                      <select
+                        value={orgData.city}
+                        onChange={(e) => setOrgData({ ...orgData, city: e.target.value })}
+                        className="w-full border rounded-md p-2 text-sm"
+                      >
+                        <option value="">Select City</option>
+                        {cities.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.city}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.city && <p className="text-sm text-red-600">{errors.city}</p>}
+                    </>
+                  ) : (
+                    <p className="font-medium">{getCityName(orgData.city)}</p>
                   )}
                 </div>
               </div>
