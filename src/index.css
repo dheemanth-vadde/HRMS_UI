@@ -5061,3 +5061,7 @@ html {
 .announcement_card {
   background:none !important;
 }
+
+.error_text {
+  color: red;
+}

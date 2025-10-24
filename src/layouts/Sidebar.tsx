@@ -5,6 +5,8 @@ import { routes } from "../config/permittedRoutes";
 import { SagarsoftLogo } from "../components/SagarsoftLogo";
 import { cn } from "../components/ui/utils";
 import { ChevronDown } from "lucide-react";
+import { toggleSidebar } from "../store/uiSlice";
+import { useDispatch } from "react-redux";
 
 type NavItemProps = {
   path: string;
@@ -22,7 +24,7 @@ const NavItem = ({ path, name, icon: Icon, collapsed, isChild }: NavItemProps) =
         "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
         isChild ? "ml-4 py-2" : "",
         isActive
-          ? "bg-white/10 text-white font-medium"
+          ? "text-[#f38883]"
           : "text-white/80 hover:bg-white/5 hover:text-white"
       )
     }
@@ -34,10 +36,14 @@ const NavItem = ({ path, name, icon: Icon, collapsed, isChild }: NavItemProps) =
 
 const Sidebar = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
   const collapsed = useAppSelector(state => state.ui.sidebarCollapsed);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
   const toggleMenu = (path: string) => {
+    if (collapsed) {
+      dispatch(toggleSidebar());
+    }
     setExpandedMenus(prev =>
       prev.includes(path)
         ? prev.filter(p => p !== path)
@@ -77,7 +83,7 @@ const Sidebar = () => {
                     onClick={() => toggleMenu(route.path)}
                     className={cn(
                       "w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors",
-                      isActive ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/5 hover:text-white"
+                      isActive ? "text-[#f38883]" : "text-white/80 hover:bg-white/5 hover:text-white"
                     )}
                   >
                     <div className="flex items-center gap-3">

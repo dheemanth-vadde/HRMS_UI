@@ -57,7 +57,7 @@ import {
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
 import { cn } from "../ui/utils";
-import '../../styles/globals.css';
+// import '../../styles/globals.css';
 import data from "../../data.json";
 import api from "../../services/interceptors";
 import { EMPLOYEE_ENDPOINTS } from "../../services/employeeEndpoints";
@@ -69,6 +69,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { readExcelFile } from "../../utils/utils";
 import Papa from "papaparse";
+import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
 
 interface EmployeeInfoModuleProps {
   viewOnly?: boolean;
@@ -96,14 +97,29 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     designationId: "",  // was designation
     empRole: "",        // was role
     selectedDate: "",   // was joiningDate
+    unitId: "",
     userStatus: "Active", // was status
   });
   const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
   const [designations, setDesignations] = useState<{ id: string; name: string }[]>([]);
+  const [businessUnits, setBusinessUnits] = useState<{ id: string; name: string }[]>([]);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const statusOptions = ["Active", "Inactive", "On Leave"];
   const [showFilters, setShowFilters] = useState(false);
+
+  const emptyForm = {
+    fullName: "",
+    personalEmail: "",
+    emailAddress: "",
+    contactNumber: "",
+    deptId: "",         // was department
+    designationId: "",  // was designation
+    empRole: "",        // was role
+    selectedDate: "",   // was joiningDate
+    unitId: "",
+    userStatus: "Active", // was status
+  }
 
   const mapEmployeeForUI = (emp: any) => {
     return {
@@ -120,6 +136,10 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         roles.find((r) => r.id === emp.empRole || r.name === emp.empRole)?.name ||
         emp.role ||
         "",
+      businessUnit:
+        businessUnits.find((b) => b.id === emp.unitId || b.name === emp.unitName)?.name ||
+        emp.businessUnit ||
+        "",
       // unify status field used in UI
       status: emp.userStatus || emp.status || "",
     };
@@ -128,7 +148,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
   // remap existing employee list when lookup lists (departments/designations/roles) change
   useEffect(() => {
     setEmployees((prev) => prev.map((e) => mapEmployeeForUI(e)));
-  }, [departments, designations, roles]);
+  }, [departments, designations, roles, businessUnits]);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -199,6 +219,23 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     fetchRoles();
   }, []);
 
+  useEffect(() => {
+    const fetchBusinessUnits = async () => {
+      try {
+        const response = await api.get(BUSSINESSUNIT_ENDPOINTS.GET_BUSSINESSUNIT);
+        const businessUnitData = response?.data?.data || [];
+        console.log("Business Units Data:", businessUnitData);
+        // map to { id, name } for Select usage
+        const mappedBusinessUnits = businessUnitData.map((d: any) => ({ id: d.id, name: d.unitName }));
+        setBusinessUnits(mappedBusinessUnits);
+      } catch (err) {
+        console.error("Error fetching business units:", err);
+        setBusinessUnits([]); // fallback empty
+      }
+    };
+    fetchBusinessUnits();
+  }, []);
+
   const handleAdd = async () => {
     const isValid = validateAllNewEmployee();
     if (!isValid) {
@@ -220,12 +257,17 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         roles.find((r) => r.id === newEmployee.empRole)?.id ||
         roles.find((r) => r.name === newEmployee.empRole)?.id ||
         "";
+      const unitId =
+        businessUnits.find((b) => b.id === newEmployee.unitId)?.id ||
+        businessUnits.find((b) => b.name === newEmployee.unitId)?.id ||
+        "";
 
       const payload = {
         ...newEmployee,
         deptId,
         designationId,
         empRole,
+        unitId,
         selectedDate: newEmployee.selectedDate || "",
         userStatus: newEmployee.userStatus || "Active",
         firstName: newEmployee.fullName
@@ -243,6 +285,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         designationId: "",
         empRole: "",
         selectedDate: "",
+        unitId: "",
         userStatus: "Active",
       });
 
@@ -270,6 +313,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       department: departments.find(d => d.id === employee.deptId)?.name || "",
       designation: designations.find(d => d.id === employee.designationId)?.name || "",
       role: roles.find(r => r.id === employee.empRole)?.name || "",
+      businessUnit: businessUnits.find(b => b.id === employee.unitId)?.name || "",
       userStatus: employee.userStatus || "Active",
       joiningDate: employee.selectedDate || "",
     });
@@ -285,6 +329,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         deptId: departments.find(d => d.name === editingEmployee.department)?.id || "",
         designationId: designations.find(d => d.name === editingEmployee.designation)?.id || "",
         empRole: roles.find(r => r.name === editingEmployee.role)?.id || "",
+        unitId: businessUnits.find(b => b.name === editingEmployee.businessUnit)?.id || "",
         selectedDate: editingEmployee.joiningDate || "",
         userStatus: editingEmployee.userStatus || "Active",
       };
@@ -293,6 +338,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       delete payload.department;
       delete payload.designation;
       delete payload.role;
+      delete payload.businessUnit;
       delete payload.joiningDate;
 
       const response = await api.put(EMPLOYEE_ENDPOINTS.UPDATE_EMPLOYEE(editingEmployee.id), payload);
@@ -360,6 +406,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       "Department",
       "Designation",
       "Role",
+      "Business Unit",
       "Joining Date",
       "Status",
     ];
@@ -371,6 +418,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       "IT Technical", // dropdown
       "Software Engineer", // dropdown
       "Super Admin", // dropdown
+      "Sagarsoft(HYD)", // dropdown
       "2025-10-30",
       "Active", // dropdown
     ];
@@ -384,6 +432,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       const deptNames = departments.map(d => d.name);
       const designationNames = designations.map(d => d.name);
       const roleNames = roles.map(r => r.name);
+      const businessUnitNames = businessUnits.map(r => r.name);
       const statusNames = ["Active", "Inactive", "On Leave"];
 
       // XLSX uses !ref and !dataValidations for dropdowns
@@ -391,7 +440,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         { sqref: "E2", type: "list", formula1: `"${deptNames.join(",")}"` },
         { sqref: "F2", type: "list", formula1: `"${designationNames.join(",")}"` },
         { sqref: "G2", type: "list", formula1: `"${roleNames.join(",")}"` },
-        { sqref: "I2", type: "list", formula1: `"${statusNames.join(",")}"` },
+        { sqref: "H2", type: "list", formula1: `"${businessUnitNames.join(",")}"` },
+        { sqref: "J2", type: "list", formula1: `"${statusNames.join(",")}"` },
       ];
     }
 
@@ -469,6 +519,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
           deptId: departments.find((d) => d.name === row["Department"])?.id || "",
           designationId: designations.find((d) => d.name === row["Designation"])?.id || "",
           empRole: roles.find((r) => r.name === row["Role"])?.id || "",
+          unitId: businessUnits.find((r) => r.name === row["Business Unit"])?.id || "",
           selectedDate: joiningDate, // now correctly formatted YYYY-MM-DD
           userStatus: statusOptions.includes(row["Status"]) ? row["Status"] : "Active",
         };
@@ -527,6 +578,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       "deptId",
       "designationId",
       "empRole",
+      "unitId",
       "selectedDate",
     ];
 
@@ -609,12 +661,18 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     );
   }
 
+  const handleCloseDialog = () => {
+    setShowAddDialog(false);
+    setNewEmployee(emptyForm);
+    setErrors({});
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1>Employee</h1>
+          <h1>Employees</h1>
           <p className="text-muted-foreground mt-1">
             {viewOnly ? "View employee records and information" : "Manage employee records and information"}
           </p>
@@ -838,8 +896,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <TableRow className="bg-muted/30 hover:bg-muted/30">
                   <TableHead className="font-semibold">Employee</TableHead>
                   {/* <TableHead className="font-semibold">Position</TableHead> */}
+                  <TableHead className="font-semibold">Business Unit</TableHead>
                   <TableHead className="font-semibold">Department</TableHead>
-                  <TableHead className="font-semibold">Location</TableHead>
                   <TableHead className="font-semibold">Designation</TableHead>
                   <TableHead className="font-semibold">Status</TableHead>
                   <TableHead className="font-semibold">Role</TableHead>
@@ -851,6 +909,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
               </TableHeader>
               <TableBody>
                 {filteredEmployees.map((employee) => (
+                  console.log(employee),
                   <TableRow key={employee.id} className="hover:bg-muted/20">
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -871,9 +930,9 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{employee.department}</TableCell>
-                    <TableCell className="text-sm">{employee?.location || ''}</TableCell>
-                    <TableCell className="text-sm">{employee.designation}</TableCell>
+                    <TableCell className="text-sm">{employee?.businessUnit || ''}</TableCell>
+                    <TableCell className="text-sm">{employee.department || ''}</TableCell>
+                    <TableCell className="text-sm">{employee.designation || ''}</TableCell>
                     <TableCell>
                       <Badge 
                         variant="outline" 
@@ -953,7 +1012,11 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       </div>
 
       {/* Add/Import Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      <Dialog open={showAddDialog} onOpenChange={(open: any) => {
+          if (!open) handleCloseDialog(); // when modal closes (click outside / Esc)
+          else setShowAddDialog(true);    // when modal opens
+        }}
+      >
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Employee</DialogTitle>
@@ -986,8 +1049,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     onChange={(e) => setNewEmployee({ ...newEmployee, fullName: e.target.value })}
                     onBlur={(e) => validateField("fullName", e.target.value)}
                   />
-                  {errors["new_name"] && (
-                    <small className="error_text">{errors["new_name"]}</small>
+                  {errors["new_fullName"] && (
+                    <small className="error_text">{errors["new_fullName"]}</small>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -1023,6 +1086,28 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     value={newEmployee.contactNumber}
                     onChange={(e) => setNewEmployee({ ...newEmployee, contactNumber: e.target.value })}
                   />
+                  {errors["new_contactNumber"] && (
+                    <small className="error_text">{errors["new_contactNumber"]}</small>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label>Business Unit *</Label>
+                  <Select
+                    value={newEmployee.unitId}
+                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, unitId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select business unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {businessUnits.map(unit => (
+                        <SelectItem key={unit.id} value={unit.name}>{unit.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors["new_unitId"] && (
+                    <small className="error_text">{errors["new_unitId"]}</small>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Department *</Label>
@@ -1039,6 +1124,9 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors["new_deptId"] && (
+                    <small className="error_text">{errors["new_deptId"]}</small>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Designation *</Label>
@@ -1055,6 +1143,9 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors["new_designationId"] && (
+                    <small className="error_text">{errors["new_designationId"]}</small>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Role *</Label>
@@ -1071,6 +1162,9 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors["new_empRole"] && (
+                    <small className="error_text">{errors["new_empRole"]}</small>
+                  )}
                 </div>
                 {/* <div className="space-y-2">
                   <Label>Project</Label>
@@ -1096,6 +1190,9 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     value={newEmployee.selectedDate}
                     onChange={(e) => setNewEmployee({ ...newEmployee, selectedDate: e.target.value })}
                   />
+                  {errors["new_selectedDate"] && (
+                    <small className="error_text">{errors["new_selectedDate"]}</small>
+                  )}
                 </div>
                 {/* <div className="space-y-2">
                   <Label>Location *</Label>
@@ -1128,10 +1225,17 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                       <SelectItem value="On Leave">On Leave</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors["new_userStatus"] && (
+                    <small className="error_text">{errors["new_userStatus"]}</small>
+                  )}
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                <Button variant="outline" onClick={() => {
+                  setShowAddDialog(false);
+                  setNewEmployee(emptyForm);
+                  setErrors({});
+                }}>
                   Cancel
                 </Button>
                 <Button className="btn-add-purple" onClick={handleAdd}>
@@ -1191,6 +1295,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                       <span>• Personal Email</span>
                       <span>• Company Email</span>
                       <span>• Phone Number</span>
+                      <span>• Business Unit</span>
                       <span>• Department</span>
                       <span>• Designation</span>
                       <span>• Role</span>
@@ -1257,6 +1362,22 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   value={editingEmployee.contactNumber}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, contactNumber: e.target.value })}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>Business Unit *</Label>
+                <Select
+                  value={editingEmployee.businessUnit}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, businessUnit: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {businessUnits.map(unit => (
+                      <SelectItem key={unit.id} value={unit.name}>{unit.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Department *</Label>
