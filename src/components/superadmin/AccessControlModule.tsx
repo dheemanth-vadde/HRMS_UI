@@ -53,6 +53,8 @@ import { cn } from "../ui/utils";
 import {getValidationError,isInList} from "../../utils/validations";
 import api from "../../services/interceptors";
 import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
+import GROUP_ENDPOINTS from "../../services/groupEndpoints";
+
 
 
 interface Role {
@@ -60,7 +62,7 @@ interface Role {
   roleName: string;
   // roleType: string;
   roleDescription: string;
-  // group: string;
+  groupId: string;
 }
 
 export function AccessControlModule() {
@@ -81,11 +83,12 @@ export function AccessControlModule() {
     roleName: "",
     // roleType: "",
     roleDescription: "",
-    // group: "",
+    groupId: "",
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading,setLoading] = useState(false);
+  const[groups,setGroups] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -99,6 +102,7 @@ export function AccessControlModule() {
             id: role.id,
             roleName: role.roleName,
             roleDescription: role.roleDescription || "",
+            groupId: role.groupId
           }
         })
         setRoles(mappedRoles);
@@ -109,6 +113,30 @@ export function AccessControlModule() {
       }
     }
     fetchRoles();
+
+  },[]);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try{
+        setLoading(true);
+        const response = await api.get(GROUP_ENDPOINTS.GET_GROUP);
+        console.log("Groups fetched:", response);
+        const fetchedGroups = response?.data?.data ;
+        const mappedGroups = fetchedGroups.map((group:any) => {
+          return {
+            id: group.id,
+            groupName:group.groupName
+          }
+        })
+        setGroups(mappedGroups);
+      }catch(error){
+          console.log("Error fetching roles",error);
+      }finally{
+        setLoading(false);
+      }
+    }
+    fetchGroups();
 
   },[]);
 
@@ -138,7 +166,7 @@ export function AccessControlModule() {
       roleName: roleFormData.roleName,
       // roleType: roleFormData.roleType,
       roleDescription: roleFormData.roleDescription,
-      // group: roleFormData.group,
+      groupId: roleFormData.groupId,
     };
 
     try{
@@ -185,7 +213,7 @@ export function AccessControlModule() {
           setRoles(
           roles.map((role) =>
             role.id === updatedRole.id
-              ? { ...role, roleName: updatedRole.roleName,roleDescription: updatedRole.roleDescription}
+              ? { ...role, roleName: updatedRole.roleName,roleDescription: updatedRole.roleDescription,groupId: updatedRole.groupId }
               : role
           )
         );
@@ -221,7 +249,7 @@ export function AccessControlModule() {
 
   //validation function
   const validateRoleFromData = (unit: typeof roleFormData) => {
-    const requiredFields: (keyof typeof roleFormData)[] = ["roleName", "roleDescription"];
+    const requiredFields: (keyof typeof roleFormData)[] = ["roleName", "roleDescription", "groupId"];
     const newErrors: { [key: string]: string } = {};
 
     for (const field of requiredFields) {
@@ -231,7 +259,7 @@ export function AccessControlModule() {
           let error = getValidationError(
             "noSpaces",
             value,
-            `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
+            // `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} cannot start or end with a space`
           );
 
           if (error) {
@@ -245,7 +273,7 @@ export function AccessControlModule() {
               error = getValidationError(
                 "required",
                 value,
-                `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
+                // `${String(field).charAt(0).toUpperCase() + String(field).slice(1)} is required`
               );
               
           }
@@ -264,8 +292,9 @@ export function AccessControlModule() {
       roleName: role.roleName,
       // roleType: role.roleType,
       roleDescription: role.roleDescription,
-      // group: role.group,
+      groupId: role.groupId,
     });
+    console.log(role)
     setIsEditRoleDialogOpen(true);
   };
 
@@ -275,15 +304,20 @@ export function AccessControlModule() {
   };
 
   const resetRoleForm = () => {
-    setRoleFormData({ roleName: "",roleDescription: ""});
+    setRoleFormData({ roleName: "",roleDescription: "",groupId:""});
     setErrors({});
   };
+
+  
 
   // Filtering and Pagination
   const filteredRoles = roles.filter(
     (role) =>
       role.roleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      role.roleDescription.toLowerCase().includes(searchQuery.toLowerCase())
+      role.roleDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      groups.find((group)=>group.id === role.groupId)?.groupName.toLowerCase().includes(searchQuery.toLowerCase()) 
+
+      // role.groupId.toLowerCase().includes(searchQuery.toLowerCase())
       // role.roleType.toLowerCase().includes(searchQuery.toLowerCase()) ||
       // role.group.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -344,7 +378,7 @@ export function AccessControlModule() {
                   <TableHead className="font-semibold text-base mb-1">Role Name</TableHead>
                   {/* <TableHead className="font-semibold text-base mb-1">Role Type</TableHead> */}
                   <TableHead className="font-semibold text-base mb-1">Role Description</TableHead>
-                  {/* <TableHead className="font-semibold text-base mb-1">Group</TableHead> */}
+                  <TableHead className="font-semibold text-base mb-1">Group</TableHead>
                   <TableHead className="font-semibold text-base mb-1 w-24">Action</TableHead>
                 </TableRow>
               </TableHeader>
@@ -362,11 +396,11 @@ export function AccessControlModule() {
                       <TableCell className="font-medium">{role.roleName}</TableCell>
                       {/* <TableCell className="text-muted-foreground">{role.roleType}</TableCell> */}
                       <TableCell className="text-muted-foreground">{role.roleDescription || "-"}</TableCell>
-                      {/* <TableCell>
+                      <TableCell>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-sm">
-                          {role.group}
+                          {groups.find(g=>g.id === role.groupId)?.groupName || "-"}
                         </span>
-                      </TableCell> */}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
@@ -487,24 +521,24 @@ export function AccessControlModule() {
               />
               {errors.roleDescription && <p className="text-sm text-destructive mt-1">{errors.roleDescription}</p>}
             </div>
-            {/* <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="add-group">
                 Group <span className="text-destructive">*</span>
               </Label>
-              <Select value={roleFormData.group} onValueChange={(value) => setRoleFormData({ ...roleFormData, group: value })}>
+              <Select value={roleFormData.groupId} onValueChange={(value) => setRoleFormData({ ...roleFormData, groupId: value })}>
                 <SelectTrigger id="add-group">
                   <SelectValue placeholder="Select group" />
                 </SelectTrigger>
                 <SelectContent>
                   {groups.map((group) => (
-                    <SelectItem key={group} value={group}>
-                      {group}
+                    <SelectItem key={group.id} value={group.id}>
+                      {group.groupName}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.group && <p className="text-sm text-destructive mt-1">{errors.group}</p>}
-            </div> */}
+              {errors.groupId && <p className="text-sm text-destructive mt-1">{errors.groupId}</p>}
+            </div>
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => { setIsAddRoleDialogOpen(false); resetRoleForm(); }}>
@@ -564,24 +598,25 @@ export function AccessControlModule() {
               />
               {errors.roleDescription && <p className="text-sm text-destructive mt-1">{errors.roleDescription}</p>}
             </div>
-            {/* <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="edit-group">
                 Group <span className="text-destructive">*</span>
               </Label>
-              <Select value={roleFormData.group} onValueChange={(value) => setRoleFormData({ ...roleFormData, group: value })}>
+              <Select value={roleFormData.groupId} onValueChange={(value) => setRoleFormData({ ...roleFormData, groupId: value })}>
                 <SelectTrigger id="edit-group">
                   <SelectValue placeholder="Select group" />
                 </SelectTrigger>
                 <SelectContent>
                   {groups.map((group) => (
-                    <SelectItem key={group} value={group}>
-                      {group}
+                    <SelectItem key={group.id} value={group.id}>
+                      {group.groupName
+}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.group && <p className="text-sm text-destructive mt-1">{errors.group}</p>}
-            </div> */}
+            </div>
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => { setIsEditRoleDialogOpen(false); setSelectedRole(null); resetRoleForm(); }}>

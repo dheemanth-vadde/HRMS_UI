@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect,useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -28,122 +28,317 @@ import {
 } from "../ui/popover";
 import { Badge } from "../ui/badge";
 import { Settings, Calendar, Clock, Shield, DollarSign, Users, ChevronDown, Check, X, Plus } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { cn } from "../ui/utils";
+import api from "../../services/interceptors";
+import SITE_CONFIG_ENDPOINTS from "../../services/siteConfigEndpoints";
+import { TIMEZONE_ENDPOINTS } from "../../services/timeZoneEndpoints";
+import CURRENCY_ENDPOINTS from "../../services/currencyEndpoints";
+import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
 
 // Timezone data
-const timezones = [
-  { value: "UTC-12:00", label: "(UTC-12:00) International Date Line West" },
-  { value: "UTC-11:00", label: "(UTC-11:00) Coordinated Universal Time-11" },
-  { value: "UTC-10:00", label: "(UTC-10:00) Hawaii" },
-  { value: "UTC-09:00", label: "(UTC-09:00) Alaska" },
-  { value: "UTC-08:00", label: "(UTC-08:00) Pacific Time (US & Canada)" },
-  { value: "UTC-07:00", label: "(UTC-07:00) Mountain Time (US & Canada)" },
-  { value: "UTC-06:00", label: "(UTC-06:00) Central Time (US & Canada)" },
-  { value: "UTC-05:00", label: "(UTC-05:00) Eastern Time (US & Canada)" },
-  { value: "UTC-04:00", label: "(UTC-04:00) Atlantic Time (Canada)" },
-  { value: "UTC-03:30", label: "(UTC-03:30) Newfoundland" },
-  { value: "UTC-03:00", label: "(UTC-03:00) Buenos Aires, Georgetown" },
-  { value: "UTC-02:00", label: "(UTC-02:00) Mid-Atlantic" },
-  { value: "UTC-01:00", label: "(UTC-01:00) Azores" },
-  { value: "UTC+00:00", label: "(UTC+00:00) London, Dublin, Lisbon" },
-  { value: "UTC+01:00", label: "(UTC+01:00) Paris, Berlin, Rome" },
-  { value: "UTC+02:00", label: "(UTC+02:00) Cairo, Athens, Istanbul" },
-  { value: "UTC+03:00", label: "(UTC+03:00) Moscow, St. Petersburg" },
-  { value: "UTC+03:30", label: "(UTC+03:30) Tehran" },
-  { value: "UTC+04:00", label: "(UTC+04:00) Dubai, Muscat" },
-  { value: "UTC+04:30", label: "(UTC+04:30) Kabul" },
-  { value: "UTC+05:00", label: "(UTC+05:00) Islamabad, Karachi" },
-  { value: "UTC+05:30", label: "(UTC+05:30) India Standard Time (IST)" },
-  { value: "UTC+05:45", label: "(UTC+05:45) Kathmandu" },
-  { value: "UTC+06:00", label: "(UTC+06:00) Dhaka, Almaty" },
-  { value: "UTC+06:30", label: "(UTC+06:30) Yangon (Rangoon)" },
-  { value: "UTC+07:00", label: "(UTC+07:00) Bangkok, Jakarta" },
-  { value: "UTC+08:00", label: "(UTC+08:00) Singapore, Beijing, Hong Kong" },
-  { value: "UTC+09:00", label: "(UTC+09:00) Tokyo, Seoul" },
-  { value: "UTC+09:30", label: "(UTC+09:30) Adelaide, Darwin" },
-  { value: "UTC+10:00", label: "(UTC+10:00) Sydney, Melbourne" },
-  { value: "UTC+11:00", label: "(UTC+11:00) Solomon Islands" },
-  { value: "UTC+12:00", label: "(UTC+12:00) Auckland, Fiji" },
-  { value: "UTC+13:00", label: "(UTC+13:00) Nuku'alofa" },
-];
+// const timezones = [
+//   { value: "UTC-12:00", label: "(UTC-12:00) International Date Line West" },
+//   { value: "UTC-11:00", label: "(UTC-11:00) Coordinated Universal Time-11" },
+//   { value: "UTC-10:00", label: "(UTC-10:00) Hawaii" },
+//   { value: "UTC-09:00", label: "(UTC-09:00) Alaska" },
+//   { value: "UTC-08:00", label: "(UTC-08:00) Pacific Time (US & Canada)" },
+//   { value: "UTC-07:00", label: "(UTC-07:00) Mountain Time (US & Canada)" },
+//   { value: "UTC-06:00", label: "(UTC-06:00) Central Time (US & Canada)" },
+//   { value: "UTC-05:00", label: "(UTC-05:00) Eastern Time (US & Canada)" },
+//   { value: "UTC-04:00", label: "(UTC-04:00) Atlantic Time (Canada)" },
+//   { value: "UTC-03:30", label: "(UTC-03:30) Newfoundland" },
+//   { value: "UTC-03:00", label: "(UTC-03:00) Buenos Aires, Georgetown" },
+//   { value: "UTC-02:00", label: "(UTC-02:00) Mid-Atlantic" },
+//   { value: "UTC-01:00", label: "(UTC-01:00) Azores" },
+//   { value: "UTC+00:00", label: "(UTC+00:00) London, Dublin, Lisbon" },
+//   { value: "UTC+01:00", label: "(UTC+01:00) Paris, Berlin, Rome" },
+//   { value: "UTC+02:00", label: "(UTC+02:00) Cairo, Athens, Istanbul" },
+//   { value: "UTC+03:00", label: "(UTC+03:00) Moscow, St. Petersburg" },
+//   { value: "UTC+03:30", label: "(UTC+03:30) Tehran" },
+//   { value: "UTC+04:00", label: "(UTC+04:00) Dubai, Muscat" },
+//   { value: "UTC+04:30", label: "(UTC+04:30) Kabul" },
+//   { value: "UTC+05:00", label: "(UTC+05:00) Islamabad, Karachi" },
+//   { value: "UTC+05:30", label: "(UTC+05:30) India Standard Time (IST)" },
+//   { value: "UTC+05:45", label: "(UTC+05:45) Kathmandu" },
+//   { value: "UTC+06:00", label: "(UTC+06:00) Dhaka, Almaty" },
+//   { value: "UTC+06:30", label: "(UTC+06:30) Yangon (Rangoon)" },
+//   { value: "UTC+07:00", label: "(UTC+07:00) Bangkok, Jakarta" },
+//   { value: "UTC+08:00", label: "(UTC+08:00) Singapore, Beijing, Hong Kong" },
+//   { value: "UTC+09:00", label: "(UTC+09:00) Tokyo, Seoul" },
+//   { value: "UTC+09:30", label: "(UTC+09:30) Adelaide, Darwin" },
+//   { value: "UTC+10:00", label: "(UTC+10:00) Sydney, Melbourne" },
+//   { value: "UTC+11:00", label: "(UTC+11:00) Solomon Islands" },
+//   { value: "UTC+12:00", label: "(UTC+12:00) Auckland, Fiji" },
+//   { value: "UTC+13:00", label: "(UTC+13:00) Nuku'alofa" },
+// ];
 
-const currencies = [
-  { value: "USD", label: "$ - USD (US Dollar)", symbol: "$" },
-  { value: "INR", label: "₹ - INR (Indian Rupee)", symbol: "₹" },
-  { value: "EUR", label: "€ - EUR (Euro)", symbol: "€" },
-  { value: "GBP", label: "£ - GBP (British Pound)", symbol: "£" },
-  { value: "JPY", label: "¥ - JPY (Japanese Yen)", symbol: "¥" },
-  { value: "AUD", label: "A$ - AUD (Australian Dollar)", symbol: "A$" },
-  { value: "CAD", label: "C$ - CAD (Canadian Dollar)", symbol: "C$" },
-  { value: "CHF", label: "CHF - CHF (Swiss Franc)", symbol: "CHF" },
-  { value: "CNY", label: "¥ - CNY (Chinese Yuan)", symbol: "¥" },
-  { value: "AED", label: "د.إ - AED (UAE Dirham)", symbol: "د.إ" },
-];
+// const currencies = [
+//   { value: "USD", label: "$ - USD (US Dollar)", symbol: "$" },
+//   { value: "INR", label: "₹ - INR (Indian Rupee)", symbol: "₹" },
+//   { value: "EUR", label: "€ - EUR (Euro)", symbol: "€" },
+//   { value: "GBP", label: "£ - GBP (British Pound)", symbol: "£" },
+//   { value: "JPY", label: "¥ - JPY (Japanese Yen)", symbol: "¥" },
+//   { value: "AUD", label: "A$ - AUD (Australian Dollar)", symbol: "A$" },
+//   { value: "CAD", label: "C$ - CAD (Canadian Dollar)", symbol: "C$" },
+//   { value: "CHF", label: "CHF - CHF (Swiss Franc)", symbol: "CHF" },
+//   { value: "CNY", label: "¥ - CNY (Chinese Yuan)", symbol: "¥" },
+//   { value: "AED", label: "د.إ - AED (UAE Dirham)", symbol: "د.إ" },
+// ];
 
 export function SiteConfigurationModule() {
-  // Date Format
-  const [dateFormat, setDateFormat] = useState("DD/MM/YYYY");
 
-  // Time Format
-  const [timeFormat, setTimeFormat] = useState("24-Hour");
-
-  // Timezone
-  const [timezone, setTimezone] = useState("UTC+05:30");
+  
+  const [timezones,setTimezones]=useState<any[]>([]);
+  const [currencies,setCurrencies]=useState<any[]>([]);
+  const [bussinessUints,setBusinessUnits]=useState<any[]>([]);
   const [timezoneOpen, setTimezoneOpen] = useState(false);
-
+  const [isLoading,setLoading] = useState(false);
+  const [siteConfigFormData, setSiteConfigFormData] = useState({
+    id:"",
+    dateFormat: "DD/MM/YYYY",
+    timeFormat: "24-Hour",
+    timezone: "", 
+    minLength: 8,
+    requireUppercase: true,
+    requireNumber: true,
+    requireSpecial: true,
+    currency: "", 
+    bussinessUint:"",
+  });
+  
+  
+  
+  // Date Format
+  // const [dateFormat, setDateFormat] = useState("DD/MM/YYYY");
+  // Time Format
+  // const [timeFormat, setTimeFormat] = useState("24-Hour");
+  // Timezone
+  // const [timezone, setTimezone] = useState("UTC+05:30");
+ 
   // Password Policy
-  const [minPasswordLength, setMinPasswordLength] = useState(8);
-  const [requireUppercase, setRequireUppercase] = useState(true);
-  const [requireNumbers, setRequireNumbers] = useState(true);
-  const [requireSpecialChars, setRequireSpecialChars] = useState(true);
-
+  // const [minPasswordLength, setMinPasswordLength] = useState(8);
+  // const [requireUppercase, setRequireUppercase] = useState(true);
+  // const [requireNumbers, setRequireNumbers] = useState(true);
+  // const [requireSpecialChars, setRequireSpecialChars] = useState(true);
   // Currency
-  const [currency, setCurrency] = useState("USD");
+  // const [currency, setCurrency] = useState("USD");
 
   // Employee Types
   const [employeeTypes, setEmployeeTypes] = useState(["Intern", "Contract", "Full-Time"]);
   const [newEmployeeType, setNewEmployeeType] = useState("");
+  
+  //to fetch site-config by business-unit
+  useEffect(() => {
+    const fetchSiteConfig = async () => {
+      try {
+        setLoading(true);
+        if(siteConfigFormData.bussinessUint === "") return;
+        const response = await api.get(SITE_CONFIG_ENDPOINTS.GET_SITE_CONFIG_BY_BU_ID(siteConfigFormData.bussinessUint));
+        const {siteConfigurationDto,passwordPolicyDto} = response?.data?.data;
 
-  const handleAddEmployeeType = () => {
-    if (newEmployeeType.trim() && !employeeTypes.includes(newEmployeeType.trim())) {
-      setEmployeeTypes([...employeeTypes, newEmployeeType.trim()]);
-      setNewEmployeeType("");
-      toast.success("Employee type added successfully");
-    } else if (employeeTypes.includes(newEmployeeType.trim())) {
-      toast.error("This employee type already exists");
+        
+        console.log("site-config-data",response)
+        
+       // Map API response to form state, fallback to defaults if missing
+
+        setSiteConfigFormData({
+          id:siteConfigurationDto?.id,
+          dateFormat: siteConfigurationDto?.dateFormat || "DD/MM/YYYY",
+          timeFormat: siteConfigurationDto?.timeFormat === "HH12:MI:SS" ? "12-Hour" : "24-Hour",
+          timezone: siteConfigurationDto?.timezoneId || timezones[0].id, 
+          currency: siteConfigurationDto?.currencyId || currencies[0].id, 
+          bussinessUint:siteConfigurationDto?.unitId || siteConfigFormData.bussinessUint,
+          minLength: passwordPolicyDto?.minLength || 8,
+          requireUppercase: passwordPolicyDto?.requireUppercase ?? true,
+          requireNumber: passwordPolicyDto?.requireNumber ?? true,
+          requireSpecial: passwordPolicyDto?.requireSpecial ?? true,
+           
+        });
+        
+      } catch (error) {
+        console.error("Error fetching site config", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSiteConfig();
+  }, [siteConfigFormData.bussinessUint]);
+
+    //for timezones
+   useEffect(() => {
+    const fetchTimezones = async () => {
+      try{
+        setLoading(true);
+        const response = await api.get(TIMEZONE_ENDPOINTS.GET_TIMEZONE);
+        console.log("time zones fetched:", response);
+        const fetchedTimezones = response?.data?.data ;
+        const mappedTimezones = fetchedTimezones.map((timezone:any,index:number) => {
+          if(index===0){
+            setSiteConfigFormData((prev)=>({...prev,timezone:timezone.id}));
+          }
+          return {
+            id: timezone.id,
+            timezoneLabel: `(UTC${timezone.offsetValue}) ${timezone.timezone}`
+          }
+        })
+        console.log("mappedTimezones:",mappedTimezones);
+        setTimezones(mappedTimezones);
+      }catch(error){
+          console.log("Error fetching roles",error);
+      }finally{
+        setLoading(false);
+      }
     }
-  };
+    fetchTimezones();
 
-  const handleRemoveEmployeeType = (type: string) => {
-    setEmployeeTypes(employeeTypes.filter(t => t !== type));
-    toast.success("Employee type removed successfully");
-  };
+  },[]);
 
-  const handleSaveConfiguration = () => {
+    //for currencies
+   useEffect(() => {
+    const fetchCurrencies = async () => {
+      try{
+        setLoading(true);
+        const response = await api.get(CURRENCY_ENDPOINTS.GET_CURRENCY);
+        console.log("currencies fetched:", response);
+        const fetchedCurrencies = response?.data?.data ;
+        const mappedCurrencies = fetchedCurrencies.map((currency:any,index:number) => {
+          if(index===0){
+            setSiteConfigFormData((prev)=>({...prev,currency:currency.id}));
+          }
+          return {
+            id: currency.id,
+            currencyNameCode: `${currency.symbol} - ${currency.currencyCode} (${currency.currencyName})`,
+          }
+        })
+        setCurrencies(mappedCurrencies);
+      }catch(error){
+          console.log("Error fetching roles",error);
+      }finally{
+        setLoading(false);
+      }
+    }
+    fetchCurrencies();
+
+  },[]);
+   
+  //for bussiness units
+  useEffect(() => {
+    const fetchBusinessUnits = async () => {
+      try{
+        setLoading(true);
+        const response = await api.get(BUSSINESSUNIT_ENDPOINTS.GET_BUSSINESSUNIT);
+        console.log("business units fetched:", response);
+        const fetchedBusinessUnits = response?.data?.data ;
+        const mappedBusinessUnits = fetchedBusinessUnits.map((bussinessUint) => {
+        
+          return {
+            id: bussinessUint.id,
+            unitName : bussinessUint.unitName,
+            unitCode : bussinessUint.unitCode,
+          }
+        })
+        setBusinessUnits(mappedBusinessUnits);
+        console.log("mappedBusinessUnits",mappedBusinessUnits)
+      }catch(error){
+          console.log("Error fetching roles",error);
+      }finally{
+        setLoading(false);
+      }
+    }
+    fetchBusinessUnits();
+
+  },[]);
+
+  // const handleAddEmployeeType = () => {
+  //   if (newEmployeeType.trim() && !employeeTypes.includes(newEmployeeType.trim())) {
+  //     setSiteConfigFormData((prev)=>({...prev,employeeTypes:[...prev?.employeeTypes,newEmployeeType.trim()]}));
+  //     setNewEmployeeType("");
+  //     toast.success("Employee type added successfully");
+  //   } else if (employeeTypes.includes(newEmployeeType.trim())) {
+  //     toast.error("This employee type already exists");
+  //   }
+  // };
+
+  // const handleRemoveEmployeeType = (type: string) => {
+  //   // setEmployeeTypes(employeeTypes.filter(t => t !== type));
+  //   setSiteConfigFormData((prev)=>({...prev,employeeTypes:employeeTypes.filter(t => t !== type)}));
+  //   toast.success("Employee type removed successfully");
+  // };
+
+  const handleSaveConfiguration = async () => {
+    if(siteConfigFormData.bussinessUint === ""){
+      toast.warning("Select a bussiness unit")
+      return;
+    } 
     // Validate password length
-    if (minPasswordLength < 6 || minPasswordLength > 20) {
+    if (siteConfigFormData?.minLength < 6 || siteConfigFormData?.minLength > 20) {
+      toast.error("Password length must be between 6 and 20 characters");
+      return;
+    }
+    if(!siteConfigFormData?.requireUppercase && !siteConfigFormData?.requireNumber && !siteConfigFormData?.requireSpecial){
       toast.error("Password length must be between 6 and 20 characters");
       return;
     }
 
-    // Save configuration logic here
+    
+    const editedSiteConfig = {
+      //siteConfigurationDto
+      siteConfigurationDto:{
+        timezoneId:siteConfigFormData.timezone,
+        currencyId:siteConfigFormData.currency,
+        dateFormat:siteConfigFormData.dateFormat,
+        timeFormat:siteConfigFormData.timeFormat === "12-Hour" ? "HH12:MI:SS" : "HH24:MI:SS"
+      },
+      //passwordPolicyDto
+      passwordPolicyDto:{
+        minLength:siteConfigFormData.minLength,
+        requireUppercase:siteConfigFormData.requireUppercase,
+        requireSpecial:siteConfigFormData.requireSpecial,
+        requireNumber:siteConfigFormData.requireNumber
+      }
+    }
+    try{
+      setLoading(true);
+      const response = await api.put(SITE_CONFIG_ENDPOINTS.PUT_SITE_CONFIG_BY_BU_ID(siteConfigFormData.bussinessUint),editedSiteConfig);
+      const updatedConfig = response?.data?.data;
+      console.log("Site configuration updated:",updatedConfig);
+      const{siteConfigurationDto,passwordPolicyDto} = updatedConfig;
+      setSiteConfigFormData({
+        id:siteConfigurationDto.id,
+        dateFormat: siteConfigurationDto.dateFormat,
+        timeFormat: siteConfigurationDto.timeFormat === "HH12:MI:SS" ? "12-Hour" : "24-Hour",
+        timezone: siteConfigurationDto.timezoneId, 
+        currency: siteConfigurationDto.currencyId,
+        bussinessUint:siteConfigurationDto.unitId,
+        minLength: passwordPolicyDto.minLength,
+        requireUppercase: passwordPolicyDto.requireUppercase,
+        requireNumber: passwordPolicyDto.requireNumber,
+        requireSpecial: passwordPolicyDto.requireSpecial})   
+    }catch(error){
+      console.log("Error saving site configuration:",error);
+    }finally{
+      setLoading(false);
+    }
+
+    
     toast.success("Configuration saved successfully");
   };
 
   const getPasswordPolicyValidation = () => {
-    const messages = [];
-    if (minPasswordLength < 8) {
+    const messages:string[] = [];
+    if (siteConfigFormData?.minLength < 8) {
       messages.push("Minimum length should be at least 8 for better security");
     }
-    if (!requireUppercase && !requireNumbers && !requireSpecialChars) {
+    if (!siteConfigFormData?.requireUppercase && !siteConfigFormData?.requireNumber && !siteConfigFormData?.requireSpecial) {
       messages.push("At least one password requirement should be enabled");
     }
     return messages;
   };
 
   const validationMessages = getPasswordPolicyValidation();
-
+  console.log(siteConfigFormData)
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -153,6 +348,20 @@ export function SiteConfigurationModule() {
           <p className="text-muted-foreground mt-1">
             Manage global system settings and configurations
           </p>
+        </div>
+        <div className="space-x-4">
+          <Select value={siteConfigFormData.bussinessUint} onValueChange={(value)=>{
+              setSiteConfigFormData({...siteConfigFormData,bussinessUint:value});}
+          }>
+            <SelectTrigger className="w-[200px] border-gray-300">
+              <SelectValue placeholder="Select business unit" />
+            </SelectTrigger>
+            <SelectContent>
+              {bussinessUints.map((bussinessUint)=>{
+                return <SelectItem key={bussinessUint.id} value={bussinessUint.id}>{bussinessUint.unitName}</SelectItem>
+              })}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -173,7 +382,9 @@ export function SiteConfigurationModule() {
                 <Label htmlFor="date-format">
                   Date Format <span className="text-destructive">*</span>
                 </Label>
-                <Select value={dateFormat} onValueChange={setDateFormat}>
+                <Select value={siteConfigFormData?.dateFormat} onValueChange={(value)=>{
+                  setSiteConfigFormData({...siteConfigFormData,dateFormat:value});
+                }}>
                   <SelectTrigger id="date-format" className="border-gray-300">
                     <SelectValue />
                   </SelectTrigger>
@@ -184,7 +395,7 @@ export function SiteConfigurationModule() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Example: {dateFormat === "DD/MM/YYYY" ? "14/10/2025" : dateFormat === "MM/DD/YYYY" ? "10/14/2025" : "2025-10-14"}
+                  Example: {siteConfigFormData?.dateFormat === "DD/MM/YYYY" ? "14/10/2025" : siteConfigFormData?.dateFormat === "MM/DD/YYYY" ? "10/14/2025" : "2025-10-14"}
                 </p>
               </div>
 
@@ -193,7 +404,9 @@ export function SiteConfigurationModule() {
                 <Label htmlFor="time-format">
                   Time Format <span className="text-destructive">*</span>
                 </Label>
-                <Select value={timeFormat} onValueChange={setTimeFormat}>
+                <Select value={siteConfigFormData?.timeFormat} onValueChange={(value)=>{
+                  setSiteConfigFormData({...siteConfigFormData,timeFormat:value});
+                }}>
                   <SelectTrigger id="time-format" className="border-gray-300">
                     <SelectValue />
                   </SelectTrigger>
@@ -203,7 +416,7 @@ export function SiteConfigurationModule() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Example: {timeFormat === "12-Hour" ? "02:30 PM" : "14:30"}
+                  Example: {siteConfigFormData?.timeFormat === "12-Hour" ? "02:30 PM" : "14:30"}
                 </p>
               </div>
             </div>
@@ -221,8 +434,8 @@ export function SiteConfigurationModule() {
                     aria-expanded={timezoneOpen}
                     className="w-full justify-between"
                   >
-                    {timezone
-                      ? timezones.find((tz) => tz.value === timezone)?.label
+                    {siteConfigFormData.timezone
+                      ? timezones.find((tz) => tz.id === siteConfigFormData.timezone)?.timezoneLabel
                       : "Select timezone..."}
                     <ChevronDown className="ml-2 size-4 shrink-0 opacity-50" />
                   </Button>
@@ -235,20 +448,20 @@ export function SiteConfigurationModule() {
                       <CommandGroup>
                         {timezones.map((tz) => (
                           <CommandItem
-                            key={tz.value}
-                            value={tz.label}
+                            key={tz.id}
+                            value={tz.timezoneLabel}
                             onSelect={() => {
-                              setTimezone(tz.value);
+                              setSiteConfigFormData({...siteConfigFormData,timezone:tz.id});
                               setTimezoneOpen(false);
                             }}
                           >
                             <Check
                               className={cn(
                                 "mr-2 size-4",
-                                timezone === tz.value ? "opacity-100" : "opacity-0"
+                                siteConfigFormData?.timezone === tz.id ? "opacity-100" : "opacity-0"
                               )}
                             />
-                            {tz.label}
+                            {tz.timezoneLabel}
                           </CommandItem>
                         ))}
                       </CommandGroup>
@@ -284,8 +497,8 @@ export function SiteConfigurationModule() {
                     type="number"
                     min={6}
                     max={20}
-                    value={minPasswordLength}
-                    onChange={(e) => setMinPasswordLength(parseInt(e.target.value) || 8)}
+                    value={siteConfigFormData?.minLength}
+                    onChange={(e) => setSiteConfigFormData({...siteConfigFormData,minLength:parseInt(e.target.value) || 8})}
                     className="w-32 border-gray-300"
                   />
                   <span className="text-sm text-muted-foreground">characters</span>
@@ -306,8 +519,8 @@ export function SiteConfigurationModule() {
                   </div>
                   <Switch
                     id="require-uppercase"
-                    checked={requireUppercase}
-                    onCheckedChange={setRequireUppercase}
+                    checked={siteConfigFormData?.requireUppercase}
+                    onCheckedChange={(checked) => setSiteConfigFormData({...siteConfigFormData,requireUppercase:checked})}
                   />
                 </div>
 
@@ -320,8 +533,8 @@ export function SiteConfigurationModule() {
                   </div>
                   <Switch
                     id="require-numbers"
-                    checked={requireNumbers}
-                    onCheckedChange={setRequireNumbers}
+                    checked={siteConfigFormData?.requireNumber}
+                    onCheckedChange={(checked) => setSiteConfigFormData({...siteConfigFormData,requireNumber:checked})}
                   />
                 </div>
 
@@ -334,8 +547,8 @@ export function SiteConfigurationModule() {
                   </div>
                   <Switch
                     id="require-special"
-                    checked={requireSpecialChars}
-                    onCheckedChange={setRequireSpecialChars}
+                    checked={siteConfigFormData?.requireSpecial}
+                    onCheckedChange={(checked) => setSiteConfigFormData({...siteConfigFormData,requireSpecial:checked})}
                   />
                 </div>
               </div>
@@ -368,14 +581,17 @@ export function SiteConfigurationModule() {
               <Label htmlFor="currency">
                 Default Currency <span className="text-destructive">*</span>
               </Label>
-              <Select value={currency} onValueChange={setCurrency}>
+              <Select value={siteConfigFormData.currency} onValueChange={(value)=>{
+                setSiteConfigFormData({...siteConfigFormData,currency:value});
+              }}>
                 <SelectTrigger id="currency" className="w-full border-gray-300">
-                  <SelectValue />
+                  <SelectValue  placeholder="Select Currency..." />
                 </SelectTrigger>
                 <SelectContent>
+
                   {currencies.map((curr) => (
-                    <SelectItem key={curr.value} value={curr.value}>
-                      {curr.label}
+                    <SelectItem key={curr.id} value={curr.id}>
+                      {curr.currencyNameCode}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -393,6 +609,27 @@ export function SiteConfigurationModule() {
             <div className="flex items-center gap-2">
               <Users className="size-5 text-primary" />
               <h3 className="font-semibold">Employee Types</h3>
+            </div>
+            <Separator />
+            <div className="space-y-4">
+              <Label>
+                Employee Prefix <span className="text-destructive">*</span>
+              </Label>
+              {/* Add New Type */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Example: SIL"
+                  // value={siteConfigFormData?.employeeIdPrefix}
+                  // onChange={(e) => {
+                  //   setSiteConfigFormData((prev)=>({...prev,employeeIdPrefix:e.target.value}));
+                  //   if(errors?.employeeIdPrefix){
+                  //     setErrors((prev)=>({...prev,employeeIdPrefix:null}));
+                  //   }
+                  //   }}
+                  className="flex-1 border-gray-300"
+                />
+              </div>
+              
             </div>
             <Separator />
 
@@ -413,7 +650,7 @@ export function SiteConfigurationModule() {
                     >
                       {type}
                       <button
-                        onClick={() => handleRemoveEmployeeType(type)}
+                        // onClick={() => handleRemoveEmployeeType(type)}
                         className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
                       >
                         <X className="size-2.5" />
@@ -427,18 +664,18 @@ export function SiteConfigurationModule() {
               <div className="flex gap-2">
                 <Input
                   placeholder="Enter new employee type..."
-                  value={newEmployeeType}
-                  onChange={(e) => setNewEmployeeType(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddEmployeeType();
-                    }
-                  }}
+                  // value={newEmployeeType}
+                  // onChange={(e) => setNewEmployeeType(e.target.value)}
+                  // onKeyDown={(e) => {
+                  //   if (e.key === "Enter") {
+                  //     e.preventDefault();
+                  //     handleAddEmployeeType();
+                  //   }
+                  // }}
                   className="flex-1 border-gray-300"
                 />
                 <Button
-                  onClick={handleAddEmployeeType}
+                  // onClick={handleAddEmployeeType}
                   className="btn-gradient-primary"
                   disabled={!newEmployeeType.trim()}
                 >
@@ -460,15 +697,28 @@ export function SiteConfigurationModule() {
           variant="outline"
           onClick={() => {
             // Reset to defaults
-            setDateFormat("DD/MM/YYYY");
-            setTimeFormat("24-Hour");
-            setTimezone("UTC+05:30");
-            setMinPasswordLength(8);
-            setRequireUppercase(true);
-            setRequireNumbers(true);
-            setRequireSpecialChars(true);
-            setCurrency("USD");
-            setEmployeeTypes(["Intern", "Contract", "Full-Time"]);
+            // setDateFormat("DD/MM/YYYY");
+            // setTimeFormat("24-Hour");
+            // setTimezone("UTC+05:30");
+            // setMinPasswordLength(8);
+            // setRequireUppercase(true);
+            // setRequireNumbers(true);
+            // setRequireSpecialChars(true);
+            // setCurrency("USD");
+            // setEmployeeTypes(["Intern", "Contract", "Full-Time"]);
+            setSiteConfigFormData({
+                 id:"",
+                 dateFormat: "DD/MM/YYYY",
+                 timeFormat: "24-Hour",
+                 timezone: timezones[0].id, // Default to UTC+05:30 (India Standard Time)
+                 minLength: 8,
+                 requireUppercase: true,
+                 requireNumber: true,
+                 requireSpecial: true,
+                 currency: currencies[0].id, // Default to INR
+                 bussinessUint:""
+
+              });
             toast.success("Settings reset to defaults");
           }}
         >
