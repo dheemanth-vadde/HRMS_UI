@@ -5,13 +5,6 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Briefcase, Search, RefreshCw, Plus, Upload, Edit, Trash2, FileSpreadsheet, MoreVertical } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -58,8 +51,6 @@ import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
 import EMPLOYEE_ENDPOINTS from "../../services/employeeEndpoints";
 import TIMEZONE_ENDPOINTS from "../../services/timeZoneEndpoints";
 
-
-
 interface DepartmentsModuleProps {
   viewOnly?: boolean;
 }
@@ -84,6 +75,12 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     timezoneId: "",
     businessUnit: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // Default to 10, matching your Select
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const resetNewDept = () => {
     setNewDept({
@@ -101,7 +98,6 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       setLoading(true);
       try {
         const { data } = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS).then(res => res.data);
-        // Map API fields to front-end structure
         const mappedData = data.map((dept: any) => ({
           id: dept.id,
           deptName: dept.deptName || "",
@@ -111,8 +107,6 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
           timezoneId: dept.timezoneId,
           businessUnit: dept.unitId,
         }));
-
-
         setDepartments(mappedData);
       } catch (err) {
         console.error("Failed to fetch departments", err);
@@ -163,7 +157,6 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     fetchBusinessUnits();
   }, []);
 
-
   const [formErrors, setFormErrors] = useState<{ [key: string]: string | null }>({});
   const validateDeptForm = (dept: typeof newDept, idToExclude?: string) => {
     const errors: { [key: string]: string | null } = {};
@@ -213,13 +206,10 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
         });
         if (error) errors[field] = error;
       }
-
-
     }
 
     return errors;
   };
-
 
   const getBusinessUnitName = (unitId: string): string => {
     const unit = businessUnits.find(u => u.id === unitId);
@@ -231,9 +221,6 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     const employee = employees.find(emp => emp.id === empId);
     return employee ? employee.fullName || "-" : "-";
   };
-
-
-
 
   const handleAdd = async () => {
     const errors = validateDeptForm(newDept);
@@ -264,17 +251,16 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
         businessUnit: addedDept.unitId || "",
       };
 
-      setDepartments((prev) => [...prev, mappedDept]);
+      setDepartments((prev) => [mappedDept, ...prev,]);
       setShowAddDialog(false);
       resetNewDept();
+      setCurrentPage(1);
       toast.success("Department added successfully!");
     } catch (err) {
       console.error("Failed to add department", err);
       toast.error("Failed to add department");
     }
   };
-
-
 
   const handleEdit = (dept: any) => {
     setEditingDept({
@@ -288,18 +274,15 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       startedOn: dept.startedOn || "",
     });
   };
-
-
-
   const handleUpdate = async () => {
     if (!editingDept) return;
 
-const errors = validateDeptForm(editingDept, editingDept.id); // pass current unit id
+    const errors = validateDeptForm(editingDept, editingDept.id); // pass current unit id
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) return;
-   
+
     try {
-      // ✅ Prepare correct payload
+      // Prepare correct payload
       const payload = {
         id: editingDept.id,
         deptName: editingDept.deptName,
@@ -346,6 +329,7 @@ const errors = validateDeptForm(editingDept, editingDept.id); // pass current un
       setEditingDept(null);
       setShowEditDialog(false);
       setFormErrors({});
+      setCurrentPage(1);
       toast.success("Department updated successfully!");
     } catch (err) {
       console.error(" Failed to update department", err);
@@ -364,6 +348,7 @@ const errors = validateDeptForm(editingDept, editingDept.id); // pass current un
         await api.delete(DEPARTMENT_ENDPOINTS.DELETE_DEPARTMENT(deptToDelete));
         setDepartments(departments.filter(d => d.id !== deptToDelete));
         toast.success("Department deleted successfully!");
+        setCurrentPage(1);
       } catch (err) {
         console.error("Failed to delete department", err);
         toast.error("Failed to delete department");
@@ -391,6 +376,11 @@ const errors = validateDeptForm(editingDept, editingDept.id); // pass current un
     getBusinessUnitName(dept.businessUnit).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredDepartments.length / pageSize);
+  const paginatedDepartments = filteredDepartments.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
     <div className="space-y-6">
@@ -437,52 +427,50 @@ const errors = validateDeptForm(editingDept, editingDept.id); // pass current un
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredDepartments
-                  .filter(dept => dept.id) // render only rows with valid IDs
-                  .map((dept) => (
-                    <TableRow key={dept.id}>
-                      <TableCell>{dept.deptName}</TableCell>
-                      <TableCell>{dept.deptCode}</TableCell>
-                      <TableCell>{dept.startedOn}</TableCell>
-                      <TableCell>{getDeptHeadName(dept.deptHead)}</TableCell>
-                      <TableCell>{timezones.find(t => t.id === dept.timezoneId)?.timezone || "-"}</TableCell>
-                      <TableCell>{getBusinessUnitName(dept.businessUnit)}</TableCell>
-                      {/* <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => { handleEdit(dept); setShowEditDialog(true); }}>
-                          <Edit className="size-4 text-gray-500" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(dept.id)}>
-                          <Trash2 className="size-4 text-gray-500" />
-                        </Button>
-                      </TableCell> */}
-                      <TableCell className="text-right">
-                      {!viewOnly && (
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              handleEdit(dept);
-                              setShowEditDialog(true); // open dialog
-                            }}
-                          >
-                            <Edit className="size-4 text-gray-500" />
-                          </Button>
+                {paginatedDepartments.filter(dept => dept.id).length > 0 ? (
+                  paginatedDepartments
+                    .filter(dept => dept.id) // render only rows with valid IDs
+                    .map((dept) => (
+                      <TableRow key={dept.id}>
+                        <TableCell>{dept.deptName}</TableCell>
+                        <TableCell>{dept.deptCode}</TableCell>
+                        <TableCell>{dept.startedOn}</TableCell>
+                        <TableCell>{getDeptHeadName(dept.deptHead)}</TableCell>
+                        <TableCell>{timezones.find(t => t.id === dept.timezoneId)?.timezone || "-"}</TableCell>
+                        <TableCell>{getBusinessUnitName(dept.businessUnit)}</TableCell>
+                        <TableCell className="text-right">
+                          {!viewOnly && (
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  handleEdit(dept);
+                                  setShowEditDialog(true); // open dialog
+                                }}
+                              >
+                                <Edit className="size-4 text-gray-500" />
+                              </Button>
 
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteClick(dept.id)}
-                          >
-                            <Trash2 className="size-4 text-gray-500" />
-                          </Button>
-                        </div>
-                      )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteClick(dept.id)}
+                              >
+                                <Trash2 className="size-4 text-gray-500" />
+                              </Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                ) : (
+                  <TableRow>
+                     <TableCell colSpan={7} className="text-center text-muted-foreground py-4">
+                      No records found
                     </TableCell>
-                      
-
-                    </TableRow>
-                  ))}
+                  </TableRow>
+                )}
               </TableBody>
 
             </Table>
@@ -490,16 +478,36 @@ const errors = validateDeptForm(editingDept, editingDept.id); // pass current un
 
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" disabled>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={currentPage === 1 || totalPages === 0}  // CHANGED: Enable/disable based on page
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}  // CHANGED: Handle prev
+              >
                 <span>←</span>
               </Button>
-              <Button variant="outline" size="icon" disabled>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={currentPage === totalPages || totalPages === 0}  // CHANGED: Enable/disable based on page
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}  // CHANGED: Handle next
+              >
                 <span>→</span>
               </Button>
+              {/* OPTIONAL: Add page info for better UX */}
+              <span className="text-sm text-muted-foreground ml-2">
+                Page {currentPage} of {totalPages || 1}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Records per page:</span>
-              <Select defaultValue="20">
+              <Select
+                value={pageSize.toString()}  // CHANGED: Controlled by pageSize state
+                onValueChange={(value) => {
+                  setPageSize(Number(value));  // CHANGED: Update pageSize
+                  setCurrentPage(1);  // CHANGED: Reset to page 1
+                }}
+              >
                 <SelectTrigger className="w-20">
                   <SelectValue />
                 </SelectTrigger>
@@ -516,7 +524,6 @@ const errors = validateDeptForm(editingDept, editingDept.id); // pass current un
 
       {/* Add/Import Dialog */}
       <Dialog open={showAddDialog}
-        // onOpenChange={setShowAddDialog}
         onOpenChange={(open: boolean) => {
           setShowAddDialog(open);
           if (!open) resetNewDept(); // Reset the form when dialog is closed
@@ -563,7 +570,6 @@ const errors = validateDeptForm(editingDept, editingDept.id); // pass current un
                         setFormErrors((prev) => ({ ...prev, deptCode: null }));
                       }
                     }}
-                  //                    onChange={(e) => setNewDept({ ...newDept, code: e.target.value })}
                   />
                   {formErrors.deptCode && <p className="text-sm text-destructive">{formErrors.deptCode}</p>}
                 </div>
@@ -580,8 +586,6 @@ const errors = validateDeptForm(editingDept, editingDept.id); // pass current un
                         setFormErrors((prev) => ({ ...prev, startedOn: null }));
                       }
                     }}
-                  //  onChange={(e) => setNewDept({ ...newDept, startedOn: e.target.value })}
-
                   />
                   {formErrors.startedOn && <p className="text-sm text-destructive">{formErrors.startedOn}</p>}
                 </div>

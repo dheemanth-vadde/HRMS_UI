@@ -3,14 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Building2, Search, RefreshCw, Plus, Edit, Trash2, MoreVertical } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { Building2, Search, RefreshCw, Plus, Edit, Trash2, MoreVertical, Check } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,7 +47,7 @@ import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
 import CITY_ENDPOINTS from "../../services/cityEndpoints";
 import STATE_ENDPOINTS from "../../services/stateEndpoints";
 import COUNTRY_ENDPOINTS from "../../services/countryEndpoints";
-import TIMEZONE_ENDPOINTS from "../../services/timeZoneEndpoints";
+import EMPLOYEEMENTTPE_ENDPOINTS from "../../services/employEementTypeEndpoints";
 
 export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModuleProps) {
   const [businessUnits, setBusinessUnits] = useState<any[]>([]);
@@ -73,16 +66,22 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
     cityId: "",
     stateId: "",
     countryId: "",
-    timezoneId: "",
+    empPrefix: "",
+    empTypes: [] as string[],
   });
   const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
   const [cities, setCities] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [countries, setCountries] = useState<any[]>([]);
-  const [timezones, setTimezones] = useState<any[]>([]);
+  const [employeeTypes, setEmployeeTypes] = useState<any[]>([]);
   const [filteredStates, setFilteredStates] = useState<any[]>([]);
   const [filteredCities, setFilteredCities] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // Default to 10, matching your Select
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
 
   const validateUnit = (unit: typeof newUnit, idToExclude?: string) => {
@@ -94,7 +93,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       "cityId",
       "stateId",
       "countryId",
-      "timezoneId",
+      "empPrefix",
+      "empTypes"
     ];
 
     const errors: { [key: string]: string | null } = {};
@@ -103,18 +103,20 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       const value = unit[field];
       let error: string | null = null;
 
-      if (typeof value === "string" && !["cityId", "stateId", "countryId", "timezoneId"].includes(field)) {
-        error = getValidationError("noSpaces", value, `This feild is invalid`);
-        if (error) {
-          errors[field] = error;
-          continue;
+      // Handle City, State, Country, and Employment Types
+      if (["cityId", "stateId", "countryId", "empTypes"].includes(field)) {
+        // For empTypes, check array length
+        if (field === "empTypes") {
+          if (!Array.isArray(value) || value.length === 0) {
+            error = "Please select an option";
+          }
+        } else {
+          error = getValidationError("required", value as any, "Please select an option");
         }
       }
-
-      if (["cityId", "stateId", "countryId", "timezoneId"].includes(field)) {
-        error = getValidationError("required", value, "Please select an option");
-      } else {
-        error = getValidationError("required", value ?? "", `This field is required`);
+      // Handle other text fields
+      else {
+        error = getValidationError("required", value as any ?? "", "This field is required");
       }
 
       if (error) {
@@ -122,24 +124,19 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
         continue;
       }
 
-      // Unique validation
+      // Unique validation for name/code
       if (["name", "code"].includes(field)) {
-        error = getValidationError("unique", value, "This field already exists", {
+        error = getValidationError("unique", value as any, "This field already exists", {
           list: businessUnits.filter((u) => u.id !== idToExclude),
           propertyName: field,
         });
         if (error) errors[field] = error;
       }
-
     }
+
 
     return errors;
   };
-
-
-
-
-
 
   useEffect(() => {
     const fetchBusinessUnits = async () => {
@@ -153,7 +150,12 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
           const cityObj = cities.find((c) => c.id === unit.cityId) || { city: unit.cityId };
           const stateObj = states.find((s) => s.id === unit.stateId) || { state: unit.stateId };
           const countryObj = countries.find((c) => c.id === unit.countryId) || { country: unit.countryId };
-          const timezoneObj = timezones.find((t) => t.id === unit.timezoneId) || { timezone: unit.timezoneId };
+          const empTypesArray =
+            Array.isArray(unit.empTypes)
+              ? unit.empTypes
+              : Array.isArray(unit.empTypes?.types)
+                ? unit.empTypes.types
+                : [];
 
           return {
             id: unit.id,
@@ -164,7 +166,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
             city: cityObj ? cityObj.city : unit.cityId,
             state: stateObj ? stateObj.state : unit.stateId,
             country: countryObj ? countryObj.country : unit.countryId,
-            timezone: timezoneObj ? timezoneObj.timezone : unit.timezoneId,
+            empTypes: unit.empTypes?.types || [],
+            empPrefix: unit.empPrefix || "",
           };
         });
 
@@ -177,10 +180,10 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       }
     };
 
-    if (cities.length > 0 && states.length > 0 && countries.length > 0, timezones.length > 0) {
+    if (cities.length > 0 && states.length > 0 && countries.length > 0) {
       fetchBusinessUnits();
     }
-  }, [cities, states, countries, timezones]);
+  }, [cities, states, countries]);
 
   useEffect(() => {
     const fetchCities = async () => {
@@ -210,23 +213,24 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
         toast.error("Failed to load countries");
       }
     };
-    const fetchTimezones = async () => {
+
+
+    const fetchEmployeeTypes = async () => {
       try {
-        const response = await api.get(TIMEZONE_ENDPOINTS.GET_TIMEZONE);
-        setTimezones(response.data.data || []);
+        const response = await api.get(EMPLOYEEMENTTPE_ENDPOINTS.GET_EMPLOYEEMENTTPE);
+        setEmployeeTypes(response.data.data || []);
       } catch (err) {
-        console.error("Failed to fetch timezones", err);
-        toast.error("Failed to load timezones");
+        console.error("Failed to fetch employee types", err);
+        toast.error("Failed to load employee types");
       }
     };
+    fetchEmployeeTypes();
     fetchCities();
     fetchStates();
     fetchCountries();
-    fetchTimezones();
+
 
   }, []);
-
-
 
   const handleAdd = async () => {
     const newErrors = validateUnit(newUnit);
@@ -243,8 +247,12 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
         cityId: newUnit.cityId,
         stateId: newUnit.stateId,
         countryId: newUnit.countryId,
-        timezoneId: newUnit.timezoneId,
+        empPrefix: newUnit.empPrefix,
+        empTypes: {
+          types: newUnit.empTypes // array of selected typeNames
+        },
       };
+      console.log("Payload for adding business unit:", payload);
 
       const response = await api.post(BUSSINESSUNIT_ENDPOINTS.POST_BUSSINESSUNIT, payload);
 
@@ -252,7 +260,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       const addedUnit = response.data.data;
 
       setBusinessUnits([
-        ...businessUnits,
+
         {
           id: addedUnit.id,
           name: addedUnit.unitName,
@@ -262,14 +270,21 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
           city: cities.find(c => c.id === addedUnit.cityId)?.city || addedUnit.cityId,
           state: states.find(s => s.id === addedUnit.stateId)?.state || addedUnit.stateId,
           country: countries.find(c => c.id === addedUnit.countryId)?.country || addedUnit.countryId,
-          timezone: timezones.find(t => t.id === addedUnit.timezoneId)?.timezone || addedUnit.timezoneId,
+          empPrefix: addedUnit.empPrefix || newUnit.empPrefix, // 
+          empTypes:
+            Array.isArray(addedUnit.empTypes?.types)
+              ? addedUnit.empTypes.types
+              : newUnit.empTypes, // 
         },
+        ...businessUnits,
       ]);
+
 
 
       toast.success("Business unit added successfully!");
       setShowAddDialog(false);
       resetNewUnit();
+      setCurrentPage(1);
 
     } catch (err) {
       console.error("Failed to add business unit", err);
@@ -281,10 +296,12 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
   const handleEdit = (unit: any) => {
     setEditingUnit({
       ...unit,
+      empTypes: unit.empTypes || [],
       cityId: cities.find(c => c.city === unit.city)?.id || "",
       stateId: states.find(s => s.state === unit.state)?.id || "",
       countryId: countries.find(c => c.country === unit.country)?.id || "",
-      timezoneId: timezones.find(t => t.timezone === unit.timezone)?.id || "",
+
+
     });
   };
 
@@ -325,7 +342,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
         cityId: editingUnit.cityId,
         stateId: editingUnit.stateId,
         countryId: editingUnit.countryId,
-        timezoneId: editingUnit.timezoneId,
+        empPrefix: editingUnit.empPrefix,
+        empTypes: { types: editingUnit.empTypes },
       };
 
       const response = await api.put(
@@ -347,11 +365,15 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
               city: cities.find(c => c.id === updatedUnit.cityId)?.city || updatedUnit.cityId,
               state: states.find(s => s.id === updatedUnit.stateId)?.state || updatedUnit.stateId,
               country: countries.find(c => c.id === updatedUnit.countryId)?.country || updatedUnit.countryId,
-              timezone: timezones.find(t => t.id === updatedUnit.timezoneId)?.timezone || updatedUnit.timezoneId,
               cityId: updatedUnit.cityId,
               stateId: updatedUnit.stateId,
               countryId: updatedUnit.countryId,
-              timezoneId: updatedUnit.timezoneId,
+              empPrefix: updatedUnit.empPrefix,
+              empTypes:
+                Array.isArray(updatedUnit.empTypes?.types)
+                  ? updatedUnit.empTypes.types
+                  : editingUnit.empTypes, // ✅ keep types
+
             }
             : u
         )
@@ -362,6 +384,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       // ✅ Close the dialog after successful update
       setShowEditDialog(false);
       setEditingUnit(null);
+      setCurrentPage(1);
       setErrors({});
     } catch (err) {
       console.error("Failed to update business unit", err);
@@ -386,27 +409,46 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
         // Update local state only if API succeeds
         setBusinessUnits(businessUnits.filter(u => u.id !== unitToDelete));
         toast.success("Business unit deleted successfully!");
+        setCurrentPage(1);
       } catch (err) {
         console.error("Failed to delete business unit", err);
         toast.error("Failed to delete business unit");
+
       } finally {
         setDeleteConfirmOpen(false);
         setUnitToDelete(null);
       }
     }
   };
+  const filteredUnits = businessUnits.filter(unit => {
+    const query = searchQuery.toLowerCase();
+
+    // Check employee ID (empPrefix)
+    const empPrefixMatch = unit.empPrefix?.toLowerCase().includes(query);
+
+    // Check employment types (array of strings)
+    const empTypesMatch =
+      Array.isArray(unit.empTypes) &&
+      unit.empTypes.some(type => type.toLowerCase().includes(query));
+
+    // Check other fields
+    const otherFieldsMatch =
+      unit.name.toLowerCase().includes(query) ||
+      unit.code.toLowerCase().includes(query) ||
+      unit.city.toLowerCase().includes(query) ||
+      unit.state.toLowerCase().includes(query) ||
+      unit.country.toLowerCase().includes(query) ||
+      unit.streetAddress.toLowerCase().includes(query) ||
+      unit.startedOn.toLowerCase().includes(query);
+
+    return empPrefixMatch || empTypesMatch || otherFieldsMatch;
+  });
 
 
-
-  const filteredUnits = businessUnits.filter(unit =>
-    unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    unit.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    unit.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    unit.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    unit.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    unit.timezone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    unit.streetAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    unit.startedOn.toLowerCase().includes(searchQuery.toLowerCase())
+  const totalPages = Math.ceil(filteredUnits.length / pageSize);
+  const paginatedUnits = filteredUnits.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
   const resetNewUnit = () => {
@@ -418,7 +460,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       cityId: "",
       stateId: "",
       countryId: "",
-      timezoneId: "",
+      empPrefix: "",
+      empTypes: [],
     });
     setErrors({});
   };
@@ -459,55 +502,66 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
+                  <TableHead>Employee ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Code</TableHead>
                   <TableHead>Started On</TableHead>
-                  <TableHead>Street Address</TableHead>
+                  <TableHead>Employment Types</TableHead>
+                  {/* <TableHead>Street Address</TableHead> */}
                   <TableHead>Country</TableHead>
                   <TableHead>State</TableHead>
                   <TableHead>City</TableHead>
-                  <TableHead>Time zone</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUnits.map((unit) => (
-                  <TableRow key={unit.id}>
-                    <TableCell className="font-medium">{unit.name}</TableCell>
-                    <TableCell>{unit.code}</TableCell>
-                    <TableCell>{unit.startedOn}</TableCell>
-                    <TableCell>{unit.streetAddress}</TableCell>
-                    <TableCell>{unit.country}</TableCell>
-                    <TableCell>{unit.state}</TableCell>
-                    <TableCell>{unit.city}</TableCell>
-                    <TableCell>{unit.timezone}</TableCell>
-
-                    <TableCell className="text-right">
-                      {!viewOnly && (
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              handleEdit(unit);
-                              setShowEditDialog(true); // open dialog
-                            }}
-                          >
-                            <Edit className="size-4 text-gray-500" />
-                          </Button>
-
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteClick(unit.id)}
-                          >
-                            <Trash2 className="size-4 text-gray-500" />
-                          </Button>
-                        </div>
-                      )}
+                {paginatedUnits.length > 0 ? (
+                  paginatedUnits.map((unit) => (
+                    <TableRow key={unit.id}>
+                      <TableCell>{unit.empPrefix || "-"}</TableCell>
+                      <TableCell className="font-medium">{unit.name}</TableCell>
+                      <TableCell>{unit.code}</TableCell>
+                      <TableCell>{unit.startedOn}</TableCell>
+                      <TableCell>
+                        {Array.isArray(unit.empTypes) && unit.empTypes.length > 0
+                          ? unit.empTypes.join(", ")
+                          : "-"}
+                      </TableCell>
+                      <TableCell>{unit.country}</TableCell>
+                      <TableCell>{unit.state}</TableCell>
+                      <TableCell>{unit.city}</TableCell>
+                      <TableCell className="text-right">
+                        {!viewOnly && (
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                handleEdit(unit);
+                                setShowEditDialog(true);
+                              }}
+                            >
+                              <Edit className="size-4 text-gray-500" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteClick(unit.id)}
+                            >
+                              <Trash2 className="size-4 text-gray-500" />
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center text-muted-foreground py-4">
+                      No records found
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
 
             </Table>
@@ -515,16 +569,35 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
 
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" disabled>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={currentPage === 1 || totalPages === 0}  // CHANGED: Enable/disable based on page
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}  // CHANGED: Handle prev
+              >
                 <span>←</span>
               </Button>
-              <Button variant="outline" size="icon" disabled>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={currentPage === totalPages || totalPages === 0}  // CHANGED: Enable/disable based on page
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}  // CHANGED: Handle next
+              >
                 <span>→</span>
               </Button>
+              <span className="text-sm text-muted-foreground ml-2">
+                Page {currentPage} of {totalPages || 1}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Records per page:</span>
-              <Select defaultValue="20">
+              <Select
+                value={pageSize.toString()}  // CHANGED: Controlled by pageSize state
+                onValueChange={(value) => {
+                  setPageSize(Number(value));  // CHANGED: Update pageSize
+                  setCurrentPage(1);  // CHANGED: Reset to page 1
+                }}
+              >
                 <SelectTrigger className="w-20">
                   <SelectValue />
                 </SelectTrigger>
@@ -555,7 +628,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Unit Name *</Label>
                 <Input
@@ -588,6 +661,86 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 />
                 {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
               </div>
+              {/* Employee Prefix */}
+              <div className="space-y-2">
+                <Label>Employee Prefix *</Label>
+                <Input
+                  placeholder="e.g., EMP"
+                  value={newUnit.empPrefix}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewUnit({ ...newUnit, empPrefix: value });
+                    if (errors.empPrefix) setErrors((prev) => ({ ...prev, empPrefix: "" }));
+                  }}
+                />
+                {errors.empPrefix && (
+                  <p className="text-destructive text-sm mt-1">{errors.empPrefix}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+    <Label>Employeement Types *</Label>
+
+
+    <Select
+        value={newUnit.empTypes}
+        onValueChange={(value: any) => {
+            // value is the clicked item
+            setNewUnit((prev) => {
+                const exists = prev.empTypes.includes(value);
+                let updated: string[];
+                if (exists) {
+                    // remove if already selected
+                    updated = prev.empTypes.filter((v) => v !== value);
+                } else {
+                    // add if not selected
+                    updated = [...prev.empTypes, value];
+                }
+                return { ...prev, empTypes: updated };
+            });
+            if (errors.empTypes) setErrors((prev) => ({ ...prev, empTypes: "" }));
+
+        }}
+        multiple
+    >
+        <SelectTrigger>
+            <SelectValue placeholder="Select employment types">
+                {newUnit.empTypes.length > 0
+                    ? newUnit.empTypes.join(", ")
+                    : "Select employment types"}
+            </SelectValue>
+        </SelectTrigger>
+
+        <SelectContent>
+            {employeeTypes.map((type) => {
+                const isSelected = newUnit.empTypes.includes(type.typeName);
+                return (
+                    <div
+                        key={type.id}
+                        onClick={() => {
+                            const updated = isSelected
+                                ? newUnit.empTypes.filter((v) => v !== type.typeName)
+                                : [...newUnit.empTypes, type.typeName]; 
+                            setNewUnit((prev) => ({ ...prev, empTypes: updated }));
+                            if (errors.empTypes) setErrors((prev) => ({ ...prev, empTypes: "" }));
+                        }}
+                        // CHANGE MADE HERE: Added hover:text-primary
+                        className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent hover:accent-foreground text-sm ${isSelected ? "bg-accent text-primary" : ""
+                            }`}
+                    >
+                        <span>{type.typeName}</span>
+                        {isSelected && <Check className="size-4 text-green-500" />}
+                    </div>
+                );
+            })}
+        </SelectContent>
+    </Select>
+
+    {errors.empTypes && <p className="text-destructive text-sm mt-1">{errors.empTypes}</p>}
+</div>
+
+
+
+
               <div className="space-y-2">
                 <Label>Started On *</Label>
                 <Input
@@ -673,7 +826,12 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 <Label>City *</Label>
                 <Select
                   value={newUnit.cityId}
-                  onValueChange={(value) => setNewUnit({ ...newUnit, cityId: value })}
+                  onValueChange={(value) => {
+                    setNewUnit({ ...newUnit, cityId: value });
+                    if (errors.cityId) {
+                      setErrors((prev) => ({ ...prev, cityId: "" }));
+                    }
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select city" />
@@ -689,35 +847,6 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 {errors.cityId && <p className="text-destructive text-sm mt-1">{errors.cityId}</p>}
               </div>
 
-
-
-
-
-              <div className="space-y-2">
-                <Label>Timezone *</Label>
-                <Select
-                  value={newUnit.timezoneId}
-                  onValueChange={(value) => {
-                    setNewUnit({ ...newUnit, timezoneId: value });
-                    if (errors.timezoneId) {
-                      setErrors((prev) => ({ ...prev, timezoneId: "" }));
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select timezone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timezones.map((tz) => (
-                      <SelectItem key={tz.id} value={tz.id}>
-                        {tz.timezone}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {errors.timezoneId && <p className="text-destructive text-sm mt-1">{errors.timezoneId}</p>}
-              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => { setShowAddDialog(false); resetNewUnit(); }}>
@@ -744,7 +873,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
 
           {editingUnit && (
             <div className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Unit Name *</Label>
                   <Input
@@ -781,6 +910,79 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   />
                   {errors.code && <p className="text-destructive text-sm mt-1">{errors.code}</p>}
                 </div>
+                <div className="space-y-2">
+                  <Label>Employee Prefix *</Label>
+                  <Input
+                    placeholder="e.g., EMP"
+                    value={editingUnit.empPrefix || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEditingUnit({ ...editingUnit, empPrefix: value });
+                      if (errors.empPrefix) setErrors((prev) => ({ ...prev, empPrefix: "" }));
+                    }}
+                  />
+                  {errors.empPrefix && (
+                    <p className="text-destructive text-sm mt-1">{errors.empPrefix}</p>
+                  )}
+                </div>
+
+
+                <div className="space-y-2">
+                  <Label>Employment Types *</Label>
+
+                  <Select
+                    value={editingUnit.empTypes || []}
+                    onValueChange={(value: any) => {
+                      setEditingUnit((prev) => {
+                        if (!prev) return prev;
+                        const exists = prev.empTypes.includes(value);
+                        let updated: string[];
+                        if (exists) {
+                          updated = prev.empTypes.filter((v) => v !== value);
+                        } else {
+                          updated = [...prev.empTypes, value];
+                        }
+                        return { ...prev, empTypes: updated };
+                      });
+
+                      if (errors.empTypes) setErrors((prev) => ({ ...prev, empTypes: "" }));
+                    }}
+                    multiple
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select employment types">
+                        {editingUnit.empTypes?.length > 0
+                          ? editingUnit.empTypes.join(", ")
+                          : "Select employment types"}
+                      </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      {employeeTypes.map((type) => {
+                        const isSelected = editingUnit.empTypes?.includes(type.typeName);
+                        return (
+                          <div
+                            key={type.id}
+                            onClick={() => {
+                              const updated = isSelected
+                                ? editingUnit.empTypes.filter((v) => v !== type.typeName)
+                                : [...(editingUnit.empTypes || []), type.typeName];
+                              setEditingUnit((prev) => prev ? { ...prev, empTypes: updated } : prev);
+                              if (errors.empTypes) setErrors((prev) => ({ ...prev, empTypes: "" }));
+                            }}
+                            className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent ${isSelected ? "bg-accent text-primary font-medium" : ""
+                              }`}
+                          >
+                            <span>{type.typeName}</span>
+                            {isSelected && <Check className="size-4 text-green-500" />}
+                          </div>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+
+                  {errors.empTypes && <p className="text-destructive text-sm mt-1">{errors.empTypes}</p>}
+                </div>
 
                 <div className="space-y-2">
                   <Label>Started On *</Label>
@@ -799,6 +1001,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   />
                   {errors.startedOn && <p className="text-destructive text-sm mt-1">{errors.startedOn}</p>}
                 </div>
+
 
                 <div className="space-y-2">
                   <Label>Street Address *</Label>
@@ -872,8 +1075,6 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                         setErrors((prev) => ({ ...prev, stateId: "" }));
                       }
                     }}
-
-                  // onValueChange={(value) => setEditingUnit({ ...editingUnit, stateId: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select state" />
@@ -912,32 +1113,6 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   {errors.cityId && <p className="text-destructive text-sm mt-1">{errors.cityId}</p>}
                 </div>
 
-
-
-                <div className="space-y-2">
-                  <Label>Timezone *</Label>
-                  <Select
-                    value={editingUnit.timezoneId}
-                    onValueChange={(value) => {
-                      setEditingUnit({ ...editingUnit, timezoneId: value });
-                      // Clear error for timezone as soon as user selects
-                      if (errors.timezoneId) {
-                        setErrors((prev) => ({ ...prev, timezoneId: "" }));
-                      }
-                    }}
-                  //  onValueChange={(value) => setEditingUnit({ ...editingUnit, timezoneId: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select timezone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timezones.map((tz) => (
-                        <SelectItem key={tz.id} value={tz.id}>{tz.timezone}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.timezoneId && <p className="text-destructive text-sm mt-1">{errors.timezoneId}</p>}
-                </div>
               </div>
 
               <DialogFooter>
