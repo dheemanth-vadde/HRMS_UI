@@ -1,0 +1,124 @@
+.requisition-form input, .requisition-form textarea {
+	width: 100%;
+	padding: 8px;
+	margin-bottom: 12px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	color: #414141;
+	font-weight: 300;
+}
+ 
+.btn-orange {
+  background-color: #ff6b00;
+  color: white;
+  border: none;
+}
+ 
+.btn-orange:hover {
+  background-color: #e65c00;
+}
+ 
+.btn-outline-orange {
+  color: #ff6b00;
+  border: 1px solid #ff6b00;
+  background-color: transparent;
+}
+ 
+.btn-outline-orange:hover {
+  background-color: #ff6b00;
+  color: white;
+}
+ 
+.requisition-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 16px;
+  transition: box-shadow 0.2s ease-in-out;
+  background-color: #fff;
+}
+ 
+.requisition-item:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+ 
+.job-bullet {
+  width: 4px;
+  height: 4px;
+  background-color: orange;
+  border-radius: 50%;
+}
+ 
+.custom-dropdown .dropdown-toggle::after {
+  display: none;
+}
+.editanddelete{
+    cursor: pointer;
+    color: #e65c00;
+}.text-orange {
+  color: #FF7043;
+}
+
+/* Modal width */
+.wide-modal {
+  max-width: 900px;
+}
+/* Orange header text */
+.text-orange {
+  color: #FF7043;
+}
+/* Label styling */
+.requisition-form .form-label {
+	margin-bottom: 6px;
+	color: #414141;
+	font-size: 14px;
+	font-weight: 300 !important;
+}
+
+.req_table {
+  margin-bottom: 0px !important;
+font-family: 'Noto Sans';
+   font-size:13px !important;
+  font-weight: 300 !important;
+  color:#414141 !important;
+}
+
+.table-header-orange th {
+  color: #FF7043;
+  font-weight: 600;
+  padding: 12px !important;
+}
+
+.table-body-orange td {
+	padding: 12px !important;
+	color: #414141;
+}
+
+.table-responsive {
+  border-radius: 10px !important;
+}
+.fonall{
+font-family: 'Noto Sans';
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  color: #FF7043;
+}
+.form-control.is-invalid{
+  border-color: #ff0000 !important;
+}
+.invalid-feedback{
+  color:#ff0000 !important;
+}
+.fonsty{
+  font-family: 'Noto Sans';
+}
+.searchinput {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 25%;
+  float: right;
+}
+.title{
+  font-size:12px;
+}

@@ -1,0 +1,345 @@
+.approvals_tab .job-form .form-label,
+.approvals_tab .job-form .form-control,
+.approvals_tab .job-form .form-select,
+.approvals_tab .job-form input,
+.approvals_tab .job-form select,
+.approvals_tab .job-form textarea {
+font-family: 'Noto Sans';
+  font-size: 14px;
+  font-weight: 400;
+}
+
+
+/* Completely remove the dropdown toggle arrow */
+.approvals_tab .dropdown-toggle::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Reset button styles */
+.approvals_tab .dropdown-toggle {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  line-height: 1;
+}
+
+/* Remove focus styles */
+.approvals_tab .dropdown-toggle:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Style the SVG icon */
+.approvals_tab .dropdown-toggle svg {
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+}
+
+/* Remove top and bottom padding from job posting rows */
+.approvals_tab .job-row.py-2 {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  background: #fff;
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+/* Remove left and right margins from all rows */
+.approvals_tab .row {
+  --bs-gutter-x: 0;
+  --bs-gutter-y: 0;
+  margin-right: 0;
+  margin-left: 0;
+}
+
+/* Make job row content more compact */
+.approvals_tab .job-row {
+  font-size: 0.8rem; /* Reduced from default */
+  line-height: 1.2;
+}
+
+.approvals_tab .job-title {
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.approvals_tab .job-detail {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+  font-family: 'Noto Sans';;
+    text-overflow: ellipsis;
+}
+
+/* Specific style for location to ensure it stays on one line */
+.approvals_tab .location-cell {
+  min-width: 120px; /* Adjust based on your needs */
+  max-width: 200px; /* Adjust based on your needs */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+/* Make bullet points smaller */
+.approvals_tab .job-bullet {
+  width: 4px !important;
+  height: 4px !important;
+  margin: 1px 0;
+}
+
+/* Adjust bullet columns */
+.approvals_tab .bullet-columns {
+  padding: 10px 6px !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  border-radius:10px 0 0 10px !important
+}
+
+/* Make checkbox smaller */
+.approvals_tab .form-check-input {
+  width: 0.9em !important;
+  height: 0.9em !important;
+  margin-top: 0.2em;
+}
+
+
+
+.approvals_tab .search-input {
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.9rem;
+  width: 100%;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.approvals_tab .search-input:focus {
+  border-color: #FF7043;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 112, 67, 0.25);
+}
+
+.approvals_tab .search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+}
+/* Reduce font size for job title and other text */
+.approvals_tab .job-title-text {
+    font-size: 0.9rem;  /* smaller font size */
+    white-space: nowrap; /* prevent wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* show ... if still too long */
+  }
+  
+ .approvals_tab .job-detail-text {
+    font-size: 0.85rem; /* slightly smaller for code, exp, positions */
+  }
+  .approvals_tab .job-postings-wrapper {
+    gap: 1rem; /* optional: space between checkboxes */
+  }
+  
+ .approvals_tab .job-posting-checkbox {
+    flex: 0 0 auto;
+  }
+  
+  /* Force first 5 to stay in one row */
+ .approvals_tab .job-posting-checkbox.no-wrap {
+    white-space: nowrap;
+  }
+  
+  /* Optional: Adjust spacing so wrapping looks nice */
+  .approvals_tab .job-postings-wrapper .job-posting-checkbox:nth-child(n+6) {
+    margin-top: 0.5rem; /* small spacing on wrap */
+  }
+ .approvals_tab .checklinks {
+    margin-top: 10px;
+    width: 100%;
+  }
+ .approvals_tab .checklinks .form-check-input {
+    margin-top: 5px;
+  }
+  .approvals_tab .checklinks > div:nth-child(n+6) {
+    margin-top: 8px;
+  }
+ .approvals_tab  .checklinks > div {
+    margin-right: 1.5rem;
+  }
+  .approvals_tab .postclass{
+    margin-top: 10px;
+  }
+  /* ...existing code... */
+
+/* Custom checkbox styles for light orange background and dark orange tick */
+.approvals_tab .form-check-input[type="checkbox"] {
+  background-color: #FFE0B2 !important;   /* Light orange */
+  border: 1.5px solid #FF7043 !important; /* Dark orange border */
+  box-shadow: none !important;
+}
+
+.approvals_tab .form-check-input[type="checkbox"]:checked {
+  background-color: #FFE0B2 !important;   /* Keep background light orange when checked */
+  border-color: #FF7043 !important;
+}
+
+.approvals_tab .form-check-input[type="checkbox"]:checked {
+  /* Use a custom SVG tick in dark orange */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16'><path fill='none' stroke='%23FF7043' stroke-width='3' d='M3 8l4 4 6-7'/></svg>");
+  background-size: 80% 80%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Optional: Remove default focus outline */
+.approvals_tab .form-check-input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 112, 67, 0.25) !important;
+  outline: none !important;
+}
+
+/* Select status dropdown
+.form-select {
+  border: 1px solid #FF7043 !important;
+} */
+
+.approvals_tab .form-select:focus {
+  border-color: #FF7043 !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 112, 67, 0.25) !important;
+}
+
+/* Cancel button */
+.approvals_tab .btn-outline-secondary {
+  color: #FF7043 !important;
+  border-color: #FF7043 !important;
+}
+
+.approvals_tab .btn-outline-secondary:hover {
+  color: #fff !important;
+  background-color: #FF7043 !important;
+  border-color: #FF7043 !important;
+}
+
+.approvals_tab .job-form .form-label,
+.approvals_tab .job-form .form-control,
+.approvals_tab .job-form .form-select,
+.approvals_tab .job-form input,
+.approvals_tab .job-form select,
+.approvals_tab .job-form textarea {
+font-family: 'Noto Sans';
+  font-size: 14px !important;
+  font-weight: 400 !important;;
+}
+.approvals_tab .fonall{
+font-family: 'Noto Sans' !important;
+  font-weight: 600 !important;  /* 600 = semibold */
+  font-size: 16px !important;
+}
+
+.approvals_tab .fonreg {
+  font-family: 'Noto Sans';;
+}
+.approvals_tab .postingfont{
+font-family: 'Noto Sans';
+ width: 105px;
+   font-size:13px !important;
+}
+
+.approvals_tab .modal_container .modal-dialog {
+  margin: var(--bs-modal-margin) !important;
+}
+
+.approvals_tab .modal_container .modal-dialog .modal-content {
+  width: 95vw !important;
+}
+
+.approvals_tab .modal_container .modal-dialog .modal-content .modal-body {
+  padding-top: 0.2rem !important;
+  padding-bottom: 0.2rem !important;
+}
+
+/* .modal_container .modal-dialog .modal-content .modal-body .container-fluid {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+} */
+
+.approvals_tab .modal_container .modal-dialog .modal-content .modal-body .container-fluid div div div .buttons_div {
+  display: none !important;
+}
+
+.approvals_tab .accordion-button:not(.collapsed) {
+  background-color: #FF7043 !important;
+  /* color: #fff !important; */
+}
+
+.approvals_tab .accordion-button:focus {
+  box-shadow: none !important;
+}
+.approvals_tab .collapsed{
+  border-radius: 20px !important;
+}
+
+/* ...existing code... */
+
+.approvals_tab .accordion-item{
+  background: #fff 0% 0% no-repeat padding-box;
+  box-shadow: 0 10px 30px #1a2c7133;
+  border-radius: 20px !important;
+  margin-bottom: 20px !important;
+}
+.approvals_tab .accordion-button:not(.collapsed) {
+  background-color: rgba(247,225,215, 0.4) !important;
+}
+.approvals_tab .searchinput {
+	width: 50% !important;
+	float: right;
+}
+.approvals_tab .title{
+  font-size:12px;
+}
+.approvals_tab .fontcard .text-dark {
+    font-weight: 600;
+    color: rgb(255, 112, 67) !important;
+    font-size: 15px !important;
+}
+.approvals_tab  .header {
+  font-family: 'Noto Sans';
+    font-weight: 600 !important;
+     font-size:13px !important;
+    margin-bottom: 0.25rem;
+    color: #414141;
+}
+.approvals_tab .fontcard, .text-dark, .boldnes {
+     font-size:14px !important;
+    color: #333 !important;
+    font-weight:600 !important;
+    line-height: 22px;
+}
+.approvals_tab .boldnes b {
+    font-weight: normal;
+    color: #717178;
+}
+.approvals_tab .dropdowntext,
+.approvals_tab .dropdowntext option {
+font-family: 'Noto Sans';
+  font-size: 14px;
+  color:#414141;
+}
+.modal_container .modal-dialog .modal-content {
+    width: 95vw !important;
+}
+.modal_container .modal-dialog {
+    margin: var(--bs-modal-margin) !important;
+}
+.iconhover{
+  cursor: pointer;
+  color: #FF7043 !important;
+}

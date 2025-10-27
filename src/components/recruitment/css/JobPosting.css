@@ -1,0 +1,49 @@
+/* Tailwind-friendly overrides and small helpers for JobPosting component */
+
+/* Typography helpers (uses project's Noto Sans where available) */
+.job-postings-page,
+.job-postings-page .fonsty {
+  font-family: 'Noto Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* Small helper classes that are easier to keep in CSS than inline JSX */
+.postingfont { font-size: 13px; color: #162b75; font-weight: 500; }
+.fontcard { font-size: 12px; }
+.boldnes { font-size: 14px; color: #333; line-height: 1.6; font-weight: 600; }
+.header { font-weight: 600; font-size: 13px; color: #414141; }
+
+/* Approval eye icon color */
+.approval-eye { color: #FF7043; transition: opacity .15s ease; height: 15px; width: 15px; }
+.approval-eye:hover { opacity: .85; }
+
+/* Table helpers for modal approval trail */
+.approval-trail-modal .approval-trail-table th { color: #FF7043; font-weight: 700; }
+.approval-trail-modal .table-responsive { border: 1px solid rgba(0,0,0,0.08); border-radius: 0.5rem; overflow: auto; }
+
+/* Compact checkbox look: light orange background with orange checkmark */
+.job-postings-page .form-check-input[type="checkbox"] {
+  background-color: #ffe0b2; border: 1.5px solid #FF7043; width: 1rem; height: 1rem; appearance: none; display: inline-block; vertical-align: middle; border-radius: 0.25rem;
+}
+.job-postings-page .form-check-input[type="checkbox"]:checked {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16'><path fill='none' stroke='%23FF7043' stroke-width='3' d='M3 8l4 4 6-7'/></svg>");
+  background-size: 70% 70%; background-position: center; background-repeat: no-repeat; border-color: #FF7043;
+}
+
+/* Small utilities to replace Bootstrap spacing used in JSX */
+.me-2 { margin-right: 0.5rem; }
+.me-3 { margin-right: 0.75rem; }
+.mb-0 { margin-bottom: 0; }
+.text-muted { color: #6c757d; }
+.text-dark { color: #162b75; }
+.text-info { color: #17a2b8; }
+.text-orange { color: #FF7043; }
+.required-asterisk { cursor: pointer; }
+
+/* minimal modal tweaks kept for wide modal behavior */
+.modal_container .modal-dialog .modal-content { width: 95vw; }
+
+/* keep icon hover color */
+.iconhover { color: #FF7043; }
+
+/* keep checkbtnspost label sizing */
+.checkbtnspost label { font-size: 14px; color: #000; }

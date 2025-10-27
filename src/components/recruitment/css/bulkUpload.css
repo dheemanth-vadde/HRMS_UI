@@ -1,0 +1,382 @@
+/* src/css/bulkUpload.css */
+
+/* Buttons and progress */
+.bulkupload_btn, .progress-bar{
+  background-color: #162b75;
+  border-color: #162b75;
+  color: #fff;
+  font-size: 14px;
+}
+.bulkupload_btn:hover{
+  background-color: #162b75 !important;
+  border-color: #162b75 !important;
+  color: #fff;
+  font-size: 14px;
+}
+
+/* Pagination active */
+.active>.page-link, .page-link.active {
+  z-index: 3;
+  color: #fff;
+  background-color: #162b75 !important;
+  border-color: #162b75 !important;
+}
+
+/* Headings */
+.table_heading{
+  color: #162b75;
+  font-size: 14px;
+}
+
+/* Secondary button pressed state */
+.btn.btn-secondary.active {
+  filter: brightness(0.95);
+}
+
+/* Compact selects + labels */
+.compact-label {
+  font-size: 12px;
+  margin-bottom: 2px;
+  color: #6c757d;
+}
+.slim-select.form-select {
+  font-size: 12px;
+  height: 32px;
+  padding: 4px 28px 4px 8px;
+}
+
+/* --- Compact dropdown toggle (like CandidateCard) --- */
+.select-drop {
+  background: #fff !important;
+  border: 1px solid #162b75 !important;
+  color: #162b75 !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  height: 34px !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+  box-shadow: none !important;
+}
+.select-drop:hover,
+.select-drop:focus,
+.select-drop:active,
+.show > .select-drop.dropdown-toggle {
+  background: #f5f7ff !important;
+  color: #162b75 !important;
+  border-color: #162b75 !important;
+}
+
+/* tiny utility to ellipsize long labels */
+.truncate-1 {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* spacing helper used in CandidateCard */
+.spaceform { gap: 8px; }
+
+/* Dropdown menu container */
+.menuopen {
+  border: 1px solid #e6e8f0 !important;
+  border-radius: 8px !important;
+  max-height: 320px;
+  overflow: hidden;
+}
+
+/* Search input inside menu */
+.search_req {
+  font-size: 14px !important;
+  height: 32px !important;
+  padding: 4px 8px !important;
+}
+
+/* Scroll area for items */
+.req_dropdown {
+  max-height: 250px;
+  overflow-y: auto;
+      overflow-x: hidden;
+}
+
+/* Menu item style */
+.req_item {
+  font-size: 14px !important;
+  padding: 6px 10px !important;
+}
+.req_item:hover,
+.req_item:focus {
+  background: #f0f3ff !important;
+  color: #162b75 !important;
+}
+
+/* Keep brand style alignment with your other buttons/heading */
+.allresumes{ background-color: white; }
+
+/* Tile buttons: default = outlined orange, hover/active = solid orange */
+.tile-btn {
+  background: transparent;
+  color: #FF7043;
+  border-color: #FF7043;
+}
+.tile-btn:hover,
+.tile-btn:focus {
+  background: #FF7043;
+  color: #fff;
+  border-color: #FF7043;
+}
+.tile-btn.active,
+.tile-btn:active,
+.show > .tile-btn.dropdown-toggle {
+  background: #FF7043 !important;
+  color: #fff !important;
+  border-color: #FF7043 !important;
+  box-shadow: none !important;
+}
+
+/* ===== Simplified stepper styles ===== */
+.bulkstepper {
+  padding: 24px 28px 16px;
+  position: relative;
+  background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+  border-radius: 12px 12px 0 0;
+}
+.bulkstepper-rail{
+  position: absolute; top: 44px; left: 16%; right: 16%; height: 2px;
+  background: #e6e8f0; border-radius: 999px;
+}
+.bulkstepper-step{
+  width: 28%; display: flex; flex-direction: column; align-items: center;
+}
+.bulkstepper-dot{
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #f7f9ff; border: 1px solid #e6e8f0;
+  transition: all .2s ease;
+}
+.bulkstepper-dot.active{
+  background-color: #162b75;
+  border-color: 1px solid #162b75;
+  color: #fff;
+  transform: scale(1.05);
+}
+.bulkstepper-dot.completed {
+  background: #32CD32;
+  border-color: #32CD32;
+  color: #fff;
+}
+.bulkstepper-dot.waiting{
+  background: #f7f9ff; border-color: #e6e8f0; color: #94a3b8;
+}
+
+/* Dropzone */
+.bulkstepper-dropzone{
+  border: 2px dashed #d9dfef; border-radius: 12px; min-height: 140px;
+  display: grid; place-items: center; text-align: center;
+  padding: 28px 12px; cursor: pointer; background: #fff;
+  transition: background .2s ease, border-color .2s ease;
+}
+.bulkstepper-dropzone:hover{ background: #f7f9ff; border-color: #c8d3f3; }
+.bulkstepper-dropzone:active{ transform: scale(.998); }
+.bulkstepper-dropzone:focus-visible{ outline: 3px solid #c7d2fe; outline-offset: 3px; }
+
+/* CTA */
+.bulkstepper-cta{
+  background: #162b75;
+  border-color: #162b75;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(22, 43, 117, 0.2);
+  padding: 12px 24px;
+  transition: all .2s ease;
+}
+/* .bulkstepper-cta:hover{
+  background: #0f1c4a;
+  border-color: #0f1c4a;
+  transform: translateY(-1px);
+} */
+.bulkstepper-cta:disabled{
+  opacity: .7;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Sync button */
+.sync-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid #ff7a32;
+  border-radius: 10px;
+  background: transparent;
+  color: #ff7a32;
+  font-family: 'Noto Sans';
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+  box-shadow: 0 4px 10px rgba(255, 122, 50, .18);
+}
+.sync-btn:hover:not(:disabled),
+.sync-btn:focus-visible {
+  background: #ff7a32;
+  color: #fff;
+  outline: none;
+}
+.sync-btn:active:not(:disabled) { transform: translateY(1px); }
+.sync-btn:disabled { opacity: .7; cursor: not-allowed; box-shadow: none; }
+.sync-btn--loading { background: #ff7a32; color: #fff; border-color: #ff7a32; }
+.sync-btn__icon { width: 16px; height: 16px; flex: 0 0 16px; }
+.sync-btn__text { line-height: 1; }
+
+/* Misc */
+.bg-gray-300 { background-color: var(--color-gray-300); }
+.bulk-container .card-header{ border-bottom: 1px solid #414141 !important; }
+
+/* Animated rail fill layer */
+.bulkstepper { position: relative; }
+.bulkstepper-railfill {
+  position: absolute;
+  top: 44px;
+  left: 16%;
+  right: 16%;
+  height: 2px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.bulkstepper-railfill > span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: #162b75;
+  transition: width .6s ease-in-out;
+  will-change: width;
+  border-radius: 999px;
+}
+.bulkstepper-step .bulkstepper-dot { position: relative; z-index: 1; }
+.bulkstepper-dot { position: relative; overflow: hidden; }
+.dot-icon { display: grid; place-items: center; transition: transform .25s ease, opacity .2s ease; }
+.bulkstepper-dot.active .dot-icon { animation: none !important }
+.bulkstepper-dot.completed .dot-icon { opacity: 0; transform: scale(.6) rotate(-20deg); }
+.dot-check {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-weight: 700; font-size: 22px;
+  color: #fff;
+  opacity: 0; transform: scale(.5) rotate(-20deg);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.bulkstepper-dot.completed .dot-check { opacity: 1; transform: scale(1) rotate(0deg); }
+@keyframes dot-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.stephead{
+  font-size:14px;
+  font-weight:500;
+  color:#333;
+}
+.fileupload{
+  font-size: 13px;
+  font-weight: 500;
+  color:#162b75;
+}
+.actionbtn{
+  font-size: 14px;
+  font-weight: 500;
+  color:#fff;
+  background:#162b75;
+  width:auto;
+  padding:12px 25px;
+  cursor:pointer;
+}
+.actionbtn:hover{
+  background:#FF7043;
+  color:#fff; border-color:#FF7043;
+}
+.linkname{
+  font-size:14px;
+  font-weight:500;
+  color:#162b75;
+}
+
+/* === Top text nav (matches screenshot) === */
+:root {
+  --tab-active: #ff7043;   /* orange active text */
+  --tab-inactive: #64748b; /* slate-ish */
+  --tab-underline: #2d7ff9;/* blue underline */
+}
+
+/* Top text nav: no background */
+.top-tabs {
+  background: transparent !important;
+  /* keep the subtle bottom rule; remove if you don't want it */
+  border-bottom: 1px solid #ccc;
+}
+
+
+.top-tabs__list {
+  margin: 0;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 32px;              /* spacing between items */
+  list-style: none;
+}
+
+.top-tabs__item { display: flex; font-size:14px;}
+
+.top-tabs__link {
+  position: relative;
+  display: inline-block;
+  padding: 10px 0 12px;   /* a bit of air above the baseline */
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--tab-inactive);
+  transition: color .15s ease;
+}
+
+.top-tabs__link:hover,
+.top-tabs__link:focus-visible {
+  color: #334155;         /* slightly darker on hover */
+  outline: none;
+}
+
+.top-tabs__link.active {
+  color: var(--tab-active);
+}
+
+/* the thin blue underline only under the active item */
+.top-tabs__link.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  bottom: -1px;          /* sits on top of the bar's bottom rule */
+  background: #ff7043;
+  border-radius: 2px;
+}
+.requisition{
+  word-wrap: break-word;
+    text-overflow: ellipsis;
+    word-break: break-all;
+}
+.requisition .reqvalues{
+        display: block;
+    width: 400px;
+    padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);
+    clear: both;
+    font-weight: 400;
+    color: var(--bs-dropdown-link-color);
+    text-align: inherit;
+    text-decoration: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--bs-dropdown-item-border-radius, 0);
+    white-space: break-spaces;
+    word-break: break-word;
+}

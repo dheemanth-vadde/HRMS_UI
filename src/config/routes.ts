@@ -15,6 +15,7 @@ import {
   Shield,
   Info,
   Layers,
+  User,
 } from "lucide-react";
 
 export type AppRoute = {
@@ -93,6 +94,40 @@ export const routes: AppRoute[] = [
       }
     ]
   },
+
+  {
+    path: "/recruitment",
+    name: "Recruitment",
+    icon: Building2,
+    elementPath: "recruitment/job-postings",
+    children: [
+      {
+        path: "/recruitment/job-postings",
+        name: "Job Postings",
+        elementPath: "recruitment/job-postings",
+        icon: Briefcase
+      },
+      {
+        path: "/recruitment/candidate-shortlist",
+        name: "Candidate Shortlist",
+        elementPath: "recruitment/candidate-shortlist",
+        icon: User
+      },
+      {
+        path: "/recruitment/interviews",
+        name: "Interviews",
+        elementPath: "recruitment/interviews",
+        icon: Calendar
+      },
+      {
+        path: "/recruitment/bulk-upload",
+        name: "Bulk Upload",
+        elementPath: "recruitment/bulk-upload",
+        icon: Users
+      }
+    ]
+  },
+
   // Flat menu items
   {
     path: "/employees",

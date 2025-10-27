@@ -37,6 +37,13 @@ export const lazyImportMap: Record<string, React.LazyExoticComponent<any>> = {
   "superadmin/announcements": React.lazy(() => import("../components/superadmin/AnnouncementsModule").then(m => ({ default: m.AnnouncementsModule }))),
   "superadmin/access": React.lazy(() => import("../components/superadmin/AccessControlModule").then(m => ({ default: m.AccessControlModule }))),
   "superadmin/roles": React.lazy(() => import("../components/superadmin/AccessControlModule").then(m => ({ default: m.AccessControlModule }))),
+
+  // Reacruitment Modules
+  "recruitment/job-postings": React.lazy(() => import("../components/recruitment/pages/JobPosting")),
+  "recruitment/candidate-shortlist": React.lazy(() => import("../components/recruitment/components/CandidateCard")),
+  "recruitment/interviews": React.lazy(() => import("../components/recruitment/pages/Calendar")),
+  "recruitment/bulk-upload": React.lazy(() => import("../components/recruitment/pages/BulkUploadBatch")),
+  
   // "superadmin/users": React.lazy(() => import("../components/superadmin/UserManagementModule").then(m => ({ default: m.UserManagementModule }))),
   "superadmin/permissions": React.lazy(() => import("../components/superadmin/PermissionsManagementModule").then(m => ({ default: m.PermissionsManagementModule }))),
   "superadmin/employee-info": React.lazy(() => import("../components/superadmin/EmployeeInfoModule").then(m => ({ default: m.EmployeeInfoModule }))),

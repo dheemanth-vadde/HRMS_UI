@@ -1,0 +1,64 @@
+.formbackground{
+background:#fff;
+  
+}
+
+
+.uploadfile hover{
+    background:none !important;
+    color: #000 !important;
+}
+.downloadfile hover, .btn-outline-primary hover{
+    background:none !important;
+    color: #000 !important;
+}
+.formSpace{
+    padding-right: 4px;
+    padding-left: 4px;
+}
+.fontss{
+     font-family: 'Noto Sans';
+
+}
+.fonall{
+  font-family: 'Noto Sans';
+    font-weight: 600 !important;  /* 600 = semibold */
+    font-size: 15px !important;
+   color: #FF7043;
+}
+
+.footspace{
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+/* Style for input and textarea placeholders */
+.form-control::placeholder {
+  color: #a0a0a0; /* Or any specific color you want */
+  opacity: 1; /* Firefox has a different default opacity */
+}
+
+
+/* Dropdown default (when value="") should look like placeholder */
+.form-select option[value=""] {
+  color: #a0a0a0 !important;
+  font-weight: 300 !important;
+}
+.job-form .form-label
+{
+  color: #162b75 !important;
+  font-size:13px !important;
+  font-weight:500 !important;
+}
+.job-form .form-select, .job-form input,.job-form textarea{
+color: #000 !important;
+  font-size:13px !important;
+  font-weight:400 !important
+}
+.job-form .fontss{
+    color: #162b75 !important;
+  font-size:13px !important;
+  font-weight:500 !important;
+}
+.popform{
+    float:left; width:45%
+}

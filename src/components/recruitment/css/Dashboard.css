@@ -1,0 +1,146 @@
+.dashfont{
+    font-family: 'Noto Sans';
+}
+.shadow-sm{
+    background-color: #fff !important;
+}
+.shadow-sm h6{
+   font-family: 'Noto Sans';
+   font-size: 14px;
+}
+.cardspace{
+    padding-left: 12px;
+    padding-right: 12px;
+
+}
+.heightcard{
+    max-height: 494px;
+  overflow: hidden;
+}
+.bgcolr{
+    background-color: #E7F8F3 !important;
+}
+.bgcolr2{
+    background-color: #F1F5FF !important;
+}
+.bgcolr3{
+    background-color: #EAF6FF !important;
+}
+.bgcolr4{
+    background-color: #FCEEFF !important;
+}
+.bgcolr5{
+    background-color: #F1F5FF  !important;
+    overflow-y: auto;
+}
+.bgcolr6{
+    background-color: #EAF4FF !important;
+}
+.bgcolr5 .list-group-item{
+    background-color: #F1F5FF  !important;
+}
+.bgcolr6 .list-group-item {
+    background-color: #EAF4FF !important;
+}
+.bgcolr7 {
+  background-color: #F1F5FF  !important; /* Teal */
+ 
+}
+.interview_list {
+    overflow-y: auto;
+}
+.shortlist{
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+}
+.shortlist h5 {
+	font-family: 'Noto Sans';
+	font-weight: 600;
+	color: #FF7043;
+	font-size: 16px;
+}
+.heightcard h6{
+    font-family: 'Noto Sans';
+    font-weight: 600;
+    color: #FF7043;
+    font-size: 16px !important;
+}
+.fonapp h6{
+  font-family: 'Noto Sans';
+    font-weight: 600 !important;  /* 600 = semibold */
+    font-size: 16px;
+    color: #FF7043;
+}
+.fonapp{
+  font-family: 'Noto Sans';
+    font-weight: 300 !important;  /* 600 = semibold */
+   
+    color: #414141;
+}
+
+.pipeline-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.pipeline-step {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.step-content {
+  color: #fff;
+  padding: 15px 20px;
+  border-radius: 6px;
+  text-align: center;
+  min-width: 150px;
+  min-height: 93px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.step-content h6 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.step-content h3 {
+  margin: 5px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.step-arrow {
+  width: 0;
+  height: 0;
+  border-left: 20px solid; /* color comes from inline style */
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+  margin-left: -5px;
+}
+.dashtabs .nav-link{
+    color: #414141 !important;
+}
+.dashtabs .nav-link.active{
+    color: #162b75 !important;
+  font-family: 'Noto Sans';
+    font-weight: 400 !important;
+   
+}
+.interview_list span{
+    color: #162b75 !important;
+    font-size: 14px;
+     font-weight: 400 !important;
+}
+.interview_list{
+     font-size: 14px;
+}
+.shadowbg{
+box-shadow: rgba(22, 43, 117, 0.2) 0px 5px 15px !important;
+ }

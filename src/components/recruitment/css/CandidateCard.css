@@ -1,0 +1,474 @@
+.foncandidate {
+  font-family: 'Noto Sans';
+}
+
+.review_columns {
+    border: none;
+    border-radius: 15px !important;
+    max-height: 100vh !important;
+    scrollbar-width: thin;
+    height: 100%;
+    /* scrollbar-color: transparent transparent; */
+}
+
+.candidates {
+    scrollbar-width: thin;
+}
+
+.colored_line_blue {
+    padding: 3px;
+    border-radius: 20px;
+    background-color: #2cb4f3;
+}
+
+.colored_line_green {
+    padding: 3px;
+    border-radius: 20px;
+    background-color: #64CF5E;
+}
+
+.colored_line_red {
+    padding: 3px;
+    border-radius: 20px;
+    background-color: #FF4F46;
+}
+
+.colored_line_yellow {
+    padding: 3px;
+    border-radius: 20px;
+    background-color: #FFCA02;
+}
+
+
+.candidate_card_container {
+    background-color: #f5f5f5 !important;
+    border: 1px solid #E5E5E5 !important;
+    border-radius: 15px !important;
+    margin: 15px 0px;
+    box-shadow: 0 6px 6px hsl(0deg 0% 0% / 0.15);
+}
+
+.candidate_image {
+    width: 40px;
+    border-radius: 10px;
+}
+
+.color_grey {
+     color: #162b75 !important;
+    font-size: 14px !important;
+    font-weight:500;
+}
+
+.color_light_grey {
+    color: #B3B3B3 !important;
+     font-size:13px !important;
+    align-self: center !important;
+    padding-top: 2px;
+}
+
+.fs-20 {
+    font-size: 20px !important;
+}
+
+.rating_text {
+    margin-bottom: 0px !important;
+     font-size:13px !important;
+    align-self: center;
+
+}
+
+.candidate_sub_text {
+    color: #000 !important;
+    font-size: 14px !important;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    font-weight: normal;
+}
+
+.candidate_text {
+    color: #162b75 !important;
+     font-size:13px !important;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    font-weight: 500 !important;
+}
+
+.rating_container {
+    background-color: #E3E9EB !important;
+    border-radius: 5px;
+}
+
+.insight_text_container {
+    color: #1A5BBA !important;
+    font-size: 11px;
+    background-color: #F2F4F7;
+    text-align: center;
+    border-radius: 15px;
+}
+
+.insight_text {
+    margin-bottom: 0 !important;
+    align-content: center;
+}
+
+
+
+
+.search-b {
+    width: 395px !important;
+    /* margin-left: 30%!important; */
+    margin-right: 40px;
+}
+
+.search-i {
+    position: absolute;
+    top: 15%;
+    right: 2%;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.search-f {
+	border-radius: 5px !important;
+	/* border: none !important; */
+	/* height: 40px; */
+	/* outline: none; */
+	border-top-left-radius: 0px !important;
+	border-bottom-left-radius: 0px !important;
+}
+
+.top-bar {
+	display: flex;
+	/* gap: 10px; */
+	/* border-bottom: 1px solid #ededed; */
+	padding-bottom: 20px;
+	justify-content: space-between;
+	align-items: center;
+	margin-left: 47px;
+}
+
+.responsive-breadcrumb-container {
+    display: flex;
+    flex-wrap: nowrap;
+    /* Prevents wrapping to a new line */
+    align-items: center;
+   /* margin-left: 35px; */
+    /* Adds horizontal scrolling if content overflows */
+}
+.row{
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
+
+/* Ensure the breadcrumb items and their contents stay on one line */
+.responsive-breadcrumb-container .breadcrumb-item {
+    white-space: nowrap;
+    /* Prevents text from wrapping */
+    flex-shrink: 0;
+    /* Prevents the 'Jobs' text from shrinking */
+}
+
+/* The styles for the dropdowns */
+.select-drop {
+    font-size: 16px !important;
+    /* Reduced padding for smaller screens */
+    background-color: #fff !important;
+    color: black !important;
+    border: 1px solid #ced4da !important;
+    /* Added a visible border for clarity */
+    border-radius: 5px !important;
+   
+    flex-shrink: 1;
+    /* Allows the select box to shrink if needed */
+    min-width: 100px;
+    /* Ensures a minimum width to prevent it from disappearing */
+}
+.spaceform {
+	margin-right: 15px !important;
+}
+
+/* Adjust the spacing between breadcrumb items to be more compact */
+.breadcrumb-item+.breadcrumb-item::before {
+    padding-right: 0.25rem;
+    padding-left: 0.25rem;
+}
+
+.top-bar .breadcrumb {
+    margin-bottom: 5%;
+}
+
+.top-bar .breadcrumb-item {
+    font-size: 17px;
+    color: black;
+}
+
+.top-bar .dropdown {
+    float: left;
+}
+
+.top-bar .select-drop {
+	font-size: 14px !important;
+	width: 410px !important;
+	background-color: #fff !important;
+	color: #414141 !important;
+	border: none !important;
+	border-radius: 5px !important;
+	 padding-right: 15px;
+     float: right;
+	
+}
+
+
+.top-bar .breadcrumb-item+.breadcrumb-item::before {
+    padding-right: 0.25rem;
+}
+
+.advanced-fil {
+    padding: 8px;
+    background-color: rgb(255, 77, 0) !important;
+    /* border-color: #34b1f5 !important; */
+    border-radius: 5px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    /* height: 2%; */
+    margin-right: 40px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.advanced-fil i {
+    margin-right: 10px;
+}
+
+.sort_icon {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.req-table-top-section {
+    /* display: flex; */
+    flex-direction: row;
+}
+
+.candidate-cards-3 {
+    display: flex;
+    /* gap: 60px; */
+    width: 134%;
+}
+
+.reschedule-btn {
+    border-radius: 10px;
+    /* background-color: rgb(255, 77, 0) !important; */
+    color: blue;
+    border: none;
+    width: auto;
+    height: 35px;
+    font-size: 14px;
+    text-decoration: underline;
+    margin-top: 0px;
+}
+.spaceform option {
+	/*  font-size:13px !important; */
+	color: #414141 !important;
+
+	font-family: 'Poppins', sans-serif !important;
+}
+.orangeadd{
+   color: rgb(255, 112, 67) !important;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgb(255, 112, 67);
+  padding: 0px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* css styles written by veeresh */
+p.status_reschedule{
+  color: #FFCA02 !important;
+   font-size: 10px;
+  width: 80px;
+  text-align: center;
+  margin-bottom: 5px;
+  background: #fff !important;
+    border:1px solid #FFCA02;
+  padding: 5px;
+  border-radius: 10px;
+  cursor: text;
+}
+p.status_schedule{
+  color: #2cb4f3 !important;
+   font-size: 10px;
+  width: 80px;
+  text-align: center;
+  margin-bottom: 5px;
+  background: #fff !important;
+    border:1px solid #2cb4f3;
+  padding: 5px;
+  border-radius: 10px;
+  cursor: text;
+}
+p.status_reject{
+  color: red !important;
+   font-size: 10px;
+  width: 80px;
+  text-align: center;
+  margin-bottom: 5px;
+  background: #fff !important;
+  border:1px solid red;
+  padding: 5px;
+  border-radius: 10px;
+  cursor: text;
+}
+p.status_notavailable{
+  color: gray !important;
+  font-size: 10px;
+  width: 80px;
+  text-align: center;
+  margin-bottom: 5px;
+  background: #fff !important;
+  border:1px solid gray;
+  padding: 5px;
+  border-radius: 10px;
+  cursor: text;
+}
+p.status_selected{
+  color: green !important;
+  font-size: 10px;
+  width: 80px;
+  text-align: center;
+  margin-bottom: 5px;
+  background: #fff !important;
+  border:1px solid green;
+  padding: 5px;
+  border-radius: 10px;
+  cursor: text;
+}
+p.status_offered{
+    color: green !important;
+  font-size: 10px;
+  width: 80px;
+  text-align: center;
+  margin-bottom: 5px;
+  background: #fff !important;
+  border:1px solid green;
+  padding: 5px;
+  border-radius: 10px;
+  cursor: text;
+  font-weight: 600;
+}
+.statusdiv{
+    text-align: right;
+    right: 15px;
+    position: absolute;
+}
+.address{
+    width:58%;
+}
+.menuopen{
+    height:350px;
+    overflow-y:auto;
+    overflow-x: hidden;
+}
+.modal-title{
+    font-size:16px !important;
+    color:#FF4F46
+}
+.searchinput {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 50%;
+  float: right;
+}
+.title{
+  font-size:12px;
+}
+.modal-body label{
+color: #162b75 !important;
+  font-size:14px !important;
+  font-weight:500 !important;
+}
+.modal-body .form-select, .modal-body input,.modal-bodytextarea{
+color: #000 !important;
+  font-size:14px !important;
+  font-weight:400 !important
+}
+ .candidate-modal-form.modal.show .modal-dialog{
+    max-width:1000px !important
+}
+.filename{
+    color: #162b75 !important;
+  font-size:14px !important;
+  font-weight:500 !important;
+}
+.review_input{
+    margin:10px 0 0;
+}
+.spaceform form{
+    margin-top:15px;
+}
+.lastfiled{
+    margin-top:-35px;
+}
+.search_req{
+    margin-top: 15px;
+  overflow: hidden;
+  width: 410px !important;
+  white-space: normal;
+  visibility: visible;
+  margin-right:5%;
+}
+.form45{
+    width: 48%;
+  float: left;
+  margin-right: 2%;
+}
+.btn_action{
+  font-size: 14px;
+}
+.pushbtn{
+    background:rgb(255, 112, 67) !important;
+    color:#fff;
+    width:auto;
+    padding:5px 12px;
+    border-radius:6px;
+    float:right;
+    border:none;
+    display: flex;
+  right: 10%;
+  position: absolute;
+font-size: 14px;
+}
+.rank{
+    color:rgb(255, 112, 67) !important;
+    font-size:16px;
+}
+.candidate_card{
+    min-height: 100px;
+}
+.req_dropdown a.req_item{
+display: block;
+  width: 400px;
+  padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);
+  clear: both;
+  font-weight: 400;
+  color: var(--bs-dropdown-link-color);
+  text-align: inherit;
+  text-decoration: none;
+  
+  background-color: transparent;
+  border: 0;
+  border-radius: var(--bs-dropdown-item-border-radius,0);
+  white-space: break-spaces;
+  word-break: break-word;
+}
+.select-drop span{
+     width: 380px !important;
+    text-overflow: ellipsis;
+  overflow: hidden !important;
+  white-space: nowrap;
+  display: block !important;
+}
