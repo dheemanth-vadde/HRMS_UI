@@ -620,6 +620,9 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     : [];
 
   const getInitials = (name: string) => {
+    if (!name || typeof name !== "string" || name.trim() === "") {
+      return "NA"; // fallback for missing names
+    }
     return name
       .split(" ")
       .map((n) => n[0])
@@ -852,7 +855,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                         "size-12 rounded-full bg-gradient-to-br flex items-center justify-center text-white ring-2 ring-offset-2 ring-gray-100",
                         getAvatarColor(employee.employeeId ?? employee.id)
                       )}>
-                        <span className="text-sm font-semibold">{getInitials(employee.fullName)}</span>
+                        <span className="text-sm font-semibold">{getInitials(employee?.fullName)}</span>
                       </div>
                     )}
                   </div>
@@ -921,7 +924,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                           )}
                         >
                           <span className="text-sm font-medium">
-                            {getInitials(employee.fullName)}
+                            {getInitials(employee?.fullName)}
                           </span>
                         </div>
                         <div>
@@ -1338,7 +1341,11 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 <Input
                   value={editingEmployee.fullName}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, fullName: e.target.value })}
+                  onBlur={(e) => validateField("fullName", e.target.value)}
                 />
+                {errors["new_fullName"] && (
+                  <small className="error_text">{errors["new_fullName"]}</small>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Personal Email *</Label>
@@ -1346,7 +1353,11 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   type="email"
                   value={editingEmployee.personalEmail}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, personalEmail: e.target.value })}
+                  onBlur={(e) => validateField("personalEmail", e.target.value)}
                 />
+                {errors["new_personalEmail"] && (
+                    <small className="error_text">{errors["new_personalEmail"]}</small>
+                  )}
               </div>
               <div className="space-y-2">
                 <Label>Company Email *</Label>
@@ -1354,20 +1365,29 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   type="email"
                   value={editingEmployee.emailAddress}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, emailAddress: e.target.value })}
+                  onBlur={(e) => validateField("emailAddress", e.target.value)}
                 />
+                {errors["new_emailAddress"] && (
+                  <small className="error_text">{errors["new_emailAddress"]}</small>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Phone Number *</Label>
                 <Input
                   value={editingEmployee.contactNumber}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, contactNumber: e.target.value })}
+                  onBlur={(e) => validateField("contactNumber", e.target.value)}
                 />
+                {errors["new_contactNumber"] && (
+                  <small className="error_text">{errors["new_contactNumber"]}</small>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Business Unit *</Label>
                 <Select
                   value={editingEmployee.businessUnit}
                   onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, businessUnit: value })}
+                  onBlur={(e: any) => validateField("businessUnit", e.target.value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -1378,12 +1398,16 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     ))}
                   </SelectContent>
                 </Select>
+                {errors["new_businessUnit"] && (
+                  <small className="error_text">{errors["new_businessUnit"]}</small>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Department *</Label>
                 <Select
                   value={editingEmployee.department}
                   onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, department: value })}
+                  onBlur={(e: any) => validateField("department", e.target.value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -1394,12 +1418,16 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     ))}
                   </SelectContent>
                 </Select>
+                {errors["new_department"] && (
+                  <small className="error_text">{errors["new_department"]}</small>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Designation *</Label>
                 <Select
                   value={editingEmployee.designation}
                   onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, designation: value })}
+                  onBlur={(e: any) => validateField("designation", e.target.value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -1410,12 +1438,16 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     ))}
                   </SelectContent>
                 </Select>
+                {errors["new_designation"] && (
+                  <small className="error_text">{errors["new_designation"]}</small>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Role *</Label>
                 <Select
                   value={editingEmployee.role}
                   onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, role: value })}
+                  onBlur={(e: any) => validateField("role", e.target.value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -1426,6 +1458,9 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     ))}
                   </SelectContent>
                 </Select>
+                {errors["new_role"] && (
+                  <small className="error_text">{errors["new_role"]}</small>
+                )}
               </div>
               {/* <div className="space-y-2">
                 <Label>Type *</Label>
@@ -1473,7 +1508,11 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   placeholder="DD-MM-YYYY"
                   value={editingEmployee.joiningDate}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, joiningDate: e.target.value })}
+                  onBlur={(e) => validateField("joiningDate", e.target.value)}
                 />
+                {errors["new_joiningDate"] && (
+                  <small className="error_text">{errors["new_joiningDate"]}</small>
+                )}
               </div>
               {/* <div className="space-y-2">
                 <Label>Location *</Label>
