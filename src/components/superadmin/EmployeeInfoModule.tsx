@@ -396,61 +396,38 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     }
   };
 
-  const handleDownloadTemplate = (type: "xlsx" | "csv") => {
-    const wb = XLSX.utils.book_new();
-    const header = [
-      "Full Name",
-      "Personal Email",
-      "Company Email",
-      "Phone Number",
-      "Department",
-      "Designation",
-      "Role",
-      "Business Unit",
-      "Joining Date",
-      "Status",
-    ];
-    const sampleRow = [
-      "John Doe",
-      "john.doe@gmail.com",
-      "john.doe@company.com",
-      "9876543210",
-      "IT Technical", // dropdown
-      "Software Engineer", // dropdown
-      "Super Admin", // dropdown
-      "Sagarsoft(HYD)", // dropdown
-      "2025-10-30",
-      "Active", // dropdown
-    ];
+  const handleDownloadTemplate = async (type: "xlsx" | "csv") => {
+    try {
+      const response = await api.get(EMPLOYEE_ENDPOINTS.EXCEL_TEMPLATE_DOWNLOAD,
+        {
+          params: { type }, // if backend expects a query param like ?type=xlsx
+          responseType: "blob", // important for file download
+        }
+      );
 
-    const wsData = [header, sampleRow];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
+      // Determine filename and MIME type
+      const fileName =
+        type === "xlsx" ? "EmployeeTemplate.xlsx" : "EmployeeTemplate.csv";
+      const mimeType =
+        type === "xlsx"
+          ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          : "text/csv";
 
-    // Only XLSX supports dropdowns
-    if (type === "xlsx") {
-      // Data validation for dropdowns
-      const deptNames = departments.map(d => d.name);
-      const designationNames = designations.map(d => d.name);
-      const roleNames = roles.map(r => r.name);
-      const businessUnitNames = businessUnits.map(r => r.name);
-      const statusNames = ["Active", "Inactive", "On Leave"];
+      // Create a blob URL and trigger download
+      const blob = new Blob([response.data], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
 
-      // XLSX uses !ref and !dataValidations for dropdowns
-      ws["!dataValidation"] = [
-        { sqref: "E2", type: "list", formula1: `"${deptNames.join(",")}"` },
-        { sqref: "F2", type: "list", formula1: `"${designationNames.join(",")}"` },
-        { sqref: "G2", type: "list", formula1: `"${roleNames.join(",")}"` },
-        { sqref: "H2", type: "list", formula1: `"${businessUnitNames.join(",")}"` },
-        { sqref: "J2", type: "list", formula1: `"${statusNames.join(",")}"` },
-      ];
-    }
-
-    XLSX.utils.book_append_sheet(wb, ws, "Template");
-
-    if (type === "xlsx") {
-      XLSX.writeFile(wb, "EmployeeTemplate.xlsx");
-    } else {
-      XLSX.writeFile(wb, "EmployeeTemplate.csv");
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("❌ Failed to download template:", error);
+      // alert("Failed to download the template. Please try again later.");
     }
   };
 
@@ -458,94 +435,35 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const extension = file.name.split(".").pop()?.toLowerCase();
-    const reader = new FileReader();
+    // Create a FormData object
+    const formData = new FormData();
+    formData.append("file", file); // the backend should expect "file" key
 
-    reader.onload = async (e) => {
-      const data = e.target?.result;
-      if (!data) return;
+    try {
+      // Send the file as multipart/form-data
+      const response = await api.post(
+        EMPLOYEE_ENDPOINTS.BULK_UPLOAD_EMPLOYEES,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      let parsedData: any[] = [];
+      console.log("✅ Bulk upload response:", response.data);
+      toast.success("Employees uploaded successfully!");
 
-      if (extension === "csv") {
-        const text = data as string;
-        parsedData = Papa.parse(text, { header: true, skipEmptyLines: true }).data;
-      } else if (extension === "xlsx" || extension === "xls") {
-        const array = new Uint8Array(data as ArrayBuffer);
-        const workbook = XLSX.read(array, { type: "array", cellDates: true });
-
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-
-        // Use cellDates: true to correctly parse Excel dates as JS Date objects
-        parsedData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-      } else {
-        alert("Unsupported file type!");
-        return;
+      // Refresh employee list
+      const usersResponse = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEES);
+      if (usersResponse?.data?.data) {
+        setEmployees(usersResponse.data.data.map((emp: any) => mapEmployeeForUI(emp)));
       }
 
-      // Map human-readable names to IDs and format dates
-      const mappedData = parsedData.map((row: any) => {
-        let joiningDate = row["Joining Date"] || "";
-        // Case 1: Excel date as Date object
-        if (joiningDate instanceof Date) {
-          const yyyy = joiningDate.getFullYear();
-          const mm = String(joiningDate.getMonth() + 1).padStart(2, "0");
-          const dd = String(joiningDate.getDate()).padStart(2, "0");
-          joiningDate = `${yyyy}-${mm}-${dd}`;
-        } 
-        // Case 2: Excel numeric date (Excel serial number)
-        else if (typeof joiningDate === "number") {
-          const date = XLSX.SSF.parse_date_code(joiningDate);
-          const yyyy = date.y;
-          const mm = String(date.m).padStart(2, "0");
-          const dd = String(date.d).padStart(2, "0");
-          joiningDate = `${yyyy}-${mm}-${dd}`;
-        } 
-        // Case 3: Already a string
-        else if (typeof joiningDate === "string" && joiningDate.trim()) {
-          const date = new Date(joiningDate);
-          const yyyy = date.getFullYear();
-          const mm = String(date.getMonth() + 1).padStart(2, "0");
-          const dd = String(date.getDate()).padStart(2, "0");
-          joiningDate = `${yyyy}-${mm}-${dd}`;
-        }
-
-        return {
-          fullName: row["Full Name"] || "",
-          personalEmail: row["Personal Email"] || "",
-          emailAddress: row["Company Email"] || "",
-          contactNumber: row["Phone Number"] || "",
-          deptId: departments.find((d) => d.name === row["Department"])?.id || "",
-          designationId: designations.find((d) => d.name === row["Designation"])?.id || "",
-          empRole: roles.find((r) => r.name === row["Role"])?.id || "",
-          unitId: businessUnits.find((r) => r.name === row["Business Unit"])?.id || "",
-          selectedDate: joiningDate, // now correctly formatted YYYY-MM-DD
-          userStatus: statusOptions.includes(row["Status"]) ? row["Status"] : "Active",
-        };
-      });
-      // console.log("Mapped Payload:", mappedData);
-      // Call your bulk API here
-      try {
-        const response = await api.post(EMPLOYEE_ENDPOINTS.BULK_UPLOAD_EMPLOYEES, mappedData);
-        console.log("API response:", response.data);
-        alert("Employees uploaded successfully!");
-        setShowAddDialog(false);
-        const usersResponse = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEES);
-        if (usersResponse?.data?.data) {
-          setEmployees(usersResponse.data.data.map((emp: any) => mapEmployeeForUI(emp)));
-        }
-      } catch (error) {
-        console.error("Bulk upload error:", error);
-        alert("Error uploading employees. Check console.");
-      }
-    };
-
-    // Read file based on type
-    if (extension === "csv") {
-      reader.readAsText(file);
-    } else {
-      reader.readAsArrayBuffer(file); // for XLSX
+      setShowAddDialog(false);
+    } catch (error) {
+      console.error("❌ Bulk upload error:", error);
+      toast.error("Error uploading employees. Check console.");
     }
   };
 
@@ -621,7 +539,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
 
   const getInitials = (name: string) => {
     if (!name || typeof name !== "string" || name.trim() === "") {
-      return "NA"; // fallback for missing names
+      return "N/A"; // fallback for missing names
     }
     return name
       .split(" ")
@@ -912,7 +830,6 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
               </TableHeader>
               <TableBody>
                 {filteredEmployees.map((employee) => (
-                  console.log(employee),
                   <TableRow key={employee.id} className="hover:bg-muted/20">
                     <TableCell>
                       <div className="flex items-center gap-3">
