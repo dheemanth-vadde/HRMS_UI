@@ -44,6 +44,7 @@ import ANNOUNCEMENTS_ENDPOINTS from "../../services/announcementsEndpoints";
 import api from "../../services/interceptors";
 import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
 import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
+import MultiSelectDropdown from "./MultiSelectDropdown";
 
 // --- Define Interfaces for clarity (UPDATED for multi-select) ---
 
@@ -88,6 +89,8 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
   const [departments, setDepartments] = useState<Department[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // Default to 10, matching your Select
+
+
 
   useEffect(() => {
     setCurrentPage(1);
@@ -170,6 +173,41 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
     return errors;
   };
 
+
+
+  // // fetch business units
+  // useEffect(() => {
+  //   apiService.get(BUSINESS_UNITS_ENDPOINT)
+  //     .then((res) => setBusinessUnits(res.data))
+  //     .catch(console.error);
+  // }, []);
+
+  // // fetch departments
+  // useEffect(() => {
+  //   apiService.get(DEPARTMENTS_ENDPOINT)
+  //     .then((res) => setDepartments(res.data))
+  //     .catch(console.error);
+  // }, []);
+
+  // // whenever business unit changes --> filter departments
+  // useEffect(() => {
+  //   if (!newUnit.businessUnitId) {
+  //     setFilteredDepartments([]);
+  //     return;
+  //   }
+
+  //   const list = departments.filter(
+  //     (dept) => dept.unitId === newUnit.businessUnitId
+  //   );
+
+  //   setFilteredDepartments(list);
+
+  //   // If previously selected department isn't valid, reset it
+  //   if (!list.some((d) => d.id === newUnit.departmentId)) {
+  //     setNewUnit((prev) => ({ ...prev, departmentId: "" }));
+  //   }
+  // }, [newUnit.businessUnitId, departments]);
+
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
@@ -221,9 +259,33 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       }
     };
 
-    fetchDropdownData();
+    // fetchDropdownData();
     fetchAnnouncements();
   }, []);
+
+
+  // ✅ Fetch Business Units + Departments only once
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      try {
+        const unitsResponse = await api.get(BUSSINESSUNIT_ENDPOINTS.GET_BUSSINESSUNIT);
+        setBusinessUnits(unitsResponse.data.data);
+
+        const deptsResponse = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS);
+        setDepartments(deptsResponse.data.data);
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load dropdown values");
+      }
+    };
+
+    fetchDropdownData();
+  }, []);
+
+  // ✅ Filter Departments based on selected Business Unit IDs
+  const filteredDepartments = departments.filter((dept: any) =>
+    newAnnouncement.unitId.includes(dept.unitId)
+  );
 
   // Utility function to get name from ID
   const getUnitName = (unitId: string) => businessUnits.find(u => u.id === unitId)?.unitName;
@@ -360,6 +422,28 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
       return true;
     }
   };
+  // ✅ Filter Departments for Edit dialog based on selected Business Unit IDs
+  const filteredDepartmentsEdit = departments.filter((dept: any) =>
+    editingAnnouncement?.unitId?.includes(dept.unitId)
+  );
+  // ✅ When Business Units change in edit dialog, clean up invalid departments
+  useEffect(() => {
+    if (!editingAnnouncement) return;
+
+    setEditingAnnouncement((prev: any) => {
+      const validDeptIds = prev.deptId.filter((did: string) =>
+        departments.some((d: any) => d.id === did && prev.unitId.includes(d.unitId))
+      );
+
+      if (validDeptIds.length !== prev.deptId.length) {
+        return { ...prev, deptId: validDeptIds };
+      }
+
+      return prev;
+    });
+  }, [editingAnnouncement?.unitId, departments]);
+
+
 
   const handleDeleteClick = (id: number) => {
     setAnnouncementToDelete(id);
@@ -473,8 +557,10 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                         <div>
                           <strong className="inline">Business Units:</strong>{" "}
                           <span className="inline break-words">
-                            {announcement.unitId.map((id: string) => getUnitName(id)).join(", ")}
-                          </span>
+                            {announcement.unitId
+                              .map((id: string) => getUnitName(id))
+                              .filter((name: string | undefined): name is string => !!name) // <-- Filter out undefined/empty names
+                              .join(", ")}                          </span>
                         </div>
                         <div>
                           <strong className="inline">Department:</strong>{" "}
@@ -633,99 +719,49 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  {/* Business Unit Multi-Select (ADD) */}
-                  <div className="space-y-2">
-                    <Label>Business Unit(s) *</Label>
-                    <Select
-                      value={newAnnouncement.unitId.join(',')} // Join array to string for SelectValue to display
-                      onValueChange={(value: any) => {
-                        // value is the clicked unit ID
-                        handleMultiSelectChange(newAnnouncement.unitId, value, setNewAnnouncement, 'unitId');
-                      }}
-                      // The multiple prop is a pseudo-prop used to keep the dropdown open
-                      multiple
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Business Unit(s)">
-                          {newAnnouncement.unitId.length > 0
-                            ? newAnnouncement.unitId.map(getUnitName).join(", ")
-                            : "Select Business Unit(s)"}
-                        </SelectValue>
-                      </SelectTrigger>
+                {/* Business Unit Multi-Select (ADD) */}
+                <div className="space-y-2">
+                  <Label>Business Units</Label>
+                  <MultiSelectDropdown
+                    items={businessUnits.map((b: any) => ({ id: b.id, label: b.unitName }))}
+                    selectedIds={newAnnouncement.unitId}
+                    onChange={(ids) => {
+                      setNewAnnouncement((prev) => {
+                        const updatedUnits = ids;
+                        const updatedDepts = prev.deptId.filter(did =>
+                          departments.some(d => d.id === did && updatedUnits)
+                        );
+                        return { ...prev, unitId: updatedUnits, deptId: updatedDepts };
+                      });
+                      setFormErrors(prev => ({ ...prev, unitId: "" }));
+                    }}
+                    placeholder="Select business units"
+                    dropdownClassName="business-unit-dropdown"
+                  />
 
-                      <SelectContent>
-                        {businessUnits.map((unit) => {
-                          const isSelected = newAnnouncement.unitId.includes(unit.id);
-                          return (
-                            <div
-                              key={unit.id}
-                              onClick={() => {
-                                const updated = isSelected
-                                  ? newAnnouncement.unitId.filter((v) => v !== unit.id)
-                                  : [...newAnnouncement.unitId, unit.id];
-                                setNewAnnouncement((prev) => ({ ...prev, unitId: updated }));
-                                if (formErrors.unitId) setFormErrors((prev) => ({ ...prev, unitId: "" }));
-                              }}
-                              className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent text-sm ${isSelected ? "bg-accent text-primary" : ""
-                                }`}
-                            >
-                              <span>{unit.unitName}</span>
-                              {isSelected && <Check className="size-4 text-primary" />}
-                            </div>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                    {formErrors.unitId && <p className="text-sm text-destructive">{formErrors.unitId}</p>}
-                  </div>
+                  {formErrors.unitId && (
+                    <p className="text-sm text-destructive">{formErrors.unitId}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
 
                   {/* Department Multi-Select (ADD) */}
                   <div className="space-y-2">
-                    <Label>Department(s) *</Label>
-                    <Select
-                      value={newAnnouncement.deptId.join(',')} // Join array to string for SelectValue to display
-                      onValueChange={(value: any) => {
-                        // value is the clicked department ID
-                        handleMultiSelectChange(newAnnouncement.deptId, value, setNewAnnouncement, 'deptId');
+                    <Label>Departments</Label>
+                    <MultiSelectDropdown
+                      items={filteredDepartments.map((d: any) => ({ id: d.id, label: d.deptName, unitId: d.unitId }))}
+                      selectedIds={newAnnouncement.deptId}
+                      onChange={(ids) => {
+                        setNewAnnouncement((prev) => ({ ...prev, deptId: ids }));
+                        setFormErrors(prev => ({ ...prev, deptId: "" }));
                       }}
-                      // The multiple prop is a pseudo-prop used to keep the dropdown open
-                      multiple
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Department(s)">
-                          {newAnnouncement.deptId.length > 0
-                            ? newAnnouncement.deptId.map(getDeptName).join(", ")
-                            : "Select Department(s)"}
-                        </SelectValue>
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        {departments.map((dept) => {
-                          const isSelected = newAnnouncement.deptId.includes(dept.id);
-                          return (
-                            <div
-                              key={dept.id}
-                              onClick={() => {
-                                const updated = isSelected
-                                  ? newAnnouncement.deptId.filter((v) => v !== dept.id)
-                                  : [...newAnnouncement.deptId, dept.id];
-                                setNewAnnouncement((prev) => ({ ...prev, deptId: updated }));
-                                if (formErrors.deptId)
-                                  setFormErrors((prev) => ({ ...prev, deptId: "" }));
-                              }}
-                              className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent text-sm ${isSelected ? "bg-accent text-primary" : ""
-                                }`}
-                            >
-                              <span>{dept.deptName}</span>
-                              {isSelected && <Check className="size-4 text-primary" />}
-                            </div>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
+                      placeholder="Select Departments"
+                      dropdownClassName="department-dropdown"
+                    />
                     {formErrors.deptId && <p className="text-sm text-destructive">{formErrors.deptId}</p>}
                   </div>
+
 
                   {/* Date */}
                   <div className="space-y-2">
@@ -891,98 +927,47 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                {/* Business Unit Multi-Select (EDIT) */}
-                <div className="space-y-2">
-                  <Label>Business Unit(s) *</Label>
-                  <Select
-                    value={editingAnnouncement.unitId.join(',')} // Join array to string for SelectValue to display
-                    onValueChange={(value: any) => {
-                      // value is the clicked unit ID
-                      handleMultiSelectChange(editingAnnouncement.unitId, value, setEditingAnnouncement, 'unitId');
-                    }}
-                    // The multiple prop is a pseudo-prop used to keep the dropdown open
-                    multiple
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Business Unit(s)">
-                        {editingAnnouncement.unitId.length > 0
-                          ? editingAnnouncement.unitId.map(getUnitName).join(", ")
-                          : "Select Business Unit(s)"}
-                      </SelectValue>
-                    </SelectTrigger>
+              {/* Business Unit Multi-Select (EDIT) */}
+              <div className="space-y-2">
+                <Label>Business Unit(s) *</Label>
+                <MultiSelectDropdown
+                  items={businessUnits.map((b: any) => ({ id: b.id, label: b.unitName }))}
+                  selectedIds={editingAnnouncement.unitId}
+                  onChange={(ids) => {
+                    // update editingAnnouncement AND cleanup dept ids that don't belong
+                    setEditingAnnouncement((prev: any) => {
+                      const updatedUnits = ids;
+                      const validDeptIds = (prev.deptId || []).filter((did: string) =>
+                        departments.some((d: any) => d.id === did && updatedUnits.includes(d.unitId))
+                      );
+                      return { ...prev, unitId: updatedUnits, deptId: validDeptIds };
+                    });
+                    setFormErrors(prev => ({ ...prev, unitId: "" }));
+                  }}
+                  placeholder="Select Business Unit(s)"
+                  dropdownClassName="business-unit-dropdown"
+                />
+                {formErrors.unitId && <p className="text-sm text-destructive">{formErrors.unitId}</p>}
+              </div>
 
-                    <SelectContent>
-                      {businessUnits.map((unit) => {
-                        const isSelected = editingAnnouncement.unitId.includes(unit.id);
-                        return (
-                          <div
-                            key={unit.id}
-                            onClick={() => {
-                              const updated = isSelected
-                                ? editingAnnouncement.unitId.filter((id: any) => id !== unit.id)
-                                : [...editingAnnouncement.unitId, unit.id];
-                              setEditingAnnouncement((prev: any) => ({ ...prev, unitId: updated }));
-                              setFormErrors((prev) => ({ ...prev, unitId: "" }));
-                            }}
-                            className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent text-sm ${isSelected ? "bg-accent text-primary" : ""
-                              }`}
-                          >
-                            <span>{unit.unitName}</span>
-                            {isSelected && <Check className="size-4 text-primary" />}
-                          </div>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                  {formErrors.unitId && <p className="text-sm text-destructive">{formErrors.unitId}</p>}
-                </div>
+              <div className="grid grid-cols-2 gap-4">
 
                 {/* Department Multi-Select (EDIT) */}
                 <div className="space-y-2">
                   <Label>Department(s) *</Label>
-                  <Select
-                    value={editingAnnouncement.deptId.join(',')} // Join array to string for SelectValue to display
-                    onValueChange={(value: any) => {
-                      // value is the clicked department ID
-                      handleMultiSelectChange(editingAnnouncement.deptId, value, setEditingAnnouncement, 'deptId');
+                  <MultiSelectDropdown
+                    items={filteredDepartmentsEdit.map((d: any) => ({ id: d.id, label: d.deptName, unitId: d.unitId }))}
+                    selectedIds={editingAnnouncement.deptId}
+                    onChange={(ids) => {
+                      setEditingAnnouncement((prev: any) => ({ ...prev, deptId: ids }));
+                      setFormErrors(prev => ({ ...prev, deptId: "" }));
                     }}
-                    // The multiple prop is a pseudo-prop used to keep the dropdown open
-                    multiple
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Department(s)">
-                        {editingAnnouncement.deptId.length > 0
-                          ? editingAnnouncement.deptId.map(getDeptName).join(", ")
-                          : "Select Department(s)"}
-                      </SelectValue>
-                    </SelectTrigger>
-
-                    <SelectContent>
-                      {departments.map((dept) => {
-                        const isSelected = editingAnnouncement.deptId.includes(dept.id);
-                        return (
-                          <div
-                            key={dept.id}
-                            onClick={() => {
-                              const updated = isSelected
-                                ? editingAnnouncement.deptId.filter((id: any) => id !== dept.id)
-                                : [...editingAnnouncement.deptId, dept.id];
-                              setEditingAnnouncement((prev: any) => ({ ...prev, deptId: updated }));
-                              setFormErrors((prev) => ({ ...prev, deptId: "" }));
-                            }}
-                            className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent text-sm ${isSelected ? "bg-accent text-primary" : ""
-                              }`}
-                          >
-                            <span>{dept.deptName}</span>
-                            {isSelected && <Check className="size-4 text-primary" />}
-                          </div>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Select Department(s)"
+                    dropdownClassName="department-dropdown"
+                  />
                   {formErrors.deptId && <p className="text-sm text-destructive">{formErrors.deptId}</p>}
                 </div>
+
 
                 <div className="space-y-2">
                   <Label>Date *</Label>

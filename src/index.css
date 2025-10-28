@@ -5065,3 +5065,17 @@ html {
 .error_text {
   color: red;
 }
+
+/* Business Unit Dropdown - Auto height with max limit */
+.business-unit-dropdown {
+  min-height: 50px;
+  max-height: 250px;
+  height: auto;
+}
+
+/* Department Dropdown - Auto height with max limit */
+.department-dropdown {
+  min-height: 50px;
+  max-height: 100px;
+  height: auto;
+}
