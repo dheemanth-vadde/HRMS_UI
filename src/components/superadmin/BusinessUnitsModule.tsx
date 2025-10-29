@@ -512,16 +512,16 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>Employee ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Started On</TableHead>
-                  <TableHead>Employment Types</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Employee ID</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Name</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Code</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Started On</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Employment Types</TableHead>
                   {/* <TableHead>Street Address</TableHead> */}
-                  <TableHead>Country</TableHead>
-                  <TableHead>State</TableHead>
-                  <TableHead>City</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Country</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">State</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">City</TableHead>
+                  <TableHead className="font-semibold text-base mb-1 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

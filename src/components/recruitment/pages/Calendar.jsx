@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import '../css/Calender.css';
 import axios from "axios";
 import {
   Container, Row, Col, Card, Button,
@@ -8,7 +9,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import profileIcon from '../../../assets/profile_icon.png'
 import apiService from "../services/apiService";
-import '../css/Calender.css';
 
 
 
@@ -197,7 +197,7 @@ export default function Calendar() {
   }, [events, selectedDate, search]);
 
   return (
-    <Container fluid className="py-3 px-5 fonreg calendarContainer">
+    <div className="space-y-6">
       {/* Controls */}
       <Row className="align-items-center g-2 mb-3">
         <Col md="auto"><h5 style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '16px', color: '#FF7043', marginBottom: '0px' }}>{headerTitle}</h5></Col>
@@ -209,20 +209,42 @@ export default function Calendar() {
           </div>
         </Col>
         <Col md="auto" className="ms-auto" style={{ width: '40%' }}>
-          <InputGroup className="w-100 fonreg searchinput">
-            <InputGroup.Text style={{ backgroundColor: '#FF7043' }}>
-              <FontAwesomeIcon icon={faSearch} style={{ color: '#fff' }} />
-            </InputGroup.Text>
-            <Form.Control
-              className="title"
-              placeholder="Search by title or name"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {/* <Button variant="outline-secondary" onClick={onWeek} className="week_filter" style={{ marginLeft: '0.5rem', borderRadius: '5px', borderColor: '#ff6a00', color: '#ff6a00' }}>
-              Week ▾
-            </Button> */}
-          </InputGroup>
+          <div className="position-relative w-100" style={{ maxWidth: '400px' }}>
+            <InputGroup className="search-container">
+              <InputGroup.Text className="bg-white border-end-0">
+                <FontAwesomeIcon icon={faSearch} className="text-muted" />
+              </InputGroup.Text>
+              <Form.Control
+                placeholder="Search by title or name..."
+                aria-label="Search"
+                className="border-start-0 ps-0"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  boxShadow: 'none',
+                  borderLeft: 'none',
+                  paddingLeft: '0.5rem'
+                }}
+              />
+              {search && (
+                <Button
+                  variant="link"
+                  className="position-absolute end-0 top-50 translate-middle-y me-2 p-0"
+                  style={{
+                    color: '#6c757d',
+                    textDecoration: 'none',
+                    background: 'transparent',
+                    border: 'none',
+                    transform: 'translateY(-50%)',
+                    lineHeight: 1
+                  }}
+                  onClick={() => setSearch('')}
+                >
+                  <i className="bi bi-x-lg"></i>
+                </Button>
+              )}
+            </InputGroup>
+          </div>
         </Col>
       </Row>
 
@@ -325,7 +347,7 @@ export default function Calendar() {
           ))}
         </div>
       </div>
-    </Container>
+    </div>
   );
 }
 

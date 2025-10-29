@@ -1,7 +1,7 @@
 // components/Tabs/ResumeUpload.jsx
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCandidate, setUser } from '../../../store/userSlice';
+import { setCandidate, setUser } from '../../../../../store/userSlice';
 import apiService from '../../../services/apiService';
 import CryptoJS from "crypto-js";
 

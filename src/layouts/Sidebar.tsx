@@ -59,12 +59,12 @@ const Sidebar = () => {
       {/* Logo */}
       <div className="h-16 border-b border-white/10 flex items-center justify-center">
         {collapsed ? (
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+          <div className="w-10  rounded-lg flex items-center justify-center">
             <span className="text-white font-bold">S</span>
           </div>
         ) : (
-          <div className="bg-primary w-full h-full flex items-center justify-center">
-            <SagarsoftLogo className="h-10 w-auto" />
+          <div className="w-full h-full flex items-center justify-center">
+            <SagarsoftLogo className=" w-auto" />
           </div>
         )}
       </div>
@@ -72,7 +72,7 @@ const Sidebar = () => {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-2">
         <div className="space-y-1">
-          {routes.map((route) => {
+          {routes.filter(route => !route.hidden).map((route) => {
             if (route.children) {
               const isExpanded = expandedMenus.includes(route.path);
               const isActive = location.pathname.startsWith(route.path);
@@ -100,7 +100,9 @@ const Sidebar = () => {
                   
                   {!collapsed && isExpanded && (
                     <div className="mt-1 ml-4 space-y-1 border-l-2 border-white/20 pl-4">
-                                    {route.children.map(child => {
+                                    {route.children
+  .filter(child => !child.hidden) // 👈 skip hidden children
+  .map(child => {
                 // Build the full URL used by NavLink:
                 // if child.path already starts with '/', use it as-is; otherwise join parent + child
                 const childFullPath = child.path.startsWith("/")

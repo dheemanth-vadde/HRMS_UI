@@ -1,6 +1,6 @@
 // src/store/resumestore.js
 import { createSlice, createAsyncThunk, nanoid } from "@reduxjs/toolkit";
-import apiService from "../services/apiService";
+import apiService from "../components/recruitment/services/apiService";
 
 /** ===== client limits ===== */
 const MAX_CONCURRENCY = 5;     // uploads in flight

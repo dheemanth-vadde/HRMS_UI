@@ -215,5 +215,4 @@ p.sum-data {
     font-weight: 500 !important;
 }
 .fontdraw{
-    font-family: 'Noto Sans';
-}
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";}

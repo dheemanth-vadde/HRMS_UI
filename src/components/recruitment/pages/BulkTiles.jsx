@@ -4,8 +4,8 @@ import { NavLink } from "react-router-dom";
 
 export default function BulkTiles() {
   const items = [
-    { to: "/bulk-upload", label: "Bulk Upload" },
-    { to: "/candidate-assign", label: "Candidate Assign" },
+    { to: "/recruitment/bulk-upload", label: "Bulk Upload" },
+    { to: "/recruitment/candidate-assign", label: "Candidate Assign" },
   ];
 
   return (

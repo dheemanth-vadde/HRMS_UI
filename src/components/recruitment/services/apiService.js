@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getCandidatesByPosition } from './getJobRequirements';
-import { store } from "../store"; // adjust path if needed
-import { clearUser } from "../store/userSlice";
+import { store } from "@/store"; // adjust path if needed
+import { clearUser } from "../../../store/userSlice";
 
 // --- JWT Decoder helper ---
 function decodeJWT(token) {
@@ -52,7 +52,7 @@ const API_BASE_URLS = 'http://192.168.20.115:8080/api'
 const NODE_API_URL = 'https://bobbe.sentrifugo.com/api';
 // const NODE_API_URL = 'http://localhost:5000/api';
 // //const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
-const CANDIDATE_API_URL = 'https://bobjava.sentrifugo.com:8443/candidate/api/v1'
+const CANDIDATE_API_URL = 'http://192.168.20.111:8082/api/v1/'
 
 let isRefreshing = false;
 let failedQueue = [];

@@ -4,8 +4,7 @@
 .approvals_tab .job-form input,
 .approvals_tab .job-form select,
 .approvals_tab .job-form textarea {
-font-family: 'Noto Sans';
-  font-size: 14px;
+font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";  font-size: 14px;
   font-weight: 400;
 }
 
@@ -234,8 +233,7 @@ font-family: 'Noto Sans';
 .approvals_tab .job-form input,
 .approvals_tab .job-form select,
 .approvals_tab .job-form textarea {
-font-family: 'Noto Sans';
-  font-size: 14px !important;
+font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";  font-size: 14px !important;
   font-weight: 400 !important;;
 }
 .approvals_tab .fonall{
@@ -248,9 +246,8 @@ font-family: 'Noto Sans' !important;
   font-family: 'Noto Sans';;
 }
 .approvals_tab .postingfont{
-font-family: 'Noto Sans';
- width: 105px;
-   font-size:13px !important;
+font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji"; width: 105px;
+   font-size:16px !important;
 }
 
 .approvals_tab .modal_container .modal-dialog {
@@ -311,8 +308,7 @@ font-family: 'Noto Sans';
     font-size: 15px !important;
 }
 .approvals_tab  .header {
-  font-family: 'Noto Sans';
-    font-weight: 600 !important;
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";    font-weight: 600 !important;
      font-size:13px !important;
     margin-bottom: 0.25rem;
     color: #414141;
@@ -329,8 +325,7 @@ font-family: 'Noto Sans';
 }
 .approvals_tab .dropdowntext,
 .approvals_tab .dropdowntext option {
-font-family: 'Noto Sans';
-  font-size: 14px;
+font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";  font-size: 14px;
   color:#414141;
 }
 .modal_container .modal-dialog .modal-content {

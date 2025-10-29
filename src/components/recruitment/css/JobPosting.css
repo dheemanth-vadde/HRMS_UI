@@ -7,13 +7,13 @@
 }
 
 /* Small helper classes that are easier to keep in CSS than inline JSX */
-.postingfont { font-size: 13px; color: #162b75; font-weight: 500; }
-.fontcard { font-size: 12px; }
-.boldnes { font-size: 14px; color: #333; line-height: 1.6; font-weight: 600; }
+.postingfont { font-size: 16px; color: #162b75; font-weight: 00; }
+.fontcard { font-size: 14px; }
+.boldnes { font-size: 14px; color: #333; line-height: 1.6; font-weight: 400; }
 .header { font-weight: 600; font-size: 13px; color: #414141; }
 
 /* Approval eye icon color */
-.approval-eye { color: #FF7043; transition: opacity .15s ease; height: 15px; width: 15px; }
+.approval-eye { color: #232341; transition: opacity .15s ease; height: 15px; width: 15px; }
 .approval-eye:hover { opacity: .85; }
 
 /* Table helpers for modal approval trail */
@@ -47,3 +47,6 @@
 
 /* keep checkbtnspost label sizing */
 .checkbtnspost label { font-size: 14px; color: #000; }
+.history_overlay{
+  background: rgba(0,0,0,0.4);
+}

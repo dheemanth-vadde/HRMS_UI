@@ -13,7 +13,7 @@ import {
   fetchAllResumes,
   processAllResumes,
   deleteResume,
-} from "../store/resumestore";
+} from "../../../store/resumestore";
 import {
   Container,
   Row,

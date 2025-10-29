@@ -24,6 +24,7 @@ export type AppRoute = {
   elementPath: string;
   icon?: LucideIcon;
   children?: Omit<AppRoute, 'children'>[];
+  hidden?: boolean;
 };
 
 // Main navigation routes
@@ -124,6 +125,20 @@ export const routes: AppRoute[] = [
         name: "Bulk Upload",
         elementPath: "recruitment/bulk-upload",
         icon: Users
+      },
+      {
+        path: "/recruitment/job-creation",
+        name: "Job Creation",
+        elementPath: "recruitment/job-creation",
+        icon: Briefcase,
+        hidden: true
+      },
+      {
+        path: "/recruitment/candidate-assign",
+        name: "Candidate Assign",
+        elementPath: "recruitment/candidate-assign",
+        icon: User,
+        hidden: true
       }
     ]
   },

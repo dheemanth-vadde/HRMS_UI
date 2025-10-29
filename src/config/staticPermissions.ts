@@ -16,6 +16,8 @@ export const staticRolePermissions = {
     "recruitment:candidate-shortlist": { all: false, view: true, create: false, edit: false, delete: false },
     "recruitment:interviews": { all: false, view: true, create: false, edit: false, delete: false },
     "recruitment:bulk-upload": { all: false, view: true, create: false, edit: false, delete: false },
+    "recruitment:job-creation": { all: false, view: true, create: false, edit: false, delete: false },
+    "recruitment:candidate-assign": { all: false, view: true, create: false, edit: false, delete: false },
 
     "superadmin:access-control": { all: false, view: true, create: false, edit: false, delete: false },
     "superadmin:access-control:roles": { all: false, view: true, create: false, edit: false, delete: false },

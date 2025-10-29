@@ -79,13 +79,13 @@ const CandidateCard = ({ setTriggerDownload }) => {
     const [showPopup, setShowPopup] = useState(false);
     const [stackRank, setStackRank] = useState(false);
 
-    const hashString=(str) =>{
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        hash = (hash << 5) - hash + str.charCodeAt(i);
-        hash |= 0; // Convert to 32bit integer
-    }
-    return Math.abs(hash);
+    const hashString = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = (hash << 5) - hash + str.charCodeAt(i);
+            hash |= 0; // Convert to 32bit integer
+        }
+        return Math.abs(hash);
     }
 
     // Filtered lists
@@ -175,9 +175,9 @@ const CandidateCard = ({ setTriggerDownload }) => {
                 // Correctly access the data property of the response object
                 const fetchedCandidatesResponse = await getCandidatesByPosition(selectedPositionId);
                 // console.log("Fetched candidates response:", fetchedCandidatesResponse);
-              //  const fetchedCandidates = fetchedCandidatesResponse || fetchedCandidatesResponse?.data || [];//
+                //  const fetchedCandidates = fetchedCandidatesResponse || fetchedCandidatesResponse?.data || [];//
                 //const fetchedCandidatesResponse =  await axios.get('http://192.168.20.111:8081/api/candidates/details-by-position/' + selectedPositionId);
-                 const fetchedCandidates = fetchedCandidatesResponse?.data|| [];
+                const fetchedCandidates = fetchedCandidatesResponse?.data || [];
                 // console.log("Fetched candidates for position:", fetchedCandidates);
 
                 // Filter for each column based on application_status
@@ -310,89 +310,89 @@ const CandidateCard = ({ setTriggerDownload }) => {
 
     const handleOnDragEnd = (result) => {
         const { source, destination } = result;
-      
+
         if (!destination) return;
-      
+
         // Handle reordering within the same list
         if (source.droppableId === destination.droppableId) {
-          const listMap = {
-            candidates: [candidates, setCandidates],
-            interviewed: [interviewed, setInterviewed],
-            offered: [offered, setOffered],
-          };
-          const [list, setList] = listMap[source.droppableId];
-          const updatedList = Array.from(list);
-          const [movedItem] = updatedList.splice(source.index, 1);
-          updatedList.splice(destination.index, 0, movedItem);
-          setList(updatedList);
-          return;
+            const listMap = {
+                candidates: [candidates, setCandidates],
+                interviewed: [interviewed, setInterviewed],
+                offered: [offered, setOffered],
+            };
+            const [list, setList] = listMap[source.droppableId];
+            const updatedList = Array.from(list);
+            const [movedItem] = updatedList.splice(source.index, 1);
+            updatedList.splice(destination.index, 0, movedItem);
+            setList(updatedList);
+            return;
         }
-      
+
         // Find moved item
         const sourceList = {
-          candidates,
-          interviewed,
-          offered,
+            candidates,
+            interviewed,
+            offered,
         }[source.droppableId];
         const movedItem = sourceList[source.index];
         // 🚫 Prevent scheduled/rescheduled → offered
         const status = (movedItem.application_status || "").toLowerCase();
         if (
-          destination.droppableId === "offered" &&
-          (status === "scheduled" || status === "rescheduled" || status ==="cancelled" || status === "selected for next round" || status === "rejected")
+            destination.droppableId === "offered" &&
+            (status === "scheduled" || status === "rescheduled" || status === "cancelled" || status === "selected for next round" || status === "rejected")
         ) {
-          return;
+            return;
         }
-        
+
         // Column-level disallowed moves
         const disallowedMoves = [
-          ["offered", "interviewed"],
-          ["offered", "candidates"],
-          ["interviewed", "candidates"],
-          ["candidates", "offered"], // Prevent direct drag from candidates → offered
+            ["offered", "interviewed"],
+            ["offered", "candidates"],
+            ["interviewed", "candidates"],
+            ["candidates", "offered"], // Prevent direct drag from candidates → offered
         ];
         if (
-          disallowedMoves.some(
-            ([src, dest]) =>
-              src === source.droppableId && dest === destination.droppableId
-          )
+            disallowedMoves.some(
+                ([src, dest]) =>
+                    src === source.droppableId && dest === destination.droppableId
+            )
         ) {
-          return;
+            return;
         }
-      
+
         const listMap = {
-          candidates: [candidates, setCandidates],
-          interviewed: [interviewed, setInterviewed],
-          offered: [offered, setOffered],
+            candidates: [candidates, setCandidates],
+            interviewed: [interviewed, setInterviewed],
+            offered: [offered, setOffered],
         };
-      
+
         const [sourceListState, setSourceList] = listMap[source.droppableId];
         const [destList, setDestList] = listMap[destination.droppableId];
-      
+
         const newSourceList = Array.from(sourceListState);
         const newDestList = Array.from(destList);
-      
+
         newSourceList.splice(source.index, 1);
         newDestList.splice(destination.index, 0, movedItem);
-      
+
         setSourceList(newSourceList);
-      
+
         // Offered list handled by modal, not direct state
         if (destination.droppableId !== "offered") {
-          setDestList(newDestList);
+            setDestList(newDestList);
         }
-      
+
         if (destination.droppableId === "interviewed") {
-          setInterviewCandidate(movedItem);
-          setShowInterviewModal(true);
+            setInterviewCandidate(movedItem);
+            setShowInterviewModal(true);
         } else if (destination.droppableId === "offered") {
-          setOfferCandidate(movedItem);
-          setJobPositionTitle(movedItem.jobTitles);
-          setReqId(selectedRequisitionCode);
-          setPositionId(selectedPositionId);
-          setShowOfferModal(true);
+            setOfferCandidate(movedItem);
+            setJobPositionTitle(movedItem.jobTitles);
+            setReqId(selectedRequisitionCode);
+            setPositionId(selectedPositionId);
+            setShowOfferModal(true);
         }
-      };
+    };
     const handleScheduleInterview = async (interviewData) => {
         // this.setState({ isLoading: true });
         // console.log("Scheduling interview with data:", interviewData);
@@ -482,7 +482,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
         }
     };
 
-    const handleOffer = async (offerLetterPath,joiningDate) => {
+    const handleOffer = async (offerLetterPath, joiningDate) => {
         if (!offerCandidate || !salary || !offerLetterPath) {
             showToast("Please fill in all fields before sending the offer.");
             return;
@@ -498,20 +498,20 @@ const CandidateCard = ({ setTriggerDownload }) => {
                 position_id: positionId,
                 salary: Number(salary),
                 offer_letter_path: offerLetterPath,
-                 designation:
+                designation:
                     selectedPositionTitle ||
                     jobPositionTitle ||
                     jobPositions.find(p => p.position_id === positionId)?.position_title ||
                     "",
-                    joining_date:joiningDate,
-                };
+                joining_date: joiningDate,
+            };
             const response = await apiService.sendOffer(payload);
             // console.log("Offer response:", response?.status);
-                
-        if (response?.status === 200) {
+
+            if (response?.status === 200) {
                 const updatedCandidate = {
                     ...offerCandidate,
-                    application_status: 'Offered', 
+                    application_status: 'Offered',
                     profileStatus: "Selected",
                     rating: offerCandidate.rating || 0,
                     offer_letter_path: offerLetterPath,
@@ -541,10 +541,10 @@ const CandidateCard = ({ setTriggerDownload }) => {
                 setJobPositionTitle("");
 
                 toast.success("Offer sent successfully!");
-         }
-         else{
-            toast.error("Failed to send offer");
-         }
+            }
+            else {
+                toast.error("Failed to send offer");
+            }
         } catch (err) {
             console.error("Failed to send offer:", err);
             setError(err.message || "Failed to send offer");
@@ -669,16 +669,16 @@ const CandidateCard = ({ setTriggerDownload }) => {
             // console.log("----------------------------", c)
             try {
                 const res = await apiService.createInterview(c.application_id);
-            
+
                 // console.log("res111", res);
-            
+
                 if (res && res.data) {
                     setSelectedInterview(res.data);
-                   // console.log("SelectedInterview", res.data); // ✅ use res.data directly
-            
+                    // console.log("SelectedInterview", res.data); // ✅ use res.data directly
+
                     const feedbackRes = await apiService.getfeedback(c.application_id);
                     // console.log("feedbackRes", feedbackRes);
-            
+
                     if (feedbackRes) {
                         setInterviewFeedBack(feedbackRes?.data);
                         // setIsOpen(true);
@@ -689,7 +689,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                     setSelectedInterview(null);
                 }
                 setIsOpen(true);
-            }catch (e) {
+            } catch (e) {
                 setError("Failed to fetch interview details");
                 setSelectedInterview(null);
                 setInterviewFeedBack([]);
@@ -715,7 +715,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
             // };
             const response = await apiService.createInterview(candidate.application_id);
             // console.log("response", response);
-        
+
             const interviewDetails = response.data || response;
             // console.log("interviewDetails", interviewDetails);
             if (interviewDetails && interviewDetails.scheduled_at) {
@@ -863,7 +863,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
         } finally {
             setLoading(false);
             setApiLoading(false);
-            
+
         }
     };
 
@@ -913,21 +913,21 @@ const CandidateCard = ({ setTriggerDownload }) => {
     };
 
     return (
-        <Container fluid className="py-4 px-1 foncandidate">
-            <h5 className="pb-3 px-5" style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#FF7043', marginBottom: '0px' }}>Candidate Shortlist</h5>
+        <div className="space-y-6">
+                    <h1 className="candidateh1">Candidate Shortlist</h1>
             <div className="top-bar">
                 <div className="responsive-breadcrumb-container">
 
 
                     {/* // CandidateCard.js */}
                     {/* <BreadcrumbItem> */}
-                    <Dropdown className="w-100 mb-3" style={{marginRight: '4%'}}>
+                    <Dropdown className="w-100 mb-3" style={{ marginRight: '4%' }}>
                         <Dropdown.Toggle className="w-100 text-start select-drop spaceform d-flex justify-content-between align-items-center" style={{ height: '35px', marginTop: '15px', overflow: 'hidden' }}>
-                        <span>  {selectedRequisitionCode
+                            <span>  {selectedRequisitionCode
                                 ? `${selectedRequisitionCode} - ${jobReqs.find((r) => r.requisition_code === selectedRequisitionCode)
                                     ?.requisition_title || ""
                                 }`
-                                : "Select Requisition Code"}</span> 
+                                : "Select Requisition Code"}</span>
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu className="w-100 p-2 menuopen">
@@ -963,8 +963,8 @@ const CandidateCard = ({ setTriggerDownload }) => {
                     {/* Position Dropdown */}
                     {selectedRequisitionCode && (
                         <Dropdown className="w-100">
-                            <Dropdown.Toggle className="w-100 text-start select-drop spaceform align-items-center d-flex justify-content-between" style={{ height: '35px',  overflow: 'hidden' }}>
-                               <span> {selectedPositionId
+                            <Dropdown.Toggle className="w-100 text-start select-drop spaceform align-items-center d-flex justify-content-between" style={{ height: '35px', overflow: 'hidden' }}>
+                                <span> {selectedPositionId
                                     ? `${jobPositions.find((p) => p.position_id === selectedPositionId)
                                         ?.position_code || ""} - ${jobPositions.find((p) => p.position_id === selectedPositionId)
                                             ?.position_title || ""
@@ -1003,27 +1003,48 @@ const CandidateCard = ({ setTriggerDownload }) => {
                         </Dropdown>
                     )}
                 </div>
-                <div className="d-flex gap-3 w-50 justify-content-end  ">
-                    <InputGroup className="search-b searchinput">
-                        <InputGroup.Text style={{ backgroundColor: '#FF7043' }}>
-                            <FontAwesomeIcon icon={faSearch} style={{ color: '#fff' }} />
-                        </InputGroup.Text>
-                        <Form.Control
-                            placeholder="Search"
-                            aria-label="Search"
-                            className="search-f title"
-                            onChange={(e) => { setSearch(e.target.value) }}
-                        />
-                        <i className="bi bi-search search-i"></i>
-                    </InputGroup>
-                    {/* <button className="advanced-fil">
-                        <i className="bi bi-sliders2-vertical"></i>ADVANCED FILTER
-                    </button> */}
+                <div className="d-flex gap-3 w-50 justify-content-end">
+                    <div className="position-relative w-100" style={{ maxWidth: '400px' }}>
+                        <InputGroup className="search-container">
+                            <InputGroup.Text className="bg-white border-end-0">
+                                <FontAwesomeIcon icon={faSearch} className="text-muted" />
+                            </InputGroup.Text>
+                            <Form.Control
+                                placeholder="Search candidates..."
+                                aria-label="Search candidates"
+                                className="border-start-0 ps-0"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                style={{
+                                    boxShadow: 'none',
+                                    borderLeft: 'none',
+                                    paddingLeft: '0.5rem'
+                                }}
+                            />
+                            {search && (
+                                <Button
+                                    variant="link"
+                                    className="position-absolute end-0 top-50 translate-middle-y me-2 p-0"
+                                    style={{
+                                        color: '#6c757d',
+                                        textDecoration: 'none',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        transform: 'translateY(-50%)',
+                                        lineHeight: 1
+                                    }}
+                                    onClick={() => setSearch('')}
+                                >
+                                    <i className="bi bi-x-lg"></i>
+                                </Button>
+                            )}
+                        </InputGroup>
+                    </div>
                 </div>
             </div>
-            <div className="row px-4 candidate-cards-3">
+            <div className="row candidate-cards-3">
                 <DragDropContext onDragEnd={handleOnDragEnd}>
-                    <div className="col-12 col-md-6 col-lg-3 px-4">
+                    <div className="col-12 col-md-6 col-lg-3">
                         <div className="review_columns card">
                             <div className="card-body" style={{ maxHeight: 'auto', backgroundColor: '#fff', borderRadius: '15px', overflowY: 'hidden', boxShadow: '0 10px 30px #1a2c7133' }}>
                                 <div className="pb-1">
@@ -1072,74 +1093,74 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                         </div>
                                     </div> */}
                                     <div className="colored_line_blue my-2"></div>
-                                      <Droppable droppableId="candidates">
-                                    {(provided) => (
-                                        <div
-                                        className="candidates overflow-auto px-2"
-                                        style={{ minHeight: "100px", maxHeight: "60vh" }}
-                                        ref={provided.innerRef}
-                                        {...provided.droppableProps}
-                                        >
-                                        {candidates
-                                            .filter((candidate) =>
-                                            candidate.full_name.toLowerCase().includes(search.toLowerCase())
-                                            )
-                                            .sort((a, b) => {
-                                            if (stackRank) {
-                                                // Ascending order by rank
-                                                return a.rank - b.rank;
-                                            } else {
-                                                // Shuffle randomly
-                                                //return Math.random() - 0.5;
-                                                return hashString(a.candidate_id.toString()) - hashString(b.candidate_id.toString());
-                                            }
-                                            })
-                                            .map((candidate, index) => (
-                                            <Draggable
-                                                key={candidate.candidate_id}
-                                                draggableId={candidate.candidate_id.toString()}
-                                                index={index}
+                                    <Droppable droppableId="candidates">
+                                        {(provided) => (
+                                            <div
+                                                className="candidates overflow-auto px-2"
+                                                style={{ minHeight: "100px", maxHeight: "60vh" }}
+                                                ref={provided.innerRef}
+                                                {...provided.droppableProps}
                                             >
-                                                {(provided) => (
-                                                <div
-                                                    className="candidate_card_container card"
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    {...provided.dragHandleProps}
-                                                    onClick={() => toggleDrawer(candidate)}
-                                                >
-                                                    <div className="candidate_card card-body d-flex gap-1">
-                                                    <div>
-                                                        <img
-                                                        className="candidate_image"
-                                                        src={profile}
-                                                        alt={candidate.full_name}
-                                                        />
-                                                    </div>
-                                                    <div className="px-1">
-                                                        <h5 className="candidate_text fw-bold">
-                                                        {candidate.full_name}
-                                                        </h5>
-                                                        <h6 className="candidate_sub_text">{candidate.address}</h6>
-                                                        <h6 className="candidate_sub_text">{candidate.phone}</h6>
-                                                    </div>
-                                                    {/* <div className="card-status-label">{candidate.rank}</div> */}
-                                                    </div>
-                                                </div>
-                                                )}
-                                            </Draggable>
-                                            ))}
-                                        {provided.placeholder}
-                                        </div>
-                                    )}
+                                                {candidates
+                                                    .filter((candidate) =>
+                                                        candidate.full_name.toLowerCase().includes(search.toLowerCase())
+                                                    )
+                                                    .sort((a, b) => {
+                                                        if (stackRank) {
+                                                            // Ascending order by rank
+                                                            return a.rank - b.rank;
+                                                        } else {
+                                                            // Shuffle randomly
+                                                            //return Math.random() - 0.5;
+                                                            return hashString(a.candidate_id.toString()) - hashString(b.candidate_id.toString());
+                                                        }
+                                                    })
+                                                    .map((candidate, index) => (
+                                                        <Draggable
+                                                            key={candidate.candidate_id}
+                                                            draggableId={candidate.candidate_id.toString()}
+                                                            index={index}
+                                                        >
+                                                            {(provided) => (
+                                                                <div
+                                                                    className="candidate_card_container card"
+                                                                    ref={provided.innerRef}
+                                                                    {...provided.draggableProps}
+                                                                    {...provided.dragHandleProps}
+                                                                    onClick={() => toggleDrawer(candidate)}
+                                                                >
+                                                                    <div className="candidate_card card-body d-flex gap-1">
+                                                                        <div>
+                                                                            <img
+                                                                                className="candidate_image"
+                                                                                src={profile}
+                                                                                alt={candidate.full_name}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="px-1">
+                                                                            <h5 className="candidate_text fw-bold">
+                                                                                {candidate.full_name}
+                                                                            </h5>
+                                                                            <h6 className="candidate_sub_text">{candidate.address}</h6>
+                                                                            <h6 className="candidate_sub_text">{candidate.phone}</h6>
+                                                                        </div>
+                                                                        {/* <div className="card-status-label">{candidate.rank}</div> */}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </Draggable>
+                                                    ))}
+                                                {provided.placeholder}
+                                            </div>
+                                        )}
                                     </Droppable>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="col-12 col-md-6 col-lg-3 px-4">
+                    <div className="col-12 col-md-6 col-lg-3">
                         <div className="review_columns card">
-                            <div className="card-body" style={{ maxHeight: "auto", backgroundColor: '#fff', borderRadius: '15px', overflowY: 'hidden',boxShadow: '0 10px 30px #1a2c7133' }}>
+                            <div className="card-body" style={{ maxHeight: "auto", backgroundColor: '#fff', borderRadius: '15px', overflowY: 'hidden', boxShadow: '0 10px 30px #1a2c7133' }}>
                                 <div>
                                     <div className="d-flex justify-content-between align-items-baseline py-2">
                                         <h5 className="color_grey card-title">Screening/Schedule</h5>
@@ -1148,7 +1169,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                         ) : (
                                             <i className="bi bi-sort-up sort_icon" onClick={toggleInterviewedSortOrder}></i>
                                         )}
-                                        
+
                                     </div>
                                     {/* <div className="d-flex justify-content-between">
                                         <div className="d-flex gap-1">
@@ -1262,9 +1283,9 @@ const CandidateCard = ({ setTriggerDownload }) => {
                             </div>
                         </div>
                     </div>
-                    <div className="col-12 col-md-6 col-lg-3 px-4">
+                    <div className="col-12 col-md-6 col-lg-3">
                         <div className="review_columns card">
-                            <div className="card-body" style={{ maxHeight: "auto", backgroundColor: '#fff', borderRadius: '15px', overflowY: 'hidden',boxShadow: '0 10px 30px #1a2c7133' }}>
+                            <div className="card-body" style={{ maxHeight: "auto", backgroundColor: '#fff', borderRadius: '15px', overflowY: 'hidden', boxShadow: '0 10px 30px #1a2c7133' }}>
                                 <div>
                                     <div className="d-flex justify-content-between align-items-baseline py-2">
                                         <h5 className="color_grey card-title">Offers</h5>
@@ -1417,9 +1438,11 @@ const CandidateCard = ({ setTriggerDownload }) => {
                     <div className="bg-white p-3 rounded shadow-lg" style={{ width: "88%" }}>
                         <div className="d-flex justify-content-between align-items-center mb-2">
                             <h6 className="mb-0 rank">Stack Rank</h6>
-                            <button className="pushbtn"  onClick={() => { setStackRank(true) 
-                                setShowPopup(false)}}
-                                >Push</button>
+                            <button className="pushbtn" onClick={() => {
+                                setStackRank(true)
+                                setShowPopup(false)
+                            }}
+                            >Push</button>
                             <button className="btn-close" onClick={() => setShowPopup(false)}></button>
                         </div>
                         <iframe
@@ -1431,7 +1454,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                     </div>
                 </div>
             )}
-        </Container>
+        </div>
     );
 };
 

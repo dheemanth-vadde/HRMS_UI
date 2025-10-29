@@ -84,19 +84,16 @@
   font-size: 14px;
 }
 .table-body-orange td {
-  font-family: 'Noto Sans';
-  padding: 12px !important;
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";  padding: 12px !important;
   font-size: 14px;
 }
 .dept_table {
   margin-bottom: 0px !important;
-font-family: 'Noto Sans';
-   font-size:13px !important;
+font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";   font-size:13px !important;
   font-weight: 300 !important;
 }
 .deptfon{
-  font-family: 'Noto Sans';
-}
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";}
 .deptfon h2{
   font-size: 18px;
    color: #FF7043;

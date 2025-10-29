@@ -219,7 +219,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-size: 18px; 
+    font-size: 18px !important; 
     font-weight: inherit;
   }
 
@@ -456,8 +456,8 @@
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h1 {
     color: #2d2d58;
     letter-spacing: -.02em;
-    font-size: 28px;
-    font-weight: bold;
+    font-size: 28px !important;
+    font-weight: bold !important;
     line-height: 1.2;
   }
 
@@ -1706,7 +1706,7 @@
   }
 
   .border-l-primary {
-    border-left-color: var(--primary);
+    border-left-color: var(--primary) !important;
   }
 
   .border-l-secondary {
@@ -2344,7 +2344,7 @@
   }
 
   .p-4 {
-    padding: calc(var(--spacing) * 4);
+    padding: calc(var(--spacing) * 4) !important;
   }
 
   
@@ -2489,7 +2489,7 @@
   }
 
   .pl-9 {
-    padding-left: calc(var(--spacing) * 9);
+    padding-left: calc(var(--spacing) * 9) !important;
   }
 
   .pl-10 {
@@ -2594,7 +2594,8 @@
   }
 
   .text-\[\#f38883\] {
-    color: #f38883;
+    color: #f38883 !important;
+    text-decoration:none !important;
   }
 
   .text-black {
@@ -2822,12 +2823,13 @@
   }
 
   .text-white\/80 {
-    color: #fffc;
+    color: #fffc !important;
   }
 
   @supports (color: color-mix(in lab, red, red)) {
     .text-white\/80 {
-      color: color-mix(in oklab, var(--color-white) 80%, transparent);
+      color: color-mix(in oklab, var(--color-white) 80%, transparent) !important;
+      text-decoration: none !important;
     }
   }
 
@@ -4279,7 +4281,7 @@
   }
 
   .\[\&\:last-child\]\:pb-6:last-child {
-    padding-bottom: calc(var(--spacing) * 6);
+    padding-bottom: calc(var(--spacing) * 6) !important;
   }
 
   .\[\&\>\[role\=checkbox\]\]\:translate-y-\[2px\] > [role="checkbox"] {
@@ -5064,4 +5066,11 @@ html {
 
 .error_text {
   color: red;
+}
+.mr-15{
+  margin-right: 15px;
+}
+.candidateh1{
+  font-size: 28px;
+  font-weight: bold;
 }

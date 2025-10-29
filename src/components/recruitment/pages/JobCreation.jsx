@@ -151,7 +151,7 @@ const handleSubmit = async (e) => {
         let response;
         if (!showModal) {
           response = await apiService.jobCreation(formData);
-          navigate("/job-postings");
+          navigate("/recruitment/job-postings");
         } else {
           // console.log('Updating job with form data:', formData);
           response = await apiService.updateJob(formData);
@@ -165,7 +165,7 @@ const handleSubmit = async (e) => {
 
         toast.success(showModal ? 'Job updated successfully!' : 'Job created successfully!');
         //setFormData(initialState);
-        navigate('/job-postings');
+        navigate('/recruitment/job-postings');
       } catch (error) {
         console.error('❌ API error:', error);
         toast.error(showModal ? 'Failed to update job.' : 'Failed to create job.');
@@ -760,7 +760,7 @@ const handleUploadSubmit = async () => {
     toast.success("Excel data posted successfully!");
     setFiles([]);
     setJsonData([]);
-    navigate('/job-postings');
+    navigate('/recruitment/job-postings');
   } catch (error) {
     console.error("Failed to upload Excel data:", error);
     toast.error("Failed to post Excel data.");
@@ -914,7 +914,7 @@ const handleDownloadTemplate = async () => {
             <div className="d-flex justify-content-between align-items-center mb-3 mx-2 buttons_div">
               <Button
                 variant="outline-secondary"
-                onClick={() => navigate("/job-postings")}
+                onClick={() => navigate("/recruitment/job-postings")}
                 style={{
                   padding: "6px 15px",
                   fontSize: "13px",
@@ -924,60 +924,33 @@ const handleDownloadTemplate = async () => {
               >
                 ← Back
               </Button>
-              <div>
+              <div className="flex items-center justify-between">
                 <h5 className='px-2' style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#FF7043', marginBottom: '0px' }}>Job Creation</h5>
-              </div>
-              <div className='d-flex gap-3'>
-                <a className='downlaodfile'
+                <div className='flex items-center gap-2'>
+                <button className='inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none  h-9 px-4 py-2 btn-add-purple'
                   
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     handleDownloadTemplate();
                   }}
-                  style={{
-                    border: "1px solid #FF7043",
-                    backgroundColor: "transparent",
-                    color: "#FF7043",
-                    padding: "8px 15px",
-                    borderRadius: "6px",
-                    textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    minWidth: 0,
-                    minHeight: 0,
-                    whiteSpace: "nowrap",
-                    fontSize: "13px",
-                    fontWeight: "400",
-                    right: "10px",
-                    position: "relative",
-                  }}
+                 
                 >
-                  <FontAwesomeIcon icon={faDownload} style={{ color: "#FF7043", fontSize: "1rem" }} />&nbsp;
+                  <FontAwesomeIcon icon={faDownload} style={{ color: "#fff", fontSize: "1rem" }} />&nbsp;
                   <span> Download Bulk Template</span>
-                </a>
-                <Button className='uploadfile'
+                </button>
+                <Button className='uploadfile inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none  h-9 px-4 py-2 btn-add-purple'
                   variant="uploadfile outline-primary"
                   onClick={() => setShowUploadModal(true)}
-                  style={{
-                    borderColor: "#FF7043",
-                    color: "#FF7043",
-                    padding: "8px 15px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    minWidth: 0,
-                    minHeight: 0,
-                    fontSize: "13px",
-                    fontWeight: "400",
-                    right: "10px",
-                    position: "relative",
-                  }}
+                 
                 >
-                  <FontAwesomeIcon icon={faUpload} style={{ color: "#FF7043", fontSize: "1rem" }} /> &nbsp;
+                  <FontAwesomeIcon icon={faUpload} style={{ color: "#fff", fontSize: "1rem" }} /> &nbsp;
               <span> Upload Bulk Jobs</span>
                 </Button>
               </div>
             </div>
+              </div>
+              
             )}
             {selectedOption === 'direct' && (
               <JobCreationForm

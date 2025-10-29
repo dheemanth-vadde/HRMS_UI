@@ -76,8 +76,7 @@
 
 .req_table {
   margin-bottom: 0px !important;
-font-family: 'Noto Sans';
-   font-size:13px !important;
+font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";   font-size:13px !important;
   font-weight: 300 !important;
   color:#414141 !important;
 }
@@ -97,8 +96,7 @@ font-family: 'Noto Sans';
   border-radius: 10px !important;
 }
 .fonall{
-font-family: 'Noto Sans';
-  font-weight: 600 !important;
+font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";  font-weight: 600 !important;
   font-size: 15px !important;
   color: #FF7043;
 }
@@ -109,8 +107,7 @@ font-family: 'Noto Sans';
   color:#ff0000 !important;
 }
 .fonsty{
-  font-family: 'Noto Sans';
-}
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";}
 .searchinput {
   position: relative;
   display: flex;

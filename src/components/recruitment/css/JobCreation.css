@@ -17,12 +17,10 @@ background:#fff;
     padding-left: 4px;
 }
 .fontss{
-     font-family: 'Noto Sans';
-
+     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
 }
 .fonall{
-  font-family: 'Noto Sans';
-    font-weight: 600 !important;  /* 600 = semibold */
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";    font-weight: 600 !important;  /* 600 = semibold */
     font-size: 15px !important;
    color: #FF7043;
 }

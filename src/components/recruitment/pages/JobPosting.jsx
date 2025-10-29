@@ -1,19 +1,4 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Form,
-  Button,
-  Spinner,
-  Alert,
-  Accordion,
-  Table,
-  Modal,
-  InputGroup,
-  OverlayTrigger,
-  Tooltip,
-} from "react-bootstrap";
 import "../css/Recruitment.css";
 import { apiService } from "../services/apiService";
 import { faE, faEye, faPencil, faPlus, faSearch, faTrash,faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
@@ -514,108 +499,106 @@ const fetchRequisitions = async () => {
 
   return (
     
-    <Container fluid className="p-4 px-5 fonsty job-postings-page">
-      <h5 className="pb-3" style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#FF7043', marginBottom: '0px' }}>Job Postings</h5>
-      <div className="flex flex-row items-end justify-between mb-3">
-        <div className="flex items-end gap-5 mb-2 md:mb-0">
-          <Button
-            onClick={() => addRequisitionModal()}
-            style={{ backgroundColor: '#FF7043', borderColor: '#FF7043', color: '#fff', fontSize: '14px' }}
-          >
-            + Add Requisition
-          </Button>
-          <div className="flex flex-row items-center">
-            <h5 className="header me-2" style={{ marginBottom: "0.25rem" }}>
-            Select Status
-            </h5>
-            <Form.Select
-              value={selectedApproval}
-              onChange={(e) => {
-                setSelectedApproval(e.target.value);
-                setActiveKey(null); // close all accordions when filter changes
-              }}
-              style={{ width: "200px"}}
-              className="fonreg dropdowntext"
-            >
-              <option value="">All Requisitions</option>
-              <option value="New">New</option>
-              <option value="Pending">Pending for Approval</option>
-              <option value="Approved">Approved</option>
-              <option value="Published">Published</option>
-              <option value="Rejected">Rejected</option>
-            </Form.Select>
-          </div>
-          
+        <div className="space-y-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1>Job Postings</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage job requisitions and postings
+          </p>
+         
         </div>
-  <div className="md:w-1/2 w-full search-container fonreg">
-          <InputGroup className="posting-search">
-            <InputGroup.Text style={{ backgroundColor: "#FF7043" }}>
-              <FontAwesomeIcon icon={faSearch} style={{ color: "#fff" }} />
-            </InputGroup.Text>
-            <Form.Control className="title"
+        <div className="flex items-center gap-2">
+          <div className="relative" style={{ width: '320px' }}>
+            <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ fontSize: '14px', color: '#6c757d' }} />
+            <input
+              className="search-input-modern bg-input-background"
               type="text"
-              placeholder="Search by Title"
+              placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </InputGroup>
+          </div>
+          <select
+            value={selectedApproval}
+            onChange={(e) => {
+              setSelectedApproval(e.target.value);
+              setActiveKey(null);
+            }}
+            className="status-select-modern"
+          >
+            <option value="">All Requisitions</option>
+            <option value="New">New</option>
+            <option value="Pending">Pending for Approval</option>
+            <option value="Approved">Approved</option>
+            <option value="Published">Published</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <button
+            onClick={() => addRequisitionModal()}
+            className="btn-add-purple"
+          >
+            <FontAwesomeIcon icon={faPlus} style={{ marginRight: '8px', fontSize: '14px' }} />
+            Add Requisition
+          </button>
         </div>
       </div>
       {loading ? (
-  <div className="flex justify-center items-center" style={{ minHeight: "200px" }}>
-        <Spinner animation="border" variant="primary" />
+  <div className="flex justify-center items-center min-height-200">
+        <div className="spinner"></div>
         </div>
         ) : error ? (
-        <Alert variant="danger">{error}</Alert>
+        <div className="alert-danger">{error}</div>
         ) : filteredJobPostings.length === 0 ? (
         <div className="text-center text-gray-500 py-4">
           No requisitions found for the selected filter.
         </div>
         ) :(
-        <Accordion activeKey={activeKey}>
+        <div className="accordion">
           {filteredJobPostings.map((job, index) => (
-            <Accordion.Item eventKey={index.toString()} key={index} className="mb-2 border rounded list">
-              <Accordion.Header onClick={() => toggleAccordion(index.toString(), job.requisition_id)}>
-                <Row className="w-full flex items-center fontreg">
+            <div key={index} className="accordion-item">
+              <div 
+                className={`accordion-header ${activeKey === index.toString() ? 'active' : ''}`}
+                onClick={() => toggleAccordion(index.toString(), job.requisition_id)}
+              >
+                <div className="w-full flex items-center fontreg">
                   
                   {/* Left side: Checkbox + Title + Requisition + Status */}
-                  <Col xs={12} md={5} className="flex items-start mb-2 md:mb-0 w-full md:w-5/12">
-                    <Form.Check
+                  <div className="flex items-start mb-2 md:mb-0 w-full md:w-5/12">
+                    <input
                       type="checkbox"
-                      className="me-2 mt-1"
+                      className="checkbox-custom"
                       checked={selectedJobIds.includes(job.requisition_id)}
                       onChange={(e) => handleJobSelection(e, job.requisition_id)}
                       onClick={(e) => e.stopPropagation()}
-                      disabled={job.count === 0 || job.requisition_status !== "New"} 
+                      disabled={job.count === 0 || job.requisition_status !== "New"}
                     />
                     <div className="fontcard">
-                      <div className=" text-dark mb-1">
-                        Title: {job.requisition_title}
+                      <div className="mb-1">
+                        <b>Title: </b>{job.requisition_title}
                       </div>
-                      <div className="text-muted mb-1 boldnes d-flex align-items-center gap-2">
-                        <b>Requisition:</b>
+                      <div className="mb-1 boldnes d-flex align-items-center gap-2">
+                        <b>Requisition: </b>
                         <span>{job.requisition_code}</span>
                         <span>({job.requisition_status})</span>
                         {(job.requisition_status!="New")?
                         (
-                        <OverlayTrigger placement="top" overlay={<Tooltip>View Approval Status</Tooltip>}>
                         <span
                           onClick={(e) => { e.stopPropagation(); handleViewApprovalTrail(job.requisition_id, e); }}
-                          style={{ cursor: "pointer", display: "inline-flex", alignItems: "center" }}
-                         
+                          className="cursor-pointer-inline"
+                          title="View Approval Status"
                         >
                           {/* <FontAwesomeIcon icon={faEye} className="approval-eye" /> */}
                           <FontAwesomeIcon icon={faClockRotateLeft} className="approval-eye" />
                         </span>
-                      </OverlayTrigger>
                       ):""
                     }
                       </div>
                     </div>
-                  </Col>
+                  </div>
 
                   {/* Right side: Expected/Added Positions + Postings */}
-                  <Col xs={12} md={5} className="flex flex-col fontcard w-full md:w-5/12">
+                  <div className="flex flex-col fontcard w-full md:w-5/12">
                     {/* Row 1 */}
                     <div className="flex">
                       <div className="boldnes">
@@ -646,195 +629,163 @@ const fetchRequisitions = async () => {
                       </div>
                       
                     </div>
-                  </Col>
+                  </div>
 
-                  <Col xs={12} md={2} className="flex gap-4 px-2 w-full md:w-2/12">
+                  <div className="flex gap-4  md:w-2/12">
                     
                     {job?.requisition_status === "New" ? (
                       <>
-                        <OverlayTrigger placement="top" overlay={<Tooltip>Add Position</Tooltip>}>
                           <FontAwesomeIcon
                             icon={faPlus}
-                            className="iconhover"
+                            className="icon-action iconhover"
                             onClick={(e) => {
                               e.stopPropagation();
                               // setJobCreation(job);
-                              nav("/job-creation", {
+                              nav("/recruitment/job-creation", {
                                 state: { requisitionId: job.requisition_id }
                               });
                             }}
-                            style={{ color: '#717178', cursor: 'pointer' }}
+                            title="Add Position"
                           />
-                        </OverlayTrigger>
-                        <OverlayTrigger placement="top" overlay={<Tooltip>Edit Requisition</Tooltip>}>
                           <FontAwesomeIcon
                             icon={faPencil}
-                            className="iconhover"
+                            className="icon-action iconhover"
                             onClick={(e) => {
                               e.stopPropagation();
                               addRequisitionModal(job, index, "edit");
                             }}
-                            style={{ color: '#717178', cursor: 'pointer' }}
+                            title="Edit Requisition"
                           />
-                        </OverlayTrigger>
-                        <OverlayTrigger placement="top" overlay={<Tooltip>Delete Requisition</Tooltip>}>
                           <FontAwesomeIcon
                             icon={faTrash}
-                            className="required-asterisk cursor-pointer iconhover"
-                            style={{ color: '#717178',cursor: 'pointer' }}
+                            className="icon-action iconhover"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDeleteReq(job,index);
                             }}
+                            title="Delete Requisition"
                           />
-                        </OverlayTrigger>
-                        <OverlayTrigger placement="top" overlay={<Tooltip>Download</Tooltip>}>
                           <DownloadReqPdfButton
                             requisition_id={job.requisition_id}
                             requisition={job}
                           >
                             
                           </DownloadReqPdfButton>
-                        </OverlayTrigger>
                       </>
                       
                     ) : (
-                      <>
-                        <OverlayTrigger placement="top" overlay={<Tooltip>View Requisition</Tooltip>}>
-                          <FontAwesomeIcon
-                            icon={faEye}
-                            className="iconhover"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addRequisitionModal(job, index, "view");
-                            }}
-                            style={{ color: '#717178', cursor: 'pointer', textAlign: 'right', right:'80px', position: 'absolute', top:'48px' }}
-                          />
-                        </OverlayTrigger>
-                      </>
+                      <div className={!job.canEdit && !job.canDelete ? 'view-only-action' : ''}>
+                        <FontAwesomeIcon
+                          icon={faEye}
+                          className="icon-action iconhover viewicon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addRequisitionModal(job, index, "view");
+                          }}
+                          title="View Requisition"
+                        />
+                      </div>
                     )}
-                  </Col>
-                </Row>
-              </Accordion.Header>
-                  <Accordion.Body>
-                <div>
-                  <div className="w-full text-gray-600">
-                    <Table responsive hover className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-white">
-                        <tr>
-                          <th onClick={() => handleSort("title")} style={{ cursor: "pointer" }}>
+                  </div>
+                </div>
+              </div>
+              {activeKey === index.toString() && (
+                <div className="accordion-body-table">
+                  <div className="table-card">
+                    <div className="table-wrapper">
+                      <table className="modern-table">
+                      <thead>
+                        <tr className="table-header-row">
+                          <th className="font-semibold text-base mb-1" onClick={() => handleSort("title")} style={{ cursor: "pointer" }}>
                             Position{getSortIndicator("title")}
                           </th>
-                          <th onClick={() => handleSort("positions")} style={{ cursor: "pointer" }}>
+                          <th className="font-semibold text-base mb-1" onClick={() => handleSort("positions")} style={{ cursor: "pointer" }}>
                             Position Code{getSortIndicator("positions")}
                           </th>
-                          <th onClick={() => handleSort("description")} style={{ cursor: "pointer" }}>
+                          <th className="font-semibold text-base mb-1" onClick={() => handleSort("description")} style={{ cursor: "pointer" }}>
                             Grade{getSortIndicator("description")}
                           </th>
-                          <th>Vacancies</th>
-                          {/* <th onClick={() => handleSort("startDate")} style={{ cursor: "pointer" }}>
-                            Experience{getSortIndicator("startDate")}
-                          </th> */}
-                          {/* <th onClick={() => handleSort("endDate")} style={{ cursor: "pointer" }}>
-                            Status{getSortIndicator("endDate")}
-                          </th> */}
-                          <th>{'Actions'}</th>
+                          <th className="font-semibold text-base mb-1">Vacancies</th>
+                          <th className="font-semibold text-base mb-1 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-100">
+                      <tbody>
                         {tableLoading ? (
                           <tr>
-                            <td colSpan="6" className="text-center py-3">
-                              <Spinner animation="border" size="sm" /> Loading positions...
+                            <td colSpan="5" className="table-empty-cell">
+                              <div className="spinner-small"></div> Loading positions...
                             </td>
                           </tr>
                         ) : (!apiData || apiData.length === 0) ? (
                           <tr>
-                            <td colSpan="7" className="text-center text-muted py-3">No positions added yet</td>
+                            <td colSpan="5" className="table-empty-cell">No positions added yet</td>
                           </tr>
                         ) : (
                           apiData.map((row, index) => (
-                            <tr key={row.position_id || index} className="odd:bg-white even:bg-gray-50">
-                              {/* {console.log(row)} */}
-                              <td className="px-3 py-2">{row.position_title}</td>
-                              <td className="px-3 py-2">{row.position_code}</td>
-                              <td className="px-3 py-2">{row.grade_name}</td>
-                              <td className="px-3 py-2">{row.no_of_vacancies ?? '-'}</td>
-                              {/* <td>{row.mandatory_experience}</td> */}
-                              {/* <td>{row.position_status}</td> */}
-                              {/* <td>
-                                <FontAwesomeIcon
-                                  icon={faPencil}
-                                  className="text-info me-3 cursor-pointer"
-                                  style={{ cursor: "pointer" }}
-                                  onClick={() => {
-                                    setEditRequisitionId(job.requisition_id);
-                                    setEditPositionId(job.position_id);
-                                    setShowModal(true);
-                                  }}
-                                />
-                              </td> */}
-                              <td className="px-3 py-2">
-                                {job.requisition_status==='New' ? (
-                                  <FontAwesomeIcon
-                                    icon={faPencil}
-                                    className="text-info me-3 cursor-pointer iconhover"
-                                    style={{ cursor: "pointer" }}
-                                    onClick={() => {
-                                      setEditRequisitionId(row.requisition_id);
-                                      setEditPositionId(row.position_id);
-                                      setShowModal(true);
-                                      setReadOnly(false);
-                                    }}
-                                  />
-                                ) : (
-                                  <FontAwesomeIcon
-                                    icon={faEye}
-                                    className="text-info me-3 cursor-pointer iconhover"
-                                    style={{ cursor: "pointer" }}
-                                    onClick={() => {
-                                      setEditRequisitionId(row.requisition_id);
-                                      setEditPositionId(row.position_id);
-                                      setShowModal(true);
-                                      setReadOnly(true);
-                                    }}
-                                  />
-                                )}
+                            <tr key={row.position_id || index} className="table-body-row">
+                              <td>{row.position_title}</td>
+                              <td>{row.position_code}</td>
+                              <td>{row.grade_name}</td>
+                              <td>{row.no_of_vacancies ?? '-'}</td>
+                              <td className="text-right">
+                                <div className="table-actions">
+                                  {job.requisition_status==='New' ? (
+                                    <button
+                                      className="action-btn"
+                                      onClick={() => {
+                                        setEditRequisitionId(row.requisition_id);
+                                        setEditPositionId(row.position_id);
+                                        setShowModal(true);
+                                        setReadOnly(false);
+                                      }}
+                                      title="Edit Position"
+                                    >
+                                      <FontAwesomeIcon icon={faPencil} className="action-icon" />
+                                    </button>
+                                  ) : (
+                                    <button
+                                      className="action-btn"
+                                      onClick={() => {
+                                        setEditRequisitionId(row.requisition_id);
+                                        setEditPositionId(row.position_id);
+                                        setShowModal(true);
+                                        setReadOnly(true);
+                                      }}
+                                      title="View Position"
+                                    >
+                                      <FontAwesomeIcon icon={faEye} className="action-icon" />
+                                    </button>
+                                  )}
+                                </div>
                               </td>
                             </tr>
                           ))
                         )}
                       </tbody>
-                    </Table>
+                    </table>
+                    </div>
                   </div>
                 </div>
-              </Accordion.Body>
-            </Accordion.Item>
+              )}
+            </div>
           ))}
-        </Accordion>
+        </div>
       )}
 
       {(selectedApproval === "New" || selectedApproval === "") && (
         <>
           <div className="mt-5 mb-3">
             <div className="flex items-start">
-              <div className="w-full">
+              <div className="w-full mt-4">
                 <div className="flex flex-wrap">
                   {/* Label + Error */}
                   <div className="flex">
-                    <Form.Label
-                      className="postingfont mb-0"
-                      style={{
-                        minWidth: "130px",
-                        alignSelf: "flex-start",
-                        
-                      }}
-                    >
+                    <label className="posting-label postingfont mb-0">
                       Job Postings: <br />
                       {jobBoardError && (
-                      <span style={{ color: "red", fontSize: "10px" }}>{jobBoardError}</span>
+                      <span className="error">{jobBoardError}</span>
                     )}
-                    </Form.Label>
+                    </label>
                     
                   </div>
 
@@ -842,14 +793,15 @@ const fetchRequisitions = async () => {
                   <div className="flex flex-wrap checkbtnspost flex-1">
                     {Object.entries(jobBoards).map(([key, value], idx) => (
                       <div key={idx} className="mr-4 mb-2">
-                        <Form.Check
-                          type="checkbox"
-                          label={key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
-                          name={key}
-                          checked={value}
-                          onChange={handleCheckboxChange}
-                          className="inline-block"
-                        />
+                        <label className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            name={key}
+                            checked={value}
+                            onChange={handleCheckboxChange}
+                          />
+                          {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+                        </label>
                       </div>
                     ))}
                   </div>
@@ -860,11 +812,10 @@ const fetchRequisitions = async () => {
 
           <div className="flex items-center mb-4">
           {/* Approval Type */}
-          <span className="postingfont me-3">Approval Type</span>
-          <Form.Select
+          <span className="postingfont mr-3">Approval Type</span>
+          <select
             value={approvalStatus}
-            style={{ width: "auto", minWidth: "200px", fontWeight: "300" }}
-            className="me-4"
+            className="approval-select"
             onChange={(e) => {
               setApprovalStatus(e.target.value);
               if (e.target.value !== "Workflow") {
@@ -879,15 +830,15 @@ const fetchRequisitions = async () => {
               {user?.role !== "Admin" && (
                 <option value="Workflow">Workflow</option>
               )}
-          </Form.Select>
+          </select>
 
          
 
           {approvalStatus === "Workflow" && (
             <>
               <span className="postingfont mr-3">Number of Approvals</span>
-              <Form.Select
-                className="w-auto min-w-[200px] font-light mr-2"
+              <select
+                className="approval-count-select"
                 value={noOfApprovals}
                 onChange={(e) => {
                   const val = e.target.value === "default" ? manager_dept : parseInt(e.target.value);
@@ -910,7 +861,7 @@ const fetchRequisitions = async () => {
                       {num}
                     </option>
                   ))} */}
-              </Form.Select>
+              </select>
             </>
           )}
         </div>
@@ -920,155 +871,177 @@ const fetchRequisitions = async () => {
 
       {(selectedApproval === "New" || selectedApproval === "") && (
         <div className="flex justify-end gap-3">
-         <Button 
-            variant="outline-secondary" 
+         <button 
+              className="px-4 py-2 mr-15 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             onClick={resetForm}
           >
             Cancel
-          </Button>
-          <Button
-            style={{ backgroundColor: "#FF7043", borderColor: "#FF7043" }}
-            className="text-white"
+          </button>
+          <button
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
             onClick={handleSavePostings}
           >
             Submit
-          </Button>
+          </button>
         </div>
       )}
 
-  <Modal show={showModal} onHide={resetForm} className="modal_container">
-        <Modal.Header closeButton>
-        <Modal.Title className="fonall">
-  {readOnly
-    ? "View Job Posting"
-    : editRequisitionId !== null
-      ? "Edit Job Posting"
-      : "Add Job Posting"}
-</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <JobCreation
-            editRequisitionId={editRequisitionId}
-            showModal={showModal}
-            onClose={() => setShowModal(false)}
-            editPositionId={editPositionId}
-            readOnly={readOnly}
-            onUpdateSuccess={() => {
-              // 🔥 Immediately refresh requisition details after update
-              if (editRequisitionId) {
-               // toggleAccordion(activeKey, editRequisitionId);
-                 // ✅ Re-fetch data but keep accordion open
-                  fetchRequisitionDetails(editRequisitionId);
-                  fetchJobPostings();
-              } else {
-                fetchJobPostings();
-              }
-            }}
-          />
-        </Modal.Body>
-      </Modal>
+  {showModal && (
+        <div className="modal-overlay" onClick={resetForm}>
+          <div className="modal-content modal_container" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h5 className="fonall">
+                {readOnly
+                  ? "View Job Posting"
+                  : editRequisitionId !== null
+                    ? "Edit Job Posting"
+                    : "Add Job Posting"}
+              </h5>
+              <button onClick={resetForm} className="modal-close-btn">&times;</button>
+            </div>
+            <div className="modal-body">
+              <JobCreation
+                editRequisitionId={editRequisitionId}
+                showModal={showModal}
+                onClose={() => setShowModal(false)}
+                editPositionId={editPositionId}
+                readOnly={readOnly}
+                onUpdateSuccess={() => {
+                  // 🔥 Immediately refresh requisition details after update
+                  if (editRequisitionId) {
+                   // toggleAccordion(activeKey, editRequisitionId);
+                     // ✅ Re-fetch data but keep accordion open
+                      fetchRequisitionDetails(editRequisitionId);
+                      fetchJobPostings();
+                  } else {
+                    fetchJobPostings();
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
 
-<Modal
-  show={showTrailModal}
-  onHide={() => setShowTrailModal(false)}
-  centered
-  size="xl"
-  scrollable
-  dialogClassName="approval-trail-modal"
->
-  <Modal.Header closeButton>
-    <Modal.Title className="fonall" style={{ color: '#FF7043', fontWeight: 700 }}>
-      Approval History
-    </Modal.Title>
-  </Modal.Header>
-
-  <Modal.Body>
-    {trailLoading && (
-      <div className="d-flex justify-content-center py-3">
-        <Spinner animation="border" size="sm" />
-      </div>
-    )}
-
-    {!trailLoading && trailError && (
-      <Alert variant="danger" className="mb-0">{trailError}</Alert>
-    )}
-
-    {!trailLoading && !trailError && (!trailData || trailData.length === 0) && (
-      <div className="text-muted text-center py-2">Direct Approval</div>
-    )}
-
-    {!trailLoading && !trailError && trailData?.length > 0 && (
-      <div className="table-responsive">
-        <Table bordered hover size="sm" className="mb-0 approval-trail-table">
-          <colgroup>
-            <col style={{ width: '20%' }} />
-            <col style={{ width: '20%' }} />
-            <col style={{ width: '15%' }} />
-            <col style={{ width: '15%' }} />
-            <col style={{ width: '30%' }} />
-          </colgroup>
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Status</th>
-              <th>Date / Time</th>
-              <th>Comments</th>
-            </tr>
-          </thead>
-          <tbody>
-            {trailData.map((row, idx) => (
-              <tr key={idx}>
-                <td style={{ overflowWrap: 'anywhere' }}>{row?.username ?? '-'}</td>
-                <td style={{ overflowWrap: 'anywhere' }}>{row?.useremail ?? '-'}</td>
-                <td>{row?.status ?? '-'}</td>
-                <td>{formatDateTime(row?.dateTime)}</td>
-                <td>{row?.comments ?? '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
-    )}
-  </Modal.Body>
-</Modal>
+{showTrailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center history_overlay justify-center z-50 p-4" onClick={() => setShowTrailModal(false)}>
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-800">Approval History</h3>
+              <button 
+                onClick={() => setShowTrailModal(false)}
+                className="text-gray-400 hover:text-gray-500 focus:outline-none"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-auto">
+              {trailLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              ) : trailError ? (
+                <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-red-700">{trailError}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : !trailData || trailData.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                 
+                  <h3 className="mt-2 text-sm font-medium text-gray-700">No approval history</h3>
+                  <p className="mt-1 text-sm text-gray-500">This request was auto-approved or doesn't require approval.</p>
+                </div>
+              ) : (
+                <div className="overflow-hidden border border-gray-200 rounded-lg">
+                  <table className="min-w-full w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">User</th>
+                        <th scope="col" className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">Email</th>
+                        <th scope="col" className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">Status</th>
+                        <th scope="col" className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">Date / Time</th>
+                        <th scope="col" className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">Comments</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {trailData.map((row, idx) => (
+                        <tr key={idx} className="hover:bg-gray-50">
+                          <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-900">{row?.username || '-'}</td>
+                          <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{row?.useremail || '-'}</td>
+                          <td className="px-2 py-3 whitespace-nowrap">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              (row?.status || '').toLowerCase() === 'approved' ? 'bg-green-100 text-green-800' :
+                              (row?.status || '').toLowerCase() === 'rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {row?.status || '-'}
+                            </span>
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{formatDateTime(row?.dateTime) || '-'}</td>
+                          <td className="px-2 py-3 text-sm text-gray-500">{row?.comments || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
 
 
       {/* Add Requistion Modal */}
-      <Modal
-        show={showReqModal}
-        onHide={resetReqForm}
-        centered
-        dialogClassName="wide-modal"
-      >
-        <Modal.Header closeButton>
-        <Modal.Title className="fw-bold text-orange" style={{ fontSize: '18px' }}>
-          {viewMode 
-            ? "View Requisition" 
-            : editIndex !== null 
-              ? "Edit Requisition" 
-              : "Add Requisition"}
-        </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form className="requisition-form">
-            <Row className="g-4">
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label className="form-label">
-                    Requisition Title <span className="required-asterisk">*</span>
-                  </Form.Label>
-                  <Form.Control
+      {showReqModal && (
+        <div className="modal-overlay" onClick={resetReqForm}>
+          <div className="modal-content-modern" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-modern">
+              <div>
+                <h3 className="modal-title-modern">
+                  {viewMode 
+                    ? "View Requisition" 
+                    : editIndex !== null 
+                      ? "Edit Requisition" 
+                      : "Add Requisition"}
+                </h3>
+                <p className="modal-description">
+                  {viewMode 
+                    ? "View requisition details" 
+                    : editIndex !== null 
+                      ? "Update requisition information" 
+                      : "Create a new job requisition"}
+                </p>
+              </div>
+              <button onClick={resetReqForm} className="modal-close-btn">&times;</button>
+            </div>
+            <div className="modal-body-modern">
+              <div className="form-grid">
+                <div className="form-field">
+                  <label className="form-label-modern">
+                    Requisition Title <span className="text-destructive">*</span>
+                  </label>
+                  <input
                     type="text"
+                    className="form-input-modern"
+                    placeholder="e.g., Software Developer Position"
                     value={currentReq.requisition_title}
-                    isInvalid={!!errr.requisition_title}
                     disabled={viewMode}
                     onChange={(e) => {
                       setCurrentReq({
                         ...currentReq,
-                        requisition_id: currentReq.requisition_id, // ✅ explicitly keep ID
+                        requisition_id: currentReq.requisition_id,
                         requisition_title: e.target.value,
                       });
                       if (errr.requisition_title) {
@@ -1076,22 +1049,20 @@ const fetchRequisitions = async () => {
                       }
                     }}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {errr.requisition_title}
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
+                  {errr.requisition_title && (
+                    <p className="error-message">{errr.requisition_title}</p>
+                  )}
+                </div>
 
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label className="form-label">
-                    Description <span className="required-asterisk">*</span>
-                  </Form.Label>
-                  <Form.Control
-                    as="textarea"
+                <div className="form-field form-field-full">
+                  <label className="form-label-modern">
+                    Description <span className="text-destructive">*</span>
+                  </label>
+                  <textarea
+                    className="form-textarea-modern"
                     rows={3}
+                    placeholder="Enter job requisition description"
                     value={currentReq.requisition_description}
-                    isInvalid={!!errr.requisition_description}
                     disabled={viewMode}
                     onChange={(e) => {
                       setCurrentReq({ ...currentReq, requisition_description: e.target.value });
@@ -1100,60 +1071,53 @@ const fetchRequisitions = async () => {
                       }
                     }}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {errr.requisition_description}
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
+                  {errr.requisition_description && (
+                    <p className="error-message">{errr.requisition_description}</p>
+                  )}
+                </div>
 
-              <div className="d-flex gap-1">
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="form-label">
-                      Start Date <span className="required-asterisk">*</span>
-                    </Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={currentReq.registration_start_date}
-                      isInvalid={!!errr.registration_start_date}
-                      disabled={viewMode}
-                      onChange={(e) => {
-                        setCurrentReq({ ...currentReq, registration_start_date: e.target.value });
-                        if (errr.registration_start_date) {
-                          setErrr({ ...errr, registration_start_date: "" });
-                        }
-                      }}
-                      min={new Date().toISOString().split("T")[0]}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errr.registration_start_date}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="form-label">
-                      End Date <span className="required-asterisk">*</span>
-                    </Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={currentReq.registration_end_date}
-                      isInvalid={!!errr.registration_end_date}
-                      disabled={viewMode}
-                      onChange={(e) => {
-                        setCurrentReq({ ...currentReq, registration_end_date: e.target.value });
-                        if (errr.registration_end_date) {
-                          setErrr({ ...errr, registration_end_date: "" });
-                        }
-                      }}
-                      min={currentReq.registration_start_date || new Date().toISOString().split("T")[0]}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errr.registration_end_date}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-              </div>
+                <div className="form-field">
+                  <label className="form-label-modern">
+                    Start Date <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    className="form-input-modern"
+                    value={currentReq.registration_start_date}
+                    disabled={viewMode}
+                    onChange={(e) => {
+                      setCurrentReq({ ...currentReq, registration_start_date: e.target.value });
+                      if (errr.registration_start_date) {
+                        setErrr({ ...errr, registration_start_date: "" });
+                      }
+                    }}
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+                  {errr.registration_start_date && (
+                    <p className="error-message">{errr.registration_start_date}</p>
+                  )}
+                </div>
+                <div className="form-field">
+                  <label className="form-label-modern">
+                    End Date <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    className="form-input-modern"
+                    value={currentReq.registration_end_date}
+                    disabled={viewMode}
+                    onChange={(e) => {
+                      setCurrentReq({ ...currentReq, registration_end_date: e.target.value });
+                      if (errr.registration_end_date) {
+                        setErrr({ ...errr, registration_end_date: "" });
+                      }
+                    }}
+                    min={currentReq.registration_start_date || new Date().toISOString().split("T")[0]}
+                  />
+                  {errr.registration_end_date && (
+                    <p className="error-message">{errr.registration_end_date}</p>
+                  )}
+                </div>
 
               {/* <div className="d-flex gap-1">
                 <Col md={6}>
@@ -1194,26 +1158,26 @@ const fetchRequisitions = async () => {
                   </Form.Group>
                 </Col>
               </div> */}
-            </Row>
-          </Form>
-        </Modal.Body>
-
-        <Modal.Footer className="justify-content-end gap-2">
-          <Button variant="outline-secondary" onClick={resetReqForm}>
-            {viewMode ? "Close" : "Cancel"}
-          </Button>
-          {!viewMode && (
-            <Button
-              className="text-white"
-              onClick={handleReqSave}
-              style={{ backgroundColor: "#FF7043", borderColor: "#FF7043" }}
-            >
-              {editIndex !== null ? "Update Requisition" : "Save"}
-            </Button>
-          )}
-        </Modal.Footer>
-      </Modal>
-    </Container>
+              </div>
+              <div className="modal-footer-modern">
+                <button className="btn-outline-modern" onClick={resetReqForm}>
+                  {viewMode ? "Close" : "Cancel"}
+                </button>
+                {!viewMode && (
+                  <button
+                    className="btn-primary-modern"
+                    onClick={handleReqSave}
+                  >
+                    <FontAwesomeIcon icon={faPlus} style={{ marginRight: '8px', fontSize: '14px' }} />
+                    {editIndex !== null ? "Update Requisition" : "Add Requisition"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
