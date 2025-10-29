@@ -10,9 +10,13 @@ import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { ChevronDown } from "lucide-react";
 import { UserCircle, Settings, LogOut } from "lucide-react";
 import { Search } from "lucide-react";
+import { logout } from "../store/authSlice";
+import { useNavigate } from "react-router-dom";
+import api from "../services/interceptors";
 type UserRole = "employee" | "manager" | "hr" | "superadmin" | null;
 type ActiveModule = "dashboard" | "employees" | "hr" | "settings";
 const Header: React.FC = () => {
+    const navigate = useNavigate(); 
  const [userRole, setUserRole] = useState<UserRole>(null);
    const [activeModule, setActiveModule] = useState<ActiveModule>("dashboard");
     const getUserName = () => {
@@ -39,9 +43,13 @@ const Header: React.FC = () => {
         return "HR Administrator";
     }
   };
-    const handleLogout = () => {
-    setUserRole(null);
-    setActiveModule("dashboard");
+  const handleLogout = async () => {
+    // Clear Redux state
+    dispatch(logout());
+       const response = await api.post("auth/logout")
+      if(response.status===200){
+        navigate('/login')
+      }
   };
   const dispatch = useDispatch();
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);

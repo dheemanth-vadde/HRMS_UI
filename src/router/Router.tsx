@@ -6,9 +6,11 @@ import AppLayout from "../layouts/AppLayout";
 import { LoginPage } from "../components/LoginPage";
 import LoadingPlaceholder from "../components/LoadingPlaceholder";
 import { AuthGuard } from "../auth/AuthGuard";
-import { routes } from "../config/permittedRoutes";
+import { usePermittedRoutes } from "../config/permittedRoutes"
 
 const Router: React.FC = () => {
+  const routes = usePermittedRoutes();
+  console.log("routes",routes)
   return (
     <BrowserRouter>
       <Suspense fallback={<LoadingPlaceholder />}>

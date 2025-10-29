@@ -5,9 +5,12 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { SagarsoftLogo } from "./SagarsoftLogo";
-import sagarsoftBuilding from "figma:asset/fa9eebd15dda20079679d5553e33bd622584070f.png";
+import sagarsoftBuilding from "../assets/fa9eebd15dda20079679d5553e33bd622584070f.png";
 import { useAppDispatch } from "../store/hooks";
 import { loginSuccess } from "../store/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import api from "../services/interceptors";
+import PERMISSIONS_ENDPOINTS from "../services/permissionsEndPoints";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -17,36 +20,122 @@ export function LoginPage() {
   // dispatch(login({ id: '1', name: 'Dheemanth', email: 'dheemanth@sagarsoft.com' }));
   // dispatch(logout());
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    let role: "employee" | "manager" | "hr" | "superadmin";
-    
-    // Demo login - assign role based on username
-    if (username.includes("super") || username === "superadmin") {
-      role = "superadmin";
-    } else if (username.includes("hr") || username.includes("admin")) {
-      role = "hr";
-    } else if (username.includes("manager")) {
-      role = "manager";
-    } else {
-      role = "employee";
+ const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  try {
+    const response = await api.post("auth/signin", { username, password });
+    const { id, username: userName, email, token, refreshToken,role,roleId } = response.data;
+   // const permissionsResponse =  await api.get(PERMISSIONS_ENDPOINTS.GET_PRIVILEGES(roleId));
+//console.log('Login Response:', permissionsResponse.data);
+    console.log('Login Response:', response.data);
+
+response.data.rolePermissions  ={
+  "menuname": "default",
+  "/superadmin/organization/info": {
+    "all": true,
+    "view": true,
+    "create": false,
+    "edit": true,
+    "delete": true
+  },
+  "/superadmin/organization/units": {
+    "all": true,
+    "view": true,
+    "create": true,
+    "edit": true,
+    "delete": true
+  },
+  "/superadmin/organization/departments": {
+    "all": true,
+    "view": true,
+    "create": true,
+    "edit": true,
+    "delete": true
+  },
+  "/superadmin/organization/announcements": {
+    "all": true,
+    "view": true,
+    "create": true,
+    "edit": true,
+    "delete": true
+  },
+  "/dashboard": {
+    "all": true,
+    "view": true,
+    "create": true,
+    "edit": true,
+    "delete": true
+  },
+  "/hr/recruitment": {
+    "all": true,
+    "view": true,
+    "create": true,
+    "edit": true,
+    "delete": true
+  },
+  "/superadmin/access-control":
+  
+  {
+    "all": true,
+    "view": true,
+    "create": true,
+    "edit": true,
+    "delete": true
+  },
+  "/superadmin/access-control/roles":
+  {
+    "all": true,
+    "view": true,
+    "create": true,
+    "edit": true,
+    "delete": true
+  },
+  "/superadmin/access-control/permissions":
+  {
+    "all": true,
+    "view": true,
+    "create": true,
+    "edit": true,
+    "delete": true
+  },
+  
+};
+    dispatch(loginSuccess({
+  user: response.data.username,
+  token: response.data.token,
+  refreshToken: response.data.refreshToken,
+  role: response.data.role,
+  rolePermissions: response.data.rolePermissions ,
+  roleId:response.data.roleId
+}));
+
+
+    // // Role-based login routing
+    // if (userName.includes("super") || userName === "superadmin") {
+    //   onLogin("superadmin");
+    // } else if (userName.includes("hr") || userName.includes("admin")) {
+    //   onLogin("hr");
+    // } else if (userName.includes("manager")) {
+    //   onLogin("manager");
+    // } else {
+    //   onLogin("employee");
+    // }
+    if(role === "SUPER ADMIN"){
+      console.log("sadsa")
+      navigate("/dashboard");
+    }else if(role === "HR"){
+      navigate("/organization");
+    }else if(role === "MANAGER"){
+      navigate("/organization");
+    }else{
+      navigate("/organization");
     }
 
-    // Simulate login success
-    dispatch(loginSuccess({
-      user: {
-        id: '1',
-        name: username,
-        email: `${username}@sagarsoft.com`
-      },
-      token: 'demo-token',
-      role
-    }));
-
-    // Navigate to dashboard
-    navigate('/dashboard');
-  };
+  } catch (error) {
+    console.error(error);
+    alert("Login failed");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">

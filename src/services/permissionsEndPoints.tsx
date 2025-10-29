@@ -4,7 +4,7 @@ const BASE_URLs = "https://bobjava.sentrifugo.com:8443/hrms-employees-app/api/em
 export const PERMISSIONS_ENDPOINTS = {
     GET_GROUPS: `${BASE_URLs}/groups`, 
     GET_ROLES:(groupid: string)=> `${BASE_URLs}/roles/group/${groupid}`, 
-
+    GET_PRIVILEGES:(roleId: string)=>`${BASE_URLs}/role/${roleId}`, 
     GET_PERMISSIONS: (roleId: string,groupId: string) =>`${BASE_URL}/privileges/role/${roleId}/group/${groupId}`,
     POST_PERMISSIONS: `${BASE_URL}/privileges`,
     PUT_PERMISSIONS: (roleId: string,groupId: string) => `${BASE_URL}/privileges/role/${roleId}/group/${groupId}`,

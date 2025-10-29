@@ -4,6 +4,11 @@ interface UserInfo {
     id: string;
     name: string;
     email: string;
+    username: string;
+    password: string; // encrypted
+    accessToken: string;
+    refreshToken: string;
+    role: string;
 }
 
 interface UserInfoState {
@@ -24,10 +29,16 @@ const userInfoSlice = createSlice({
         logout(state) {
             state.userInfo = null;
         },
+        updateTokens(state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) {
+            if (state.userInfo) {
+                state.userInfo.accessToken = action.payload.accessToken;
+                state.userInfo.refreshToken = action.payload.refreshToken;
+            }
+        },
     },
 });
 
-export const { login, logout } = userInfoSlice.actions;
+export const { login, logout, updateTokens } = userInfoSlice.actions;
 
 export const selectUserInfo = (state: { userInfo: UserInfoState }) => state.userInfo.userInfo;
 
