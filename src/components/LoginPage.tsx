@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { SagarsoftLogo } from "./SagarsoftLogo";
 import sagarsoftBuilding from "../assets/fa9eebd15dda20079679d5553e33bd622584070f.png";
 import { useAppDispatch } from "../store/hooks";
-import { loginSuccess } from "../store/authSlice";
+import { loginSuccess,setPermissions } from "../store/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import api from "../services/interceptors";
 import PERMISSIONS_ENDPOINTS from "../services/permissionsEndPoints";
@@ -19,118 +19,65 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   // dispatch(login({ id: '1', name: 'Dheemanth', email: 'dheemanth@sagarsoft.com' }));
   // dispatch(logout());
+ const [loading, setLoading] = useState(false);
 
  const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();
+  setLoading(true);
   try {
-    const response = await api.post("auth/signin", { username, password });
-    const { id, username: userName, email, token, refreshToken,role,roleId } = response.data;
-   // const permissionsResponse =  await api.get(PERMISSIONS_ENDPOINTS.GET_PRIVILEGES(roleId));
-//console.log('Login Response:', permissionsResponse.data);
-    console.log('Login Response:', response.data);
+     const response = await api.post("auth/signin", { username, password });
+      const { id, username: userName, email, token, refreshToken, role, roleId } = response.data;
 
-response.data.rolePermissions  ={
-  "menuname": "default",
-  "/superadmin/organization/info": {
-    "all": true,
-    "view": true,
-    "create": false,
-    "edit": true,
-    "delete": true
-  },
-  "/superadmin/organization/units": {
-    "all": true,
-    "view": true,
-    "create": true,
-    "edit": true,
-    "delete": true
-  },
-  "/superadmin/organization/departments": {
-    "all": true,
-    "view": true,
-    "create": true,
-    "edit": true,
-    "delete": true
-  },
-  "/superadmin/organization/announcements": {
-    "all": true,
-    "view": true,
-    "create": true,
-    "edit": true,
-    "delete": true
-  },
-  "/dashboard": {
-    "all": true,
-    "view": true,
-    "create": true,
-    "edit": true,
-    "delete": true
-  },
-  "/hr/recruitment": {
-    "all": true,
-    "view": true,
-    "create": true,
-    "edit": true,
-    "delete": true
-  },
-  "/superadmin/access-control":
-  
-  {
-    "all": true,
-    "view": true,
-    "create": true,
-    "edit": true,
-    "delete": true
-  },
-  "/superadmin/access-control/roles":
-  {
-    "all": true,
-    "view": true,
-    "create": true,
-    "edit": true,
-    "delete": true
-  },
-  "/superadmin/access-control/permissions":
-  {
-    "all": true,
-    "view": true,
-    "create": true,
-    "edit": true,
-    "delete": true
-  },
-  
-};
-    dispatch(loginSuccess({
-  user: response.data.username,
-  token: response.data.token,
-  refreshToken: response.data.refreshToken,
-  role: response.data.role,
-  rolePermissions: response.data.rolePermissions ,
-  roleId:response.data.roleId
-}));
+      console.log("✅ Login successful:", response.data);
 
 
-    // // Role-based login routing
-    // if (userName.includes("super") || userName === "superadmin") {
-    //   onLogin("superadmin");
-    // } else if (userName.includes("hr") || userName.includes("admin")) {
-    //   onLogin("hr");
-    // } else if (userName.includes("manager")) {
-    //   onLogin("manager");
-    // } else {
-    //   onLogin("employee");
-    // }
-    if(role === "SUPER ADMIN"){
-      console.log("sadsa")
+        dispatch(loginSuccess({
+      username: userName,
+      token: token,
+      refreshToken: refreshToken,
+      role: role,
+      rolePermissions: {} ,
+      roleId:roleId
+    }));
+
+    // Step 3: Fetch permissions dynamically using roleId
+      const permissionsResponse = await api.get(
+        PERMISSIONS_ENDPOINTS.GET_PRIVILEGES(roleId),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ ensure token attached
+          },
+        }
+      );
+
+     
+      // ✅ Step 4: Store permissions in Redux properly
+      const privilegesDataRaw = permissionsResponse.data?.data?.[0]?.rolePermissions;
+console.log("privilegesDataRaw",privilegesDataRaw)
+      let privilegesData = {};
+      try {
+        privilegesData = privilegesDataRaw ? JSON.parse(privilegesDataRaw) : {};
+      } catch (err) {
+        console.error("❌ Error parsing rolePermissions JSON:", err);
+        privilegesData = {};
+      }
+
+      console.log("✅ Permissions stored:", privilegesData);
+
+      dispatch(setPermissions(privilegesData));
+   
+    
+    if(role != "" ){
       navigate("/dashboard");
-    }else if(role === "HR"){
-      navigate("/organization");
-    }else if(role === "MANAGER"){
-      navigate("/organization");
-    }else{
-      navigate("/organization");
     }
-
+    // }else if(role === "HR"){
+    //   navigate("/dashboard");
+    // }else if(role === "MANAGER"){
+    //   navigate("/dashboard");
+    // }else{
+    //   navigate("/dashboard");
+    // }
+    setLoading(false);
   } catch (error) {
     console.error(error);
     alert("Login failed");

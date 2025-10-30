@@ -1,21 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './index';
 
-export type User = {
-  id: string;
-  name: string;
-  email: string;
-  username: string;
-  password: string; // encrypted
-};
-
-export type UserRole = 'employee' | 'manager' | 'hr' | 'superadmin' | null;
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: User | null;
+  username: string | null;
   token: string | null;
-  userRole: UserRole;
+  userRole: string | null;
   refreshToken: string | null;
   rolePermissions: Record<string, any>; // <-- add this;
   roleId: string | null;
@@ -23,7 +14,7 @@ interface AuthState {
 
 const initialState: AuthState = {
   isAuthenticated: false,
-  user: null,
+  username: null,
   token: null,
   userRole: null,
   refreshToken: null,
@@ -38,16 +29,16 @@ export const authSlice = createSlice({
     loginSuccess: (
       state,
       action: PayloadAction<{
-        user: User;
+        username: string;
         token: string;
         refreshToken: string;
-        role: UserRole;
+        role: string;
         rolePermissions: Record<string, any>;
         roleId:string
       }>
     ) => {
       state.isAuthenticated = true;
-      state.user = action.payload.user;
+      state.username = action.payload.username;
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
       state.userRole = action.payload.role;
@@ -68,20 +59,26 @@ export const authSlice = createSlice({
     },
     logout: (state) => {
       state.isAuthenticated = false;
-      state.user = null;
-     // state.token = null;
+    //  state.token = null;
      // state.refreshToken = null;
       state.userRole = null;
+    },
+     // ✅ Add this
+    setPermissions: (
+      state,
+      action: PayloadAction<Record<string, any>>
+    ) => {
+      state.rolePermissions = action.payload;
     },
   },
 });
 
-export const { loginSuccess, logout, updateTokens } = authSlice.actions;
+export const { loginSuccess, logout, updateTokens,setPermissions } = authSlice.actions;
 
 export const selectAuth = (state: RootState) => state.auth;
 export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;
-export const selectUser = (state: RootState) => state.auth.user;
-export const selectUserRole = (state: RootState) => state.auth.userRole;
-export const selectRefreshToken = (state: RootState) => state.auth.refreshToken;
+// export const selectUser = (state: RootState) => state.auth.user;
+// export const selectUserRole = (state: RootState) => state.auth.userRole;
+// export const selectRefreshToken = (state: RootState) => state.auth.refreshToken;
 export const selectRolePermissions = (state: RootState) => state.auth.rolePermissions;
 export default authSlice.reducer;

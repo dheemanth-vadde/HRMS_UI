@@ -4,7 +4,6 @@ import { updateTokens, logout } from "../store/authSlice";
 
 const baseAuthURL = "https://bobjava.sentrifugo.com:8443/hrms-auth-app/api/";
 const baseEmployeeURL = "https://bobjava.sentrifugo.com:8443/hrms-employees-app/api/";
-
 const api = axios.create({
   baseURL: baseAuthURL,
   timeout: 10000,

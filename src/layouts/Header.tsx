@@ -1,7 +1,6 @@
 // src/layouts/Header.tsx
 import { useState, useEffect } from "react";
 import { Menu, Bell } from "lucide-react";
-import { useDispatch } from "react-redux";
 import { toggleSidebar } from "../store/uiSlice";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -13,9 +12,14 @@ import { Search } from "lucide-react";
 import { logout } from "../store/authSlice";
 import { useNavigate } from "react-router-dom";
 import api from "../services/interceptors";
+import { useDispatch,useSelector } from 'react-redux';
+import { selectAuth } from '../store/authSlice'; 
 type UserRole = "employee" | "manager" | "hr" | "superadmin" | null;
 type ActiveModule = "dashboard" | "employees" | "hr" | "settings";
 const Header: React.FC = () => {
+  const dispatch = useDispatch();
+  const auth = useSelector(selectAuth);
+  console.log("auth",auth);
     const navigate = useNavigate(); 
  const [userRole, setUserRole] = useState<UserRole>(null);
    const [activeModule, setActiveModule] = useState<ActiveModule>("dashboard");
@@ -44,14 +48,25 @@ const Header: React.FC = () => {
     }
   };
   const handleLogout = async () => {
-    // Clear Redux state
+  try {
+    if (auth.token) {
+      await api.post("auth/logout", null, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      });
+    }
+    
+    // Clear Redux state and redirect
     dispatch(logout());
-       const response = await api.post("auth/logout")
-      if(response.status===200){
-        navigate('/login')
-      }
-  };
-  const dispatch = useDispatch();
+    navigate('/login');
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Still clear state even if API call fails
+    dispatch(logout());
+    navigate('/login');
+  }
+};
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   return (
    <header className="h-16 bg-white dark:bg-card border-b border-border flex items-center justify-between px-6 shadow-md backdrop-blur-sm animate-slide-in-right">

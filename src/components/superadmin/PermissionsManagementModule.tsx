@@ -253,6 +253,7 @@ const [hasExistingPrivileges, setHasExistingPrivileges] = useState(false);
               delete: false
             }
           }));
+          console.log( "menuscreens", menuScreens)
           
           setScreens(menuScreens);
         }

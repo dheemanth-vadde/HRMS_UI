@@ -10,12 +10,13 @@ import { routes as allRoutes } from "../config/routes";
  */
 export function usePermittedRoutes() {
   const rolePermissions = useSelector(selectRolePermissions);
-
+console.log(  "rolePermissions",rolePermissions)
   if (!rolePermissions || Object.keys(rolePermissions).length === 0) {
     return [];
   }
 
   const normalizedScreens = normalizePermissions(rolePermissions);
+  console.log( "normalizedScreens", normalizedScreens)
 
   const normalizedRolePermissions = {
     RoleId: 0,
@@ -24,7 +25,11 @@ export function usePermittedRoutes() {
   };
 
   const allowed = buildAllowedSetFromStatic(normalizedRolePermissions);
+  console.log("allowed",allowed)
+  console.log("allRoutes",allRoutes)
   const permittedRoutes = filterRoutesByAllowedKeys(allRoutes, allowed);
+
+  console.log("permittedroute",permittedRoutes)
 
   return permittedRoutes;
 }
