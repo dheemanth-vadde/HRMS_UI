@@ -189,7 +189,7 @@ const Department = () => {
    if (error) return <div className="alert alert-danger mt-5">{error}</div>;
 
   return (
-    <div className="space-y-6 px-5 py-3">
+    <div className="space-y-6 py-3">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold">Departments</h1>
