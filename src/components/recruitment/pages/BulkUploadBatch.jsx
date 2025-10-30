@@ -578,7 +578,7 @@ const disableUploads = !!batch && (batch.items?.length || 0) > 0;
                   </Form.Select>
 
                   <InputGroup className="posting-search" size="sm" style={{ width: 290 }}>
-                    <InputGroup.Text style={{ backgroundColor: "#FF7043" }} id="search-fn">
+                    <InputGroup.Text style={{ backgroundColor: "#2d2d58" }} id="search-fn">
                       <FontAwesomeIcon icon={faSearch} style={{ color: "#fff" }} />
                     </InputGroup.Text>
                     <Form.Control

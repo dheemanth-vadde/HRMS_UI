@@ -471,3 +471,8 @@ display: block;
   white-space: nowrap;
   display: block !important;
 }
+
+.candfont h1{
+  font-size: 28px !important;
+  font-weight: bold;
+}

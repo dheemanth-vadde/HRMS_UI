@@ -86,8 +86,8 @@ const Header: React.FC = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium">{getUserName()}</p>
-                    <p className="text-xs text-muted-foreground">{getUserRole()}</p>
+                    <div className="text-sm font-medium">{getUserName()}</div>
+                    <div className="text-xs text-muted-foreground">{getUserRole()}</div>
                   </div>
                   <ChevronDown className="size-4 text-muted-foreground" />
                 </Button>

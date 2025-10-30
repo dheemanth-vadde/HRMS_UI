@@ -65,8 +65,8 @@
 .date{
 font-size: 14px;
 }
-.datesbg{
-  background:rgba(255, 79, 70,0.1) !important;
+.datesbg {
+	background: #f9bebebd !important;
 }
 .col button:hover{
   background:#fff !important;
@@ -75,4 +75,10 @@ font-size: 14px;
 .calendarContainer .searchinput{
   width: 70% !important;
   
+}
+.titlecal {
+	font-size: 28px !important;
+	font-weight: bold;
+	color: #2d2d58;
+  margin-bottom: 0px;
 }

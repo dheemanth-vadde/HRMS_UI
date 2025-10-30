@@ -1443,7 +1443,7 @@
   }
 
   .rounded-md {
-    border-radius: calc(var(--radius)  - 2px);
+    border-radius: calc(var(--radius)  - 2px) !important;
   }
 
   .rounded-sm {
@@ -2745,7 +2745,7 @@
   }
 
   .text-primary {
-    color: var(--primary);
+    color: var(--primary) !important;
   }
 
   .text-primary-foreground {
@@ -3632,7 +3632,7 @@
   }
 
   .has-\[\>svg\]\:px-3:has( > svg) {
-    padding-inline: calc(var(--spacing) * 3);
+    padding-inline: calc(var(--spacing) * 3) !important;
   }
 
   .has-\[\>svg\]\:px-4:has( > svg) {
@@ -5070,7 +5070,4 @@ html {
 .mr-15{
   margin-right: 15px;
 }
-.candidateh1{
-  font-size: 28px;
-  font-weight: bold;
-}
+

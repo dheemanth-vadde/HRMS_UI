@@ -46,13 +46,13 @@ function getToken() {
 // const NODE_API_URL = process.env.REACT_APP_NODE_API_URL;
 // const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
 // const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/jobcreation/api/v1'
-const API_BASE_URL = 'http://192.168.20.115:8081/api/v1'
+const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/hrms-job-portal/api/v1'
 // const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/master/api'
-const API_BASE_URLS = 'http://192.168.20.115:8080/api'
-const NODE_API_URL = 'https://bobbe.sentrifugo.com/api';
-// const NODE_API_URL = 'http://localhost:5000/api';
+const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/hrms-master-data/api'
+//const NODE_API_URL = 'https://bobbe.sentrifugo.com/api';
+ const NODE_API_URL = 'http://localhost:5000/api';
 // //const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
-const CANDIDATE_API_URL = 'http://192.168.20.111:8082/api/v1/'
+const CANDIDATE_API_URL = 'https://bobjava.sentrifugo.com:8443/hrms-candidate/api/v1/'
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -105,7 +105,7 @@ const nodeApi = axios.create({
   withCredentials: true,
 });
 const parseResumeApi = axios.create({
-  baseURL: "https://backend.sentrifugo.com",
+  baseURL: "http://localhost:5000/api",
   headers: { "Content-Type": "multipart/form-data" },
 });
 
@@ -444,7 +444,7 @@ updateCandidates: (data) => candidateApi.put('candidates/update_candidate', data
 applyJobs: (data) => candidateApi.post('candidates/apply/job',data),
 
 
-parseResume: (formData) => parseResumeApi.post("/parse-resume2", formData),
+parseResume: (formData) => parseResumeApi.post("/parseresume", formData),
 
   // Candidate Registration (Node API - bobbe)
   candidateRegister: (data) =>

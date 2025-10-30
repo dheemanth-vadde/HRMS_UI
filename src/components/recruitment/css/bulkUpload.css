@@ -117,21 +117,21 @@
 /* Tile buttons: default = outlined orange, hover/active = solid orange */
 .tile-btn {
   background: transparent;
-  color: #FF7043;
-  border-color: #FF7043;
+  color: #2d2d58;
+  border-color: #2d2d58;
 }
 .tile-btn:hover,
 .tile-btn:focus {
-  background: #FF7043;
+  background: #2d2d58;
   color: #fff;
-  border-color: #FF7043;
+  border-color: #2d2d58;
 }
 .tile-btn.active,
 .tile-btn:active,
 .show > .tile-btn.dropdown-toggle {
-  background: #FF7043 !important;
+  background: #2d2d58 !important;
   color: #fff !important;
-  border-color: #FF7043 !important;
+  border-color: #2d2d58 !important;
   box-shadow: none !important;
 }
 
@@ -211,10 +211,10 @@
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  border: 1px solid #ff7a32;
+  border: 1px solid #2d2d58;
   border-radius: 10px;
   background: transparent;
-  color: #ff7a32;
+  color: #2d2d58;
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";  font-weight: 600;
   font-size: 13px;
   cursor: pointer;
@@ -223,13 +223,13 @@
 }
 .sync-btn:hover:not(:disabled),
 .sync-btn:focus-visible {
-  background: #ff7a32;
+  background: #2d2d58;
   color: #fff;
   outline: none;
 }
 .sync-btn:active:not(:disabled) { transform: translateY(1px); }
 .sync-btn:disabled { opacity: .7; cursor: not-allowed; box-shadow: none; }
-.sync-btn--loading { background: #ff7a32; color: #fff; border-color: #ff7a32; }
+.sync-btn--loading { background: #2d2d58; color: #fff; border-color: #2d2d58; }
 .sync-btn__icon { width: 16px; height: 16px; flex: 0 0 16px; }
 .sync-btn__text { line-height: 1; }
 
@@ -293,8 +293,8 @@
   cursor:pointer;
 }
 .actionbtn:hover{
-  background:#FF7043;
-  color:#fff; border-color:#FF7043;
+  background:#2d2d58;
+  color:#fff; border-color:#2d2d58;
 }
 .linkname{
   font-size:14px;
@@ -304,8 +304,8 @@
 
 /* === Top text nav (matches screenshot) === */
 :root {
-  --tab-active: #ff7043;   /* orange active text */
-  --tab-inactive: #64748b; /* slate-ish */
+  --tab-active: #2d2d58;   /* orange active text */
+  --tab-inactive: #3e4042; /* slate-ish */
   --tab-underline: #2d7ff9;/* blue underline */
 }
 
@@ -345,7 +345,7 @@
 }
 
 .top-tabs__link.active {
-  color: var(--tab-active);
+  color: #2d2d58;
 }
 
 /* the thin blue underline only under the active item */
@@ -356,7 +356,7 @@
   right: 0;
   height: 3px;
   bottom: -1px;          /* sits on top of the bar's bottom rule */
-  background: #ff7043;
+  background: #2d2d58;
   border-radius: 2px;
 }
 .requisition{

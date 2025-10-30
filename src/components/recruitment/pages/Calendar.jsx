@@ -200,15 +200,15 @@ export default function Calendar() {
     <div className="space-y-6">
       {/* Controls */}
       <Row className="align-items-center g-2 mb-3">
-        <Col md="auto"><h5 style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '16px', color: '#FF7043', marginBottom: '0px' }}>{headerTitle}</h5></Col>
+        <Col md="auto"><p className="titlecal">{headerTitle}</p></Col>
         <Col md="auto">
-          <Button size="sm" variant="" onClick={goToday} className="week_filter me-2" style={{ marginLeft: '0.5rem', borderRadius: '5px', borderColor: '#ff6a00', color: '#ff6a00', padding: '0.45rem' }}>Today</Button>
+          <Button size="sm" variant="" onClick={goToday} className="week_filter me-2" style={{ marginLeft: '0.5rem', borderRadius: '5px', borderColor: '#2d2d58', color: '#2d2d58', padding: '0.45rem' }}>Today</Button>
           <div className="btn-group">
-            <Button size="sm" variant="outline-secondary" className="week_filter" onClick={goPrev} style={{ borderRadius: '5px', borderColor: '#ff6a00', color: '#ff6a00', fontWeight: 500, fontSize: '1.5rem', padding: '0px 12px' }}>‹</Button>
-            <Button size="sm" variant="outline-secondary" className="week_filter" onClick={goNext} style={{ marginLeft: '2px', borderRadius: '5px', borderColor: '#ff6a00', color: '#ff6a00', fontWeight: 500, fontSize: '1.5rem', padding: '0px 12px' }}>›</Button>
+            <Button size="sm" variant="outline-secondary" className="week_filter" onClick={goPrev} style={{ borderRadius: '5px', borderColor: '#2d2d58', color: '#2d2d58', fontWeight: 500, fontSize: '1.5rem', padding: '0px 12px' }}>‹</Button>
+            <Button size="sm" variant="outline-secondary" className="week_filter" onClick={goNext} style={{ marginLeft: '2px', borderRadius: '5px', borderColor: '#2d2d58', color: '#2d2d58', fontWeight: 500, fontSize: '1.5rem', padding: '0px 12px' }}>›</Button>
           </div>
         </Col>
-        <Col md="auto" className="ms-auto" style={{ width: '40%' }}>
+        <Col md="auto" className="ms-auto">
           <div className="position-relative w-100" style={{ maxWidth: '400px' }}>
             <InputGroup className="search-container">
               <InputGroup.Text className="bg-white border-end-0">
@@ -267,12 +267,12 @@ export default function Calendar() {
               const weekday = d.toLocaleDateString(undefined, { weekday: "short" });
               return (
                 
-                <Col key={key} >
+                <Col key={key}>
                   <Button
-                    variant={isActive ? "" : "light"}
-                    className={`w-100 fw-semibold date ${isActive ? "text-white warning_class" : ""}`}
+                    variant={isActive ? "primary" : "light"}
+                    className={`w-100 fw-semibold date ${isActive ? "bg-[#2d2d58] border-[#2d2d58] hover:bg-[#3d3d68]" : ""}`}
                     onClick={() => onSelectDay(key)}
-                    style={{ borderRadius: 999 }}
+                    style={{ borderRadius: '9999px' }}
                   >
                     <div className="small mb-1">{weekday}</div>
                     <div className="fs-6">{d.getDate()}</div>

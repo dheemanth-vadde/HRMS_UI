@@ -143,6 +143,64 @@ export const routes: AppRoute[] = [
     ]
   },
 
+  {
+    path: "/recruitment/master",
+    name: "Master",
+    icon: Building2,
+    elementPath: "recruitment/master",
+    children: [
+      {
+        path: "/recruitment/master/skill",
+        name: "Skill",
+        elementPath: "recruitment/master/skill",
+        icon: Briefcase
+      },
+      
+      {
+        path: "/recruitment/master/location",
+        name: "Location",
+        elementPath: "recruitment/master/location",
+        icon: Calendar
+      },
+     
+      {
+        path: "/recruitment/master/job-grade",
+        name: "Job Grade",
+        elementPath: "recruitment/master/job-grade",
+        icon: Users
+      },
+    
+      {
+        path: "/recruitment/master/position",
+        name: "Position",
+        elementPath: "recruitment/master/position",
+        icon: Briefcase
+      },
+      
+      {
+        path: "/recruitment/master/department",
+        name: "Department",
+        elementPath: "recruitment/master/department",
+        icon: Briefcase
+      },
+      
+      {
+        path: "/recruitment/job-creation",
+        name: "Job Creation",
+        elementPath: "recruitment/job-creation",
+        icon: Briefcase,
+        hidden: true
+      },
+      {
+        path: "/recruitment/candidate-assign",
+        name: "Candidate Assign",
+        elementPath: "recruitment/candidate-assign",
+        icon: User,
+        hidden: true
+      },
+    ]
+  },
+
   // Flat menu items
   {
     path: "/employees",

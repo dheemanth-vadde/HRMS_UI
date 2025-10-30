@@ -60,3 +60,7 @@ color: #000 !important;
 .popform{
     float:left; width:45%
 }
+.h1font{
+  font-size: 28px !important;
+  font-weight: bold;
+}

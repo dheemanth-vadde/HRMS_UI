@@ -521,6 +521,32 @@ const JobCreationForm = ({
           />
           {errors.roles_responsibilities && <p className="mt-1 text-sm text-red-600">{errors.roles_responsibilities}</p>}
         </div>
+        <div className="col-span-full space-y-1">
+          <label htmlFor="mandatory_experience" className="text-[#162b75] text-sm font-medium">Mandatory Experience(Years) <span className="required-asterisk">*</span></label>
+          <input type="number" className="form-control" disabled={readOnly} id="mandatory_experience" name="mandatory_experience" value={formData.mandatory_experience} onChange={handleInputChange} min="1" step="any"/>
+          {errors.mandatory_experience && <small className="error">{errors.mandatory_experience}</small>}
+        </div>
+
+        {/* Preferred Experience */}
+        <div className="col-span-full space-y-1">
+          <label htmlFor="preferred_experience" className="text-[#162b75] text-sm font-medium">Preferred Experience(Years)<span className="required-asterisk"></span></label>
+          <input type="number" className="form-control" disabled={readOnly} id="preferred_experience" name="preferred_experience" value={formData.preferred_experience} onChange={handleInputChange} min="1" step="any"/>
+          {errors.preferred_experience && <small className="error">{errors.preferred_experience}</small>}
+        </div>
+
+        {/* Probation Period */}
+        <div className="col-span-full space-y-1">
+          <label htmlFor="probation_period" className="text-[#162b75] text-sm font-medium">Probation Period(Months) <span className="required-asterisk"></span></label>
+          <input type="text" className="form-control" disabled={readOnly} id="probation_period" name="probation_period" value={formData.probation_period} onChange={handleInputChange} />
+          {errors.probation_period && <small className="error">{errors.probation_period}</small>}
+        </div>
+
+        {/* Min Credit Score */}
+        <div className="col-span-full space-y-1">
+          <label htmlFor="min_credit_score" className="text-[#162b75] text-sm font-medium">Min Credit Score <span className="required-asterisk"></span></label>
+          <input type="text" className="form-control" disabled={readOnly} id="min_credit_score" name="min_credit_score" value={formData.min_credit_score} onChange={handleInputChange} />
+          {errors.min_credit_score && <small className="error">{errors.min_credit_score}</small>}
+        </div>
 
         {/* Relaxation Policy */}
         {/* <div className="space-y-1">
@@ -569,7 +595,7 @@ const JobCreationForm = ({
               type="button"
               onClick={handleCancel}
               variant="outline-secondary"
-              className="px-4 py-2 mr-15 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="px-4 mr-15 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Cancel
             </button>

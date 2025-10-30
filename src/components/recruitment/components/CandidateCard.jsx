@@ -144,7 +144,8 @@ const CandidateCard = ({ setTriggerDownload }) => {
         const fetchJobData = async () => {
             const response = await getJobRequirements();
             const data = response?.data || [];
-            // console.log(data.filter(req => req.requisition_status === 'Approved'))
+            //console.log("All Requisitions",data);
+            //console.log("Approved Requisitions",data.filter(req => req.requisition_status === 'Approved'))
             setJobReqs(data.filter(req => req.requisition_status === 'Approved'));
 
         };
@@ -913,8 +914,8 @@ const CandidateCard = ({ setTriggerDownload }) => {
     };
 
     return (
-        <div className="space-y-6">
-                    <h1 className="candidateh1">Candidate Shortlist</h1>
+        <div className="space-y-6 candfont">
+                    <h1 className="candidateh1 text-primary">Candidate Shortlist</h1>
             <div className="top-bar">
                 <div className="responsive-breadcrumb-container">
 
