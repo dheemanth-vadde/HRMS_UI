@@ -25,7 +25,7 @@ console.log(  "rolePermissions",rolePermissions)
     screens: normalizedScreens,
   };
 
-  const allowed = buildAllowedSetFromStatic(staticRolePermissions);
+  const allowed = buildAllowedSetFromStatic(normalizedRolePermissions);
   console.log("allowed",allowed)
   console.log("allRoutes",allRoutes)
   const permittedRoutes = filterRoutesByAllowedKeys(allRoutes, allowed);
