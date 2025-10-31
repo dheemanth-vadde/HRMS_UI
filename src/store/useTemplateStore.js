@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import defaultTemplate from "../components/OfferTemplate/defaultTemplate";
+import defaultTemplate from "../components/recruitment/components/OfferTemplate/defaultTemplate";
 
 export const useTemplateStore = create((set, get) => ({
   // template: defaultTemplate,

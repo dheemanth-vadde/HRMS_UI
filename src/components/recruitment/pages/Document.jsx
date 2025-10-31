@@ -1,7 +1,6 @@
 // Documents.jsx
 import React, { useState, useEffect } from "react";
 import {
-  Modal,
   Button,
   Form,
   Table,
@@ -9,6 +8,15 @@ import {
   Row,
   Col
 } from "react-bootstrap";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../ui/dialog";
+import { Label } from "../../ui/label";
 import "../css/Department.css"; // reuse same CSS or create Documents.css
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -57,6 +65,8 @@ const Document = () => {
     setEditIndex(index);
     setShowModal(true);
   };
+  
+ 
 
   const handleSave = () => {
     const newErrors = {};
@@ -177,130 +187,176 @@ const Document = () => {
   if (error) return <div className="alert alert-danger mt-5">{error}</div>;
 
   return (
-    <div className="register_container px-5 deptfon py-3">
-      <div className="d-flex justify-content-between align-items-center pb-4">
-        <h5
-          style={{
-            fontFamily: "Noto Sans",
-            fontWeight: 600,
-            fontSize: "16px",
-            color: "#FF7043",
-            marginBottom: "0px",
-          }}
-        >
-          Documents
-        </h5>
-        <Button variant="orange" onClick={() => openModal()}>+ Add</Button>
+    <div className="space-y-6 py-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold">Documents</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage organization documents
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative w-80">
+            <FontAwesomeIcon 
+              icon={faSearch} 
+              className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" 
+            />
+            <input
+              type="text"
+              placeholder="Search by document name or description"
+              className="w-full pl-9 h-9 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button 
+            onClick={() => openModal()} 
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3 btn-add-purple"
+          >
+            + Add Document
+          </button>
+        </div>
       </div>
 
-      {docsToDisplay.length === 0 ? (
-        <p className="text-muted text-center mt-5">
-          No Documents match your criteria.
-        </p>
-      ) : (
-        <Table className="dept_table" responsive hover>
-          <thead className="table-header-orange">
-            <tr>
-              <th
-                onClick={() => handleSort("document_name")}
-                style={{ cursor: "pointer", width: "40%" }}
-              >
-                Document Name{getSortIndicator("document_name")}
-              </th>
-              <th
-                onClick={() => handleSort("document_desc")}
-                style={{ cursor: "pointer", width: "52%" }}
-              >
-                Description{getSortIndicator("document_desc")}
-              </th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody className="table-body-orange">
-            {docsToDisplay.map((doc, index) => (
-              <tr key={doc.document_id || index}>
-                <td>{doc.document_name}</td>
-                <td>{doc.document_desc}</td>
-                <td>
-                  <FontAwesomeIcon
-                    icon={faPencil}
-                    className="text-info me-3 cursor-pointer iconhover"
-                    onClick={() => openModal(doc, index)}
-                  />
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    className="text-danger cursor-pointer iconhover"
-                    onClick={() => handleDelete(index)}
-                  />
-                </td>
+      <div className="border border-[#e5e7eb] rounded-md">
+        <div className="rounded-md">
+          <table className="w-full caption-bottom text-sm">
+            <thead>
+              <tr className="bg-muted/50">
+                <th 
+                  className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
+                  onClick={() => handleSort("document_name")}
+                >
+                  Document Name
+                  <span className="ml-1">{getSortIndicator("document_name")}</span>
+                </th>
+                <th 
+                  className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
+                  onClick={() => handleSort("document_desc")}
+                >
+                  Description
+                  <span className="ml-1">{getSortIndicator("document_desc")}</span>
+                </th>
+                <th className="text-foreground h-10 px-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 text-right">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {docsToDisplay.length > 0 ? (
+                docsToDisplay.map((doc, index) => (
+                  <tr key={doc.document_id || index} className="hover:bg-gray-50">
+                    <td className="px-2 py-4 whitespace-normal">
+                      {doc.document_name}
+                    </td>
+                    <td className="px-2 py-4 whitespace-normal">
+                      {doc.document_desc || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => openModal(doc, index)}
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                        title="Edit"
+                      >
+                        <FontAwesomeIcon icon={faPencil} className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(index)}
+                        className="text-red-600 hover:text-red-900"
+                        title="Delete"
+                      >
+                        <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+                    No documents found matching your criteria.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      {/* MODAL */}
-      <Modal show={showModal} onHide={resetForm} centered dialogClassName="wide-modal">
-        <Modal.Header closeButton>
-          <Modal.Title className="fw-bold text-orange fs-4">
-            {editIndex !== null ? "Edit Document" : "Add Document"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form className="document-form">
-            <Row className="g-4">
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label className="form-label">
-                    Document Name <span className="text-danger">*</span>
-                  </Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={2}
-                    placeholder="Enter document name"
-                    value={currentDoc.document_name}
-                    isInvalid={!!errr.document_name}
-                    onChange={(e) =>
-                      setCurrentDoc({ ...currentDoc, document_name: e.target.value })
-                    }
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errr.document_name}
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label className="form-label">Description</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    placeholder="Enter description"
-                    value={currentDoc.document_desc}
-                    onChange={(e) =>
-                      setCurrentDoc({ ...currentDoc, document_desc: e.target.value })
-                    }
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          </Form>
-        </Modal.Body>
-
-        <Modal.Footer className="justify-content-end gap-2">
-          <Button variant="outline-secondary" onClick={resetForm}>
-            Cancel
-          </Button>
-          <Button
-            className="text-white"
-            onClick={handleSave}
-            style={{ backgroundColor: "#FF7043", borderColor: "#FF7043" }}
-          >
-            {editIndex !== null ? "Update Document" : "Save"}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Dialog */}
+      <Dialog open={showModal} onOpenChange={(open) => !open && resetForm()}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-[#FF7043]">
+              {editIndex !== null ? "Edit Document" : "Add Document"}
+            </DialogTitle>
+            <DialogDescription>
+              {editIndex !== null ? "Update the document details" : "Add a new document to the system"}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="document_name" className="text-sm font-medium">
+                  Document Name <span className="text-red-500">*</span>
+                </Label>
+                <input
+                  type="text"
+                  id="document_name"
+                  placeholder="Enter document name"
+                  value={currentDoc.document_name}
+                  onChange={(e) =>
+                    setCurrentDoc({ ...currentDoc, document_name: e.target.value })
+                  }
+                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errr.document_name ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                {errr.document_name && (
+                  <p className="mt-1 text-sm text-red-600">{errr.document_name}</p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="document_desc" className="text-sm font-medium">
+                  Description
+                </Label>
+                <textarea
+                  id="document_desc"
+                  rows={3}
+                  placeholder="Enter description"
+                  value={currentDoc.document_desc}
+                  onChange={(e) =>
+                    setCurrentDoc({ ...currentDoc, document_desc: e.target.value })
+                  }
+                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errr.document_desc ? "border-red-500" : "border-gray-300"
+                  }`}
+                ></textarea>
+                {errr.document_desc && (
+                  <p className="mt-1 text-sm text-red-600">{errr.document_desc}</p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex justify-end gap-2">
+            <Button 
+              variant="outline" 
+              onClick={resetForm}
+              className="border-gray-300"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSave}
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
+            >
+              {editIndex !== null ? "Update Document" : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

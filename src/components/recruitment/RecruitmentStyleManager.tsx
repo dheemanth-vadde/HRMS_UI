@@ -38,6 +38,7 @@ const routeCssMap: Record<string, string> = {
   "/recruitment/master/department": "/src/components/recruitment/css/Department.css",
   "/recruitment/master/job-grade": "/src/components/recruitment/css/JobGrade.css",
   "/recruitment/master/position": "/src/components/recruitment/css/Position.css",
+  "/recruitment/master/offer-template": "/src/components/recruitment/css/Editor.css",
 };
 
 const bootstrapHref = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css";

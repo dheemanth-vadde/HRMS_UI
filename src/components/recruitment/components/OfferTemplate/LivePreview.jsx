@@ -1,6 +1,6 @@
 // src/components/OfferTemplate/LivePreview.js
 import React from "react";
-import { useTemplateStore } from '../../store/useTemplateStore';
+import { useTemplateStore } from '../../../../store/useTemplateStore';
 
 // Only wrap tokens if not already wrapped by Quill (prevents double)
 function introWithTokens(html = "") {

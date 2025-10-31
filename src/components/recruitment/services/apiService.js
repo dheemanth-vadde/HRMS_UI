@@ -49,8 +49,8 @@ function getToken() {
 const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/hrms-job-portal/api/v1'
 // const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/master/api'
 const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/hrms-master-data/api'
-//const NODE_API_URL = 'https://bobbe.sentrifugo.com/api';
- const NODE_API_URL = 'http://localhost:5000/api';
+const NODE_API_URL = 'https://bobbe.sentrifugo.com/api';
+ //const NODE_API_URL = 'http://localhost:5000/api';
 // //const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
 const CANDIDATE_API_URL = 'https://bobjava.sentrifugo.com:8443/hrms-candidate/api/v1/'
 
@@ -105,7 +105,7 @@ const nodeApi = axios.create({
   withCredentials: true,
 });
 const parseResumeApi = axios.create({
-  baseURL: "http://localhost:5000/api",
+baseURL: "https://bobbe.sentrifugo.com/api",
   headers: { "Content-Type": "multipart/form-data" },
 });
 

@@ -1,7 +1,7 @@
 // src/components/OfferTemplate/Toolbar.jsx
 import { useState, useEffect } from "react";
 import { Button, Dropdown } from "react-bootstrap";
-import { useTemplateStore } from '../../store/useTemplateStore';
+import { useTemplateStore } from '../../../../store/useTemplateStore';
 import { buildHtmlForExport } from "./utils/exportHtml";
 import apiService from "../../services/apiService";
 import defaultTemplate from "./defaultTemplate.json";

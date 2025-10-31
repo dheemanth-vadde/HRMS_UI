@@ -522,12 +522,12 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
     //  if (!formData.min_salary || isNaN(formData.min_salary) || Number(formData.min_salary) <= 0) newErrors.min_salary = 'Min Age is required and must be a positive number';
     // if (!formData.max_salary || isNaN(formData.max_salary) || Number(formData.max_salary) <= 0) newErrors.max_salary = 'Max Age is required and must be a positive number';
 
-    // if (!formData.mandatory_qualification) newErrors.mandatory_qualification = 'Mandatory Qualification is required';
+     if (!formData.mandatory_qualification) newErrors.mandatory_qualification = 'Mandatory Qualification is required';
     //if (!formData.preferred_qualification) newErrors.preferred_qualification = 'Preferred Qualification is required';
     if (!formData.mandatory_experience || isNaN(formData.mandatory_experience) || Number(formData.mandatory_experience) <= 0) newErrors.mandatory_experience = 'Mandatory Experience is required and must be a positive number';
     //if (!formData.preferred_experience || isNaN(formData.preferred_experience) || Number(formData.preferred_experience) <= 0) newErrors.preferred_experience = 'Preferred Experience is required and must be a positive number';
     if (!formData.probation_period || isNaN(formData.probation_period) || Number(formData.probation_period) <= 0) {newErrors.probation_period = 'Probation Period is required and must be a positive number';}
-    // if (!formData.documents_required.trim()) newErrors.documents_required = 'Documents Required is required';
+     if (!formData.documents_required.trim()) newErrors.documents_required = 'Documents Required is required';
     // if (!String(formData.min_credit_score ?? '').trim()) newErrors.min_credit_score = 'Min Credit Score is required';
     //if (!formData.selection_procedure || !formData.selection_procedure.trim()) newErrors.selection_procedure = 'Selection Process is required';
     if (
@@ -908,8 +908,8 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
 
 
   return (
-    <Container fluid className="py-3">
-      <Row className="justify-content-center">
+    <Container fluid className="">
+      <Row className="">
         <Col xs={12} md={10} lg={8}>
           {editPositionId == null && (
             <div>

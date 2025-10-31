@@ -10,6 +10,13 @@ import { useNavigate } from "react-router-dom";
 import DownloadReqPdfButton from "../components/DownloadReqPdfButton";
 import { faDownload } from "@fortawesome/free-solid-svg-icons"; // ensure this import exists
 import { useDispatch, useSelector } from 'react-redux';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "../../ui/dialog";
 const EllipsisIcon = () => (
   <svg
     width="16"
@@ -887,42 +894,44 @@ const JobPosting = () => {
         </div>
       )}
 
-      {showModal && (
-        <div className="modal-overlay" onClick={resetForm}>
-          <div className="modal-content modal_container bg-white rounded-lg shadow-[0_10px_30px_rgba(26,44,113,0.2)] p-6 mx-2 w-[95vw] max-w-[1400px]" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h5 className="fonall">
-                {readOnly
-                  ? "View Job Posting"
-                  : editRequisitionId !== null
-                    ? "Edit Job Posting"
-                    : "Add Job Posting"}
-              </h5>
-              <button onClick={resetForm} className="modal-close-btn">&times;</button>
-            </div>
-            <div className="modal-body">
-              <JobCreation
-                editRequisitionId={editRequisitionId}
-                showModal={showModal}
-                onClose={() => setShowModal(false)}
-                editPositionId={editPositionId}
-                readOnly={readOnly}
-                onUpdateSuccess={() => {
-                  // 🔥 Immediately refresh requisition details after update
-                  if (editRequisitionId) {
-                    // toggleAccordion(activeKey, editRequisitionId);
-                    // ✅ Re-fetch data but keep accordion open
-                    fetchRequisitionDetails(editRequisitionId);
-                    fetchJobPostings();
-                  } else {
-                    fetchJobPostings();
-                  }
-                }}
-              />
-            </div>
+      <Dialog open={showModal} onOpenChange={(open) => !open && resetForm()}>
+        <DialogContent className="max-w-6xl" style={{ maxWidth: '1000px', height: '90vh' }}>
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-[#FF7043]">
+              {readOnly
+                ? "View Job Posting"
+                : editRequisitionId !== null
+                  ? "Edit Job Posting"
+                  : "Add Job Posting"}
+            </DialogTitle>
+            <DialogDescription>
+              {readOnly
+                ? "View the job posting details"
+                : editRequisitionId !== null
+                  ? "Update the job posting details"
+                  : "Create a new job posting"}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="h-full overflow-y-auto">
+            <JobCreation
+              editRequisitionId={editRequisitionId}
+              showModal={showModal}
+              onClose={() => setShowModal(false)}
+              editPositionId={editPositionId}
+              readOnly={readOnly}
+              onUpdateSuccess={() => {
+                if (editRequisitionId) {
+                  fetchRequisitionDetails(editRequisitionId);
+                  fetchJobPostings();
+                } else {
+                  fetchJobPostings();
+                }
+              }}
+            />
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
 
       {showTrailModal && (
@@ -982,8 +991,8 @@ const JobPosting = () => {
                           <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{row?.useremail || '-'}</td>
                           <td className="px-2 py-3 whitespace-nowrap">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${(row?.status || '').toLowerCase() === 'approved' ? 'bg-green-100 text-green-800' :
-                                (row?.status || '').toLowerCase() === 'rejected' ? 'bg-red-100 text-red-800' :
-                                  'bg-yellow-100 text-yellow-800'
+                              (row?.status || '').toLowerCase() === 'rejected' ? 'bg-red-100 text-red-800' :
+                                'bg-yellow-100 text-yellow-800'
                               }`}>
                               {row?.status || '-'}
                             </span>
@@ -1075,49 +1084,49 @@ const JobPosting = () => {
                   <p className="error-message">{errr.requisition_description}</p>
                 )}
               </div>
-<div className="grid grid-cols-3 gap-4"> 
-              <div className="space-y-2">
-                <label className="form-label-modern">
-                  Start Date <span className="text-destructive">*</span>
-                </label>
-                <input
-                  type="date"
-                  className="form-input-modern"
-                  value={currentReq.registration_start_date}
-                  disabled={viewMode}
-                  onChange={(e) => {
-                    setCurrentReq({ ...currentReq, registration_start_date: e.target.value });
-                    if (errr.registration_start_date) {
-                      setErrr({ ...errr, registration_start_date: "" });
-                    }
-                  }}
-                  min={new Date().toISOString().split("T")[0]}
-                />
-                {errr.registration_start_date && (
-                  <p className="error-message">{errr.registration_start_date}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="form-label-modern">
-                  End Date <span className="text-destructive">*</span>
-                </label>
-                <input
-                  type="date"
-                  className="form-input-modern"
-                  value={currentReq.registration_end_date}
-                  disabled={viewMode}
-                  onChange={(e) => {
-                    setCurrentReq({ ...currentReq, registration_end_date: e.target.value });
-                    if (errr.registration_end_date) {
-                      setErrr({ ...errr, registration_end_date: "" });
-                    }
-                  }}
-                  min={currentReq.registration_start_date || new Date().toISOString().split("T")[0]}
-                />
-                {errr.registration_end_date && (
-                  <p className="error-message">{errr.registration_end_date}</p>
-                )}
-              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="form-label-modern">
+                    Start Date <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    className="form-input-modern"
+                    value={currentReq.registration_start_date}
+                    disabled={viewMode}
+                    onChange={(e) => {
+                      setCurrentReq({ ...currentReq, registration_start_date: e.target.value });
+                      if (errr.registration_start_date) {
+                        setErrr({ ...errr, registration_start_date: "" });
+                      }
+                    }}
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+                  {errr.registration_start_date && (
+                    <p className="error-message">{errr.registration_start_date}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label className="form-label-modern">
+                    End Date <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    className="form-input-modern"
+                    value={currentReq.registration_end_date}
+                    disabled={viewMode}
+                    onChange={(e) => {
+                      setCurrentReq({ ...currentReq, registration_end_date: e.target.value });
+                      if (errr.registration_end_date) {
+                        setErrr({ ...errr, registration_end_date: "" });
+                      }
+                    }}
+                    min={currentReq.registration_start_date || new Date().toISOString().split("T")[0]}
+                  />
+                  {errr.registration_end_date && (
+                    <p className="error-message">{errr.registration_end_date}</p>
+                  )}
+                </div>
               </div>
 
               {/* <div className="d-flex gap-1">
@@ -1159,21 +1168,21 @@ const JobPosting = () => {
                   </Form.Group>
                 </Col>
                </div> */}
-               <div className="space-y-4 mt-4">
-              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                <button className="btn-outline-modern" onClick={resetReqForm}>
-                  {viewMode ? "Close" : "Cancel"}
-                </button>
-                {!viewMode && (
-                  <button
-                    className="btn-primary-modern"
-                    onClick={handleReqSave}
-                  >
-                    <FontAwesomeIcon icon={faPlus} style={{ marginRight: '8px', fontSize: '14px' }} />
-                    {editIndex !== null ? "Update Requisition" : "Add Requisition"}
+              <div className="space-y-4 mt-4">
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <button className="btn-outline-modern" onClick={resetReqForm}>
+                    {viewMode ? "Close" : "Cancel"}
                   </button>
-                )}
-              </div>
+                  {!viewMode && (
+                    <button
+                      className="btn-primary-modern"
+                      onClick={handleReqSave}
+                    >
+                      <FontAwesomeIcon icon={faPlus} style={{ marginRight: '8px', fontSize: '14px' }} />
+                      {editIndex !== null ? "Update Requisition" : "Add Requisition"}
+                    </button>
+                  )}
+                </div>
               </div>
 
             </div>

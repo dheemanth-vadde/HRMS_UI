@@ -1,5 +1,5 @@
 import { Form } from 'react-bootstrap';
-import { useTemplateStore } from '../../store/useTemplateStore';
+import { useTemplateStore } from '../../../../store/useTemplateStore';
 import '../../css/Editor.css';
 
 export default function SectionToggles() {

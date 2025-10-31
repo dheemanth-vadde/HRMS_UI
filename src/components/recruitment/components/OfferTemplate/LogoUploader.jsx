@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from 'react-bootstrap';
-import { useTemplateStore } from '../../store/useTemplateStore';
+import { useTemplateStore } from '../../../../store/useTemplateStore';
 import { Form } from 'react-bootstrap';
 import '../../css/Editor.css';
 

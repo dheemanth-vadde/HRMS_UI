@@ -1,7 +1,9 @@
-import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faPencil, faTrash, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useEffect, useState } from 'react'
-import { Button, Col, Form, Modal, Row, Spinner, Table } from 'react-bootstrap'
+import { Button, Col, Form, Row, Spinner } from 'react-bootstrap'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../ui/dialog'
+import { Label } from '../../ui/label'
 import Select from 'react-select'
 import apiService from '../services/apiService'
 
@@ -14,14 +16,15 @@ const InterviewPanel = () => {
   const [availableInterviewers, setAvailableInterviewers] = useState([]);
   const [currentPanel, setCurrentPanel] = useState({
     panel_id: null,
-    panel_name: "",
-    panel_description: "",
+    panelName: "",
+    panelDescription: "",
     interviewer_ids: [],
-    // jobGradeId: "",
-    // deptId: ""
   });
+  const [errr, setErrr] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingInterviewers, setLoadingInterviewers] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   const panelMembers = [
     { value: "Akhil Kumar", label: "Akhil Kumar" },
@@ -73,12 +76,11 @@ const InterviewPanel = () => {
     setAvailableInterviewers(mapped);
   }, [interviewers, activeMembers]);
 
-
-    useEffect(() => {
-      fetchInterviewers();
-      fetchInterviewPanels();
-      fetchActiveMembers();
-    }, []);
+  useEffect(() => {
+    fetchInterviewers();
+    fetchInterviewPanels();
+    fetchActiveMembers();
+  }, []);
 
   const handleDelete = async (panelId) => {
     try {
@@ -91,21 +93,38 @@ const InterviewPanel = () => {
   };
 
   const handleSavePanel = async () => {
-    try {
-      const payload = {
-        panel_name: currentPanel.panelName,
-        panel_description: currentPanel.panelDescription,
-        interviewer_ids: currentPanel.interviewer_ids,
-      };
-      if (editIndex !== null && currentPanel.panel_id) {
-        await apiService.updateInterviewPanel(currentPanel.panel_id, payload);
-      } else {
-        await apiService.addInterviewPanel(payload);
+    const newErrors = {};
+
+    const trimmedName = currentPanel.panelName?.trim();
+    const trimmedDesc = currentPanel.panelDescription?.trim();
+
+    // Validate required fields
+    if (!trimmedName) {
+      newErrors.panelName = "Panel name is required";
+    }
+    if (!currentPanel.interviewer_ids || currentPanel.interviewer_ids.length === 0) {
+      newErrors.interviewer_ids = "At least one panel member is required";
+    }
+
+    setErrr(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        const payload = {
+          panel_name: currentPanel.panelName,
+          panel_description: currentPanel.panelDescription,
+          interviewer_ids: currentPanel.interviewer_ids,
+        };
+        if (editIndex !== null && currentPanel.panel_id) {
+          await apiService.updateInterviewPanel(currentPanel.panel_id, payload);
+        } else {
+          await apiService.addInterviewPanel(payload);
+        }
+        await fetchInterviewPanels();
+        resetForm();
+      } catch (err) {
+        console.error("Failed to save/update panel:", err);
       }
-      await fetchInterviewPanels();
-      resetForm();
-    } catch (err) {
-      console.error("Failed to save/update panel:", err);
     }
   };
 
@@ -128,174 +147,300 @@ const InterviewPanel = () => {
   };
 
   const resetForm = () => {
-    setCurrentPanel({ panel_id: null, panel_name: "", panel_description: "", interviewer_ids: [] });
+    setCurrentPanel({ panel_id: null, panelName: "", panelDescription: "", interviewer_ids: [] });
     setEditIndex(null);
     setShowModal(false);
+    setErrr({});
   };
 
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIndicator = (key) => {
+    if (sortConfig.key !== key) return null;
+    return sortConfig.direction === "asc" ? " ▲" : " ▼";
+  };
+
+  const filteredAndSortedPanels = () => {
+    let filteredItems = [...panels];
+
+    if (searchTerm.trim()) {
+      const lowerTerm = searchTerm.toLowerCase();
+      filteredItems = filteredItems.filter(
+        (panel) =>
+          panel.panel_name?.toLowerCase().includes(lowerTerm) ||
+          panel.panel_description?.toLowerCase().includes(lowerTerm) ||
+          interviewers
+            .filter(i => panel.interviewer_ids?.includes(i.interviewer_id))
+            .some(i => i.full_name?.toLowerCase().includes(lowerTerm))
+      );
+    }
+
+    if (sortConfig.key) {
+      filteredItems.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+        
+        // Handle sorting for panel members
+        if (sortConfig.key === 'interviewer_ids') {
+          aValue = interviewers
+            .filter(i => a.interviewer_ids?.includes(i.interviewer_id))
+            .map(i => i.full_name)
+            .join(', ');
+          bValue = interviewers
+            .filter(i => b.interviewer_ids?.includes(i.interviewer_id))
+            .map(i => i.full_name)
+            .join(', ');
+        }
+
+        if (aValue == null) return 1;
+        if (bValue == null) return -1;
+        
+        aValue = String(aValue).toLowerCase();
+        bValue = String(bValue).toLowerCase();
+        
+        return sortConfig.direction === "asc"
+          ? aValue > bValue ? 1 : -1
+          : aValue < bValue ? 1 : -1;
+      });
+    }
+
+    return filteredItems;
+  };
+
+  const panelsToDisplay = filteredAndSortedPanels();
+
   return (
-    <div className='register_container login-container d-flex flex-column py-3 px-5'>
-      <div className="d-flex justify-content-between align-items-center pb-4">
-        <h5 className='mt-1' style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#FF7043', marginBottom: '0px' }}>Interview Panels</h5>
-        <Button variant="orange" onClick={() => setShowModal(true)}>+ Add</Button>
+    <div className="space-y-6 py-3 px-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold">Interview Panels</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage interview panels and their members
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative w-80">
+            <FontAwesomeIcon 
+              icon={faSearch} 
+              className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" 
+            />
+            <input
+              type="text"
+              placeholder="Search by panel name, description, or member"
+              className="w-full pl-9 h-9 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button 
+            onClick={() => setShowModal(true)} 
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3 btn-add-purple"
+          >
+            + Add Panel
+          </button>
+        </div>
       </div>
-      <Table className="req_table mt-2" responsive hover>
-        <thead className="table-header-orange">
-          <tr>
-            <th style={{ cursor: "pointer", width: '10%' }}>
-              S No.
-            </th>
-            <th style={{ cursor: "pointer", width: '20%' }}>
-              Panel Name
-            </th>
-            <th style={{ cursor: "pointer", width: '60%' }}>
-              Panel Members
-            </th>
-            {/* <th style={{ cursor: "pointer" }}>
-              Panel Status
-            </th> */}
-            <th style={{ cursor: "pointer", width: '10%' }}>
-              Actions
-            </th>
-          </tr>
-        </thead>
-                <tbody className="table-body-orange">
-          {loading ? (
-            <tr>
-              <td colSpan={4} className="text-center">
-                <Spinner animation="border" size="sm" /> Loading...
-              </td>
-            </tr>
-          ) : panels.length > 0 ? (
-            panels.map((panel, index) => (
-              <tr key={panel.panel_id || index}>
-                <td>{index + 1}</td>
-                <td>{panel.panel_name}</td>
-                {/* <td>{panel.interviewer_ids.join(", ")}</td> */}
-                <td>{panel.interviewer_ids.map(id => interviewers.find(i => i.interviewer_id === id)?.full_name).filter(Boolean).join(", ")}</td>
-                <td>
-                  <FontAwesomeIcon
-                    icon={faPencil}
-                    className="text-info me-3 cursor-pointer iconhover"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleEdit(panel, index)}
-                  />
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    className="text-danger cursor-pointer iconhover"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleDelete(panel.panel_id)}
-                  />
-                </td>
+
+      <div className="border border-[#e5e7eb] rounded-md">
+        <div className="rounded-md">
+          <table className="w-full caption-bottom text-sm">
+            <thead>
+              <tr className="bg-muted/50">
+                <th 
+                  className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
+                  onClick={() => handleSort("panel_name")}
+                >
+                  Panel Name
+                  <span className="ml-1">{getSortIndicator("panel_name")}</span>
+                </th>
+                <th 
+                  className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
+                  onClick={() => handleSort("interviewer_ids")}
+                >
+                  Panel Members
+                  <span className="ml-1">{getSortIndicator("interviewer_ids")}</span>
+                </th>
+                <th className="text-foreground h-10 px-6 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 text-right">
+                  Actions
+                </th>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={4} className="text-center text-muted">
-                No panels found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {loading ? (
+                <tr>
+                  <td colSpan="3" className="px-6 py-4 text-center">
+                    <Spinner animation="border" size="sm" /> Loading...
+                  </td>
+                </tr>
+              ) : panelsToDisplay.length > 0 ? (
+                panelsToDisplay.map((panel, index) => (
+                  <tr key={panel.panel_id || index} className="hover:bg-gray-50">
+                    <td className="px-2 py-4 whitespace-normal">
+                      {panel.panel_name}
+                    </td>
+                    <td className="px-2 py-4 whitespace-normal">
+                      {panel.interviewer_ids
+                        .map(id => interviewers.find(i => i.interviewer_id === id)?.full_name)
+                        .filter(Boolean)
+                        .join(", ") || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => handleEdit(panel, index)}
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                      >
+                        <FontAwesomeIcon icon={faPencil} className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(panel.panel_id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+                    {searchTerm ? 'No panels match your search criteria.' : 'No panels found.'}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      {/* MODAL */}
-      <Modal show={showModal} onHide={resetForm} centered dialogClassName="wide-modal">
-        <Modal.Header closeButton>
-          <Modal.Title className="fw-bold text-orange fs-4">
-            {editIndex !== null ? "Edit Interview Panel" : "Add Interview Panel"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form className="grade-form">
-            <Row className="g-4">
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label>Panel Name <span className="text-danger">*</span></Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter panel name"
-                    value={currentPanel.panelName}
-                    // isInvalid={!!errr.positionName}
-                    onChange={(e) => setCurrentPanel({ ...currentPanel, panelName: e.target.value })}
-                  />
-                  {/* <Form.Control.Feedback type="invalid">{errr.positionName}</Form.Control.Feedback> */}
-                </Form.Group>
-              </Col>
+      {/* Dialog */}
+      <Dialog open={showModal} onOpenChange={(open) => !open && resetForm()}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-[#FF7043]">
+              {editIndex !== null ? "Edit Interview Panel" : "Add Interview Panel"}
+            </DialogTitle>
+            <DialogDescription>
+              {editIndex !== null ? "Update the interview panel details" : "Add a new interview panel to the system"}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="panel_name" className="text-sm font-medium">
+                  Panel Name <span className="text-red-500">*</span>
+                </Label>
+                <input
+                  type="text"
+                  id="panel_name"
+                  placeholder="Enter panel name"
+                  value={currentPanel.panelName || ''}
+                  onChange={(e) => setCurrentPanel({ ...currentPanel, panelName: e.target.value })}
+                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errr.panelName ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                {errr.panelName && (
+                  <p className="mt-1 text-sm text-red-600">{errr.panelName}</p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="panel_description" className="text-sm font-medium">
+                  Description
+                </Label>
+                <textarea
+                  id="panel_description"
+                  rows={3}
+                  placeholder="Enter description"
+                  value={currentPanel.panelDescription || ''}
+                  onChange={(e) =>
+                    setCurrentPanel({ ...currentPanel, panelDescription: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                ></textarea>
+              </div>
 
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label className="form-label">
-                    Description
-                  </Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    placeholder="Enter description"
-                    value={currentPanel.panelDescription}
-                    // isInvalid={!!errr.skill_name}
-                    onChange={(e) =>
-                      setCurrentPanel({ ...currentPanel, panelDescription: e.target.value })
+              <div className="space-y-2">
+                <Label htmlFor="panel_members" className="text-sm font-medium">
+                  Panel Members <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  isMulti
+                  options={availableInterviewers}
+                  closeMenuOnSelect={false}
+                  value={availableInterviewers.filter(m =>
+                    currentPanel.interviewer_ids?.includes(m.value)
+                  )}
+                  onMenuOpen={async () => {
+                    try {
+                      const [interviewersRes, activeRes] = await Promise.all([
+                        apiService.getInterviewers(),
+                        apiService.activeMembers()
+                      ]);
+
+                      const allInterviewers = interviewersRes?.data || [];
+                      const active = activeRes?.data || [];
+
+                      const mapped = allInterviewers.map(i => ({
+                        value: i.interviewer_id,
+                        label: i.full_name,
+                        isDisabled: active.includes(i.interviewer_id),
+                      }));
+
+                      setAvailableInterviewers(mapped);
+                    } catch (err) {
+                      console.error("Error fetching dropdown data:", err);
                     }
-                  />
-                  {/* <Form.Control.Feedback type="invalid">
-                    {errr.skill_name}
-                  </Form.Control.Feedback> */}
-                </Form.Group>
-              </Col>
-
-              <Col md={12} style={{ paddingBottom: '20px' }}>
-                <Form.Group>
-                  <Form.Label>
-                    Panel Members <span className="text-danger">*</span>
-                  </Form.Label>
-                  <Select
-                    isMulti
-                    options={availableInterviewers}
-                    closeMenuOnSelect={false}
-                    value={availableInterviewers.filter(m =>
-                      currentPanel.interviewer_ids.includes(m.value)
-                    )}
-                    onMenuOpen={async () => {
-                      try {
-                        const [interviewersRes, activeRes] = await Promise.all([
-                          apiService.getInterviewers(),
-                          apiService.activeMembers()
-                        ]);
-
-                        const allInterviewers = interviewersRes?.data || [];
-                        const active = activeRes?.data || [];
-
-                        const mapped = allInterviewers.map(i => ({
-                          value: i.interviewer_id,
-                          label: i.full_name,
-                          isDisabled: active.includes(i.interviewer_id), // disable if active
-                        }));
-
-                        setAvailableInterviewers(mapped);
-                      } catch (err) {
-                        console.error("Error fetching dropdown data:", err);
-                      }
-                    }}
-                    onChange={(selected) => {
-                      const values = selected.map(opt => opt.value);
-                      setCurrentPanel({ ...currentPanel, interviewer_ids: values });
-                    }}
-                  />
-
-                </Form.Group>
-              </Col>
-            </Row>
-          </Form>
-        </Modal.Body>
-
-        <Modal.Footer className="justify-content-end gap-2">
-          <Button variant="outline-secondary" onClick={resetForm}>Cancel</Button>
-          <Button className="text-white" style={{ backgroundColor: "#FF7043", borderColor: "#FF7043" }} onClick={handleSavePanel}>
-            {editIndex !== null ? "Update Panel" : "Save Panel"}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+                  }}
+                  onChange={(selected) => {
+                    const values = selected ? selected.map(opt => opt.value) : [];
+                    setCurrentPanel({ ...currentPanel, interviewer_ids: values });
+                  }}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (provided) => ({
+                      ...provided,
+                      minHeight: '40px',
+                      borderColor: errr.interviewer_ids ? '#ef4444' : '#d1d5db',
+                      '&:hover': {
+                        borderColor: errr.interviewer_ids ? '#ef4444' : '#9ca3af',
+                      },
+                      boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                    }),
+                  }}
+                />
+                {errr.interviewer_ids && (
+                  <p className="mt-1 text-sm text-red-600">{errr.interviewer_ids}</p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex justify-end gap-2">
+            <Button 
+              variant="outline" 
+              onClick={resetForm}
+              className="border-gray-300"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSavePanel}
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
+            >
+              {editIndex !== null ? "Update Panel" : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

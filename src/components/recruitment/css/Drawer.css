@@ -101,7 +101,7 @@ h6 {
 
 .drawer-nav .nav-link.active {
     border: none !important;
-    border-bottom: 3px solid #FDB700 !important;
+    border-bottom: 3px solid #2d2d58 !important;
     font-weight: 500 !important;
     color: black !important;
 }

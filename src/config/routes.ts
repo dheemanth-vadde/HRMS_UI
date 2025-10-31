@@ -183,6 +183,26 @@ export const routes: AppRoute[] = [
         elementPath: "recruitment/master/department",
         icon: Briefcase
       },
+      {
+        path: "/recruitment/master/document",
+        name: "Document",
+        elementPath: "recruitment/master/document",
+        icon: Briefcase
+      },
+      {
+        path: "/recruitment/master/template",
+        name: "OfferTemplate",
+        elementPath: "recruitment/master/template",
+        icon: Briefcase
+      },
+      {
+        path: "/recruitment/master/interview-panel",
+        name: "Interview Panel",
+        elementPath: "recruitment/master/interview-panel",
+        icon: Briefcase
+      },
+      
+      
       
       {
         path: "/recruitment/job-creation",

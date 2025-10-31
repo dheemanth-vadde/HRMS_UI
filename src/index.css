@@ -5070,4 +5070,7 @@ html {
 .mr-15{
   margin-right: 15px;
 }
+.required-asterisk{
+  color: red;
+}
 

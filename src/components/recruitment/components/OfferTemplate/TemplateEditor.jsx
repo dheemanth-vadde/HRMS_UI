@@ -1,7 +1,7 @@
 // src/template-studio/components/TemplateEditor.js
 import React, { useState, useEffect, useRef } from "react";
 import { Row, Col, Card, Form, InputGroup, Button } from "react-bootstrap";
-import { useTemplateStore } from "../../store/useTemplateStore";
+import { useTemplateStore } from "../../../../store/useTemplateStore";
 import SectionToggles from "./SectionToggles";
 import LogoUploader from "./LogoUploader";
 import BackgroundLogoPicker from "./BackgroundLogoPicker";

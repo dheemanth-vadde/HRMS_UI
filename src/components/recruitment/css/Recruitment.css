@@ -106,7 +106,7 @@ body {
   /* text-transform: capitalize; */
   font-size: 12px;
   letter-spacing: 0.5px;
-  color: #FF7043;
+  color: #2d2d58;
   border-top: none;
   border-bottom: 1px solid #dee2e6;
 }
@@ -240,13 +240,13 @@ body {
 .job-form select,
 .job-form textarea {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
-  font-size: 12px !important;
+  font-size: 14px !important;
 
   color: #414141 !important
 }
 
 .required-asterisk {
-  color: #ff0000;
+  color: #ff0000 !important;
   margin-left: 2px;
   font-weight: bold;
 }
@@ -304,9 +304,9 @@ body {
   font-weight: 300 !important;
 }
 
-.modal-body {
+/* .modal-body {
   padding: 10px 25px;
-}
+} */
 
 .sidescroll {
   overflow-y: auto;
@@ -540,8 +540,8 @@ body {
 .modal-content {
   background-color: #fff;
   border-radius: 8px;
-  max-width: 900px;
-  width: 90%;
+  /* max-width: 900px;
+  width: 90%; */
   max-height: 90vh;
   overflow: auto;
 }

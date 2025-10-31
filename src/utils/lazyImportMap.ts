@@ -50,6 +50,10 @@ export const lazyImportMap: Record<string, React.LazyExoticComponent<any>> = {
   "recruitment/master/job-grade": React.lazy(() => import("../components/recruitment/pages/JobGrade")),
   "recruitment/master/position": React.lazy(() => import("../components/recruitment/pages/Position")),
   "recruitment/master/department": React.lazy(() => import("../components/recruitment/pages/Department")),
+ "recruitment/master/document": React.lazy(() => import("../components/recruitment/pages/Document")),
+ "recruitment/master/template": React.lazy(() => import("../components/recruitment/components/OfferTemplate/TemplateMainCompo")),
+ "recruitment/master/interview-panel": React.lazy(() => import("../components/recruitment/pages/InterviewPanel")),
+
   // "superadmin/users": React.lazy(() => import("../components/superadmin/UserManagementModule").then(m => ({ default: m.UserManagementModule }))),
   "superadmin/permissions": React.lazy(() => import("../components/superadmin/PermissionsManagementModule").then(m => ({ default: m.PermissionsManagementModule }))),
   "superadmin/employee-info": React.lazy(() => import("../components/superadmin/EmployeeInfoModule").then(m => ({ default: m.EmployeeInfoModule }))),

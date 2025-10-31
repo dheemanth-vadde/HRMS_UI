@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button, Form, Image } from 'react-bootstrap';
-import { useTemplateStore } from '../../store/useTemplateStore';
+import { useTemplateStore } from '../../../../store/useTemplateStore';
 import '../../css/Editor.css';
 
 export default function BackgroundLogoPicker() {

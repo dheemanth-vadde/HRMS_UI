@@ -23,7 +23,10 @@ export const staticRolePermissions = {
     "recruitment:master:job-grade": { all: false, view: true, create: false, edit: false, delete: false },
     "recruitment:master:position": { all: false, view: true, create: false, edit: false, delete: false },
     "recruitment:master:department": { all: false, view: true, create: false, edit: false, delete: false },
-    
+    "recruitment:master:document": { all: false, view: true, create: false, edit: false, delete: false },
+    "recruitment:master:template": { all: false, view: true, create: false, edit: false, delete: false },
+    "recruitment:master:interview-panel": { all: false, view: true, create: false, edit: false, delete: false },
+
     
     "superadmin:access-control": { all: false, view: true, create: false, edit: false, delete: false },
     "superadmin:access-control:roles": { all: false, view: true, create: false, edit: false, delete: false },

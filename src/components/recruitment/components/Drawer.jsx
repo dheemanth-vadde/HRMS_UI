@@ -253,7 +253,7 @@ function Drawer({
                       <Col md={6}>
                         <div className="info-card">
                           <div className="info-header d-flex justify-content-between align-items-center">
-                            <h6 style={{ color: "#FF7043" }}>Basic Information</h6>
+                            <h6 style={{ color: "#2d2d58" }}>Basic Information</h6>
                           </div>
                           <Row>
                             <Col md={12}>
@@ -285,7 +285,7 @@ function Drawer({
  
                         <div className="info-card mt-3">
                           <div className="info-header d-flex justify-content-between align-items-center">
-                            <h6 style={{ color: "#FF7043" }}>Education Information</h6>
+                            <h6 style={{ color: "#2d2d58" }}>Education Information</h6>
                            
                           </div>
                           <div className="info-body">
@@ -334,7 +334,7 @@ function Drawer({
                       <Col md={6}>
                         <div className="pro-info-card">
                           <div className="info-header d-flex justify-content-between align-items-center">
-                            <h6 style={{ color: "#FF7043" }}>Professional Information</h6>
+                            <h6 style={{ color: "#2d2d58" }}>Professional Information</h6>
                           </div>
                           <div className="info-body">
                             <Row>
@@ -496,7 +496,7 @@ function Drawer({
                   {/* ===== FEEDBACK (new) ===== */}
                   <Tab.Pane eventKey="feedback">
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h6 style={{ color: "#FF7043", marginBottom: 0 }}>Feedback</h6>
+                      <h6 style={{ color: "#2d2d58", marginBottom: 0 }}>Feedback</h6>
                       <div className="d-flex gap-2">
                         {/* {feedbacks.length > 0 && (
                           <Button size="sm" variant="outline-secondary" onClick={startEditLatest}>
@@ -507,7 +507,7 @@ function Drawer({
                           size="sm"
                           variant="outline-primary"
                           onClick={startAdd}
-                          style={{ borderColor: "#FF7043", color: "#FF7043" }}
+                          style={{ borderColor: "#2d2d58", color: "#2d2d58" }}
                         >
                           {showForm && !isEditing ? "Close" : "Action"}
                         </Button>
@@ -558,7 +558,7 @@ function Drawer({
                               // disabled={!interviewerEmail || saving}
                               disabled={saving}
                               onClick={handleSaveFeedback}
-                              style={{ backgroundColor: "#FF7043", borderColor: "#FF7043" }}
+                              style={{ backgroundColor: "#2d2d58", borderColor: "#2d2d58" }}
                             >
                               {saving ? "Saving..." : isEditing ? "Update" : "Save"}
                             </Button>
