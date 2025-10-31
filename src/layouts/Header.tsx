@@ -126,6 +126,10 @@ const Header: React.FC = () => {
                   <Settings className="mr-2 size-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/change-password")}>
+                  <Settings className="mr-2 size-4" />
+                  <span>Change Password</span>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                   <LogOut className="mr-2 size-4" />

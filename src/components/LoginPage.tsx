@@ -11,12 +11,13 @@ import { loginSuccess,setPermissions } from "../store/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import api from "../services/interceptors";
 import PERMISSIONS_ENDPOINTS from "../services/permissionsEndPoints";
-
+import { ForgotPassword } from "./ForgotPassword";
 export function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   // dispatch(login({ id: '1', name: 'Dheemanth', email: 'dheemanth@sagarsoft.com' }));
   // dispatch(logout());
  const [loading, setLoading] = useState(false);
@@ -84,6 +85,10 @@ console.log("privilegesDataRaw",privilegesDataRaw)
   }
 };
 
+  if (showForgotPassword) {
+    return <ForgotPassword onBackToLogin={() => setShowForgotPassword(false)} />;
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background with Full Width Image */}
@@ -121,7 +126,16 @@ console.log("privilegesDataRaw",privilegesDataRaw)
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+               <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <Input
                 id="password"
                 type="password"

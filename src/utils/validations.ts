@@ -12,6 +12,19 @@ export const validatePhone = (phone: string): boolean => {
   return phoneRegex.test(phone.trim());
 };
 
+export const hasUpperCase = (str: string): boolean => {
+  return /[A-Z]/.test(str);
+};
+
+export const hasNumber = (str: string): boolean => {
+  return /\d/.test(str);
+};
+
+export const hasSpecialCharacter = (str: string): boolean => {
+  const specialCharRegex = /[^A-Za-z0-9]/; //regex means not among alphabets and numbers
+  return specialCharRegex.test(str);
+};
+
 
 
 // --- Checks if a value is empty or only spaces ---
@@ -32,7 +45,7 @@ export const isInList = (list: any[], propertyName: string, value: string): bool
 // --- Get Validation Error ---
 // Returns a specific error message if validation fails, otherwise null
 export const getValidationError = (
-  type: "email" | "phone" | "required" | "numeric" | "noSpaces" | "alphabetical" | "unique",
+  type: "email" | "phone" | "required" | "numeric" | "noSpaces" | "alphabetical" | "unique" | "uppercase"| "number" | "specialcharacter",
   value: string,
   customMessage?: string,
   extra?: { list?: any[]; propertyName?: string } // extra param for unique validation
@@ -59,6 +72,18 @@ export const getValidationError = (
       return isInList(extra.list, extra.propertyName, value)
         ? customMessage || `${extra.propertyName} already exists`
         : null;
+    case "uppercase":
+      return hasUpperCase(value)
+        ? null
+        : customMessage || "Password must contain at least one uppercase letter.";
+    case "number" :
+        return hasNumber(value)
+        ? null
+        : customMessage || "Password must contain at least one number.";
+    case "specialcharacter" :
+      return hasSpecialCharacter(value)
+        ? null
+        : customMessage || "Password must contain at least one specail character.";
     default:
       return "Invalid validation type.";
   }

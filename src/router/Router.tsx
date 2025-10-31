@@ -7,6 +7,7 @@ import { LoginPage } from "../components/LoginPage";
 import LoadingPlaceholder from "../components/LoadingPlaceholder";
 import { AuthGuard } from "../auth/AuthGuard";
 import { usePermittedRoutes } from "../config/permittedRoutes"
+import ChangePassword from "../components/ChangePassword";
 
 const Router: React.FC = () => {
   const routes = usePermittedRoutes();
@@ -71,6 +72,7 @@ const Router: React.FC = () => {
               );
             })}
             <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="/change-password" element={<ChangePassword/>} />
             <Route path="*" element={<div style={{ padding: 24 }}>Page not found</div>} />
           </Route>
         </Routes>
