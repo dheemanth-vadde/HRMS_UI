@@ -346,7 +346,7 @@ export const routes: AppRoute[] = [
   {
     path: "/change-password",
     name: "Change Password",
-    elementPath: "/change-password",
+    elementPath: "change-password",
     icon: Settings
   }
 
