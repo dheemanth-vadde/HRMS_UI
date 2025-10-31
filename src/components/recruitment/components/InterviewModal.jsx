@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import apiService from "../services/apiService";
 
 const API_BASE = "https://bobbe.sentrifugo.com";
- const INTERVIEWERS_API = `${API_BASE}/api/getdetails/users/all`; // filter role='Interviewer'
+const INTERVIEWERS_API = `${API_BASE}/api/getdetails/users/all`; // filter role='Interviewer'
 //const INTERVIEWERS_API = `http://localhost:5000/api/getdetails/users/all`; // filter role='Interviewer'
 
 const TZ = "Asia/Kolkata";
@@ -42,9 +42,9 @@ function generateSlotsFromFree(freeRanges, slotMinutes = SLOT_MINUTES) {
 }
 
 const interviewModes = [
-  { id: 1, name: "Online"},
-  { id: 2, name: "In-Person"},
-  { id: 3, name: "Telephonic"},
+  { id: 1, name: "Online" },
+  { id: 2, name: "In-Person" },
+  { id: 3, name: "Telephonic" },
 ]
 
 const InterviewModal = ({
@@ -60,7 +60,7 @@ const InterviewModal = ({
     interview_time: "",
     interview_type: candidate?.interview_type || "",
     location: candidate?.location || "",
-    phone:  candidate?.phone || "",
+    phone: candidate?.phone || "",
   });
 
   const [isPanelInterview, setIsPanelInterview] = useState(false);
@@ -115,59 +115,59 @@ const InterviewModal = ({
   }, [show, interviewers, candidate]);
 
   // fetch interviewers or panels based on toggle
-useEffect(() => {
-  if (!show) return;
+  useEffect(() => {
+    if (!show) return;
 
-  (async () => {
-    setLoadingOptions(true);
-    setOptionsError("");
-    try {
-      if (isPanelInterview) {
-        const resp = await apiService.getInterviewPanels();
-        setPanels(resp.data || []);
-      } else {
-        const resp = await apiService.getInterviewers();
-        let interviewerList = (resp.data || []).map(iv => ({
-          interviewer_id: String(iv.interviewer_id || iv.id || iv.user_id),
-          full_name: iv.full_name || iv.name || 
-                    (String(iv.interviewer_id) === String(candidate?.interviewer_id) 
-                        ? candidate?.interviewer 
-                        : ""),
-          email: iv.email,
-        }));
-
-        // Always include candidate's interviewer
-        if (candidate?.interviewer_id && candidate?.interviewer) {
-          interviewerList = interviewerList.map(iv =>
-            String(iv.interviewer_id) === String(candidate.interviewer_id)
-              ? { ...iv, full_name: candidate.interviewer }
-              : iv
-          );
-        }
-
-        setInterviewers(interviewerList);
-        // Preselect the interviewer AFTER the list is ready
-        if (candidate?.interviewer_id) {
-          setInterviewerId(String(candidate.interviewer_id));
-          setInterviewerName(candidate.interviewer || "");
-          setInterviewerEmail(candidate.interviewer_email || "");
-          setInterviewData(prev => ({
-            ...prev,
-            interview_type: candidate.interview_type || "",
-            location: candidate.location || "",
-            phone: candidate.phone || "",
+    (async () => {
+      setLoadingOptions(true);
+      setOptionsError("");
+      try {
+        if (isPanelInterview) {
+          const resp = await apiService.getInterviewPanels();
+          setPanels(resp.data || []);
+        } else {
+          const resp = await apiService.getInterviewers();
+          let interviewerList = (resp.data || []).map(iv => ({
+            interviewer_id: String(iv.interviewer_id || iv.id || iv.user_id),
+            full_name: iv.full_name || iv.name ||
+              (String(iv.interviewer_id) === String(candidate?.interviewer_id)
+                ? candidate?.interviewer
+                : ""),
+            email: iv.email,
           }));
+
+          // Always include candidate's interviewer
+          if (candidate?.interviewer_id && candidate?.interviewer) {
+            interviewerList = interviewerList.map(iv =>
+              String(iv.interviewer_id) === String(candidate.interviewer_id)
+                ? { ...iv, full_name: candidate.interviewer }
+                : iv
+            );
+          }
+
+          setInterviewers(interviewerList);
+          // Preselect the interviewer AFTER the list is ready
+          if (candidate?.interviewer_id) {
+            setInterviewerId(String(candidate.interviewer_id));
+            setInterviewerName(candidate.interviewer || "");
+            setInterviewerEmail(candidate.interviewer_email || "");
+            setInterviewData(prev => ({
+              ...prev,
+              interview_type: candidate.interview_type || "",
+              location: candidate.location || "",
+              phone: candidate.phone || "",
+            }));
+          }
         }
+      } catch (err) {
+        setOptionsError(err.message || "Failed to load options");
+        setInterviewers([]);
+        setPanels([]);
+      } finally {
+        setLoadingOptions(false);
       }
-    } catch (err) {
-      setOptionsError(err.message || "Failed to load options");
-      setInterviewers([]);
-      setPanels([]);
-    } finally {
-      setLoadingOptions(false);
-    }
-  })();
-}, [show, isPanelInterview, candidate]);
+    })();
+  }, [show, isPanelInterview, candidate]);
 
   // Prefill date/time and fetch slots (on open OR interviewerEmail change)
   useEffect(() => {
@@ -334,8 +334,8 @@ useEffect(() => {
 
   const onSave = () => {
     if (!selectedSlot && !(isReschedule && interviewData.interview_time)) return;
-      // console.log(interviewData)
-      let interviewobj={
+    // console.log(interviewData)
+    let interviewobj = {
       interview_date: interviewData.interview_date,
       interview_time: String(interviewData.interview_time).slice(0, 5), // "HH:mm"
       interviewer_email: interviewerEmail,
@@ -352,14 +352,14 @@ useEffect(() => {
   };
 
   const onCancel = () => {
-    
+
     const selectedInterviewer =
       interviewers.find((iv) => iv.email === interviewerEmail) || {
         name: "",
         email: interviewerEmail,
         id: undefined,
       };
-      let interviewobj={
+    let interviewobj = {
       interview_date: interviewData.interview_date,
       interview_type: interviewData.interview_type,
       interview_time: String(interviewData.interview_time).slice(0, 5), // "HH:mm"
@@ -401,14 +401,14 @@ useEffect(() => {
   const minDateIST = ymdInIST(new Date());
   const formatTimeRange = (time) => {
     if (!time) return '';
-  
+
     const [hours, minutes] = time.split(':');
     const startHour = parseInt(hours, 10);
     const endHour = (startHour + 1) % 24; // wrap around if 23 → 00
-  
+
     const start = `${String(startHour).padStart(2, '0')}:${minutes}`;
     const end = `${String(endHour).padStart(2, '0')}:${minutes}`;
-  
+
     return `${start} - ${end}`;
   };
 
@@ -491,64 +491,67 @@ useEffect(() => {
   return (
     <Modal show={show} onHide={handleClose} centered className="fontinter">
       <Modal.Header closeButton>
-        <Modal.Title style={{ fontSize: "16px", color: "#FF7043" }}>
+        <Modal.Title style={{ fontSize: "18px", color: "#162b75", fontWeight: "bold" }}>
           {isReschedule ? "Reschedule Interview" : "Schedule Interview"}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
-          <Form.Group className="mb-3 form45">
-            <Form.Label>Candidate</Form.Label>
-            <Form.Control type="text" value={candidate?.full_name || ""} readOnly />
-          </Form.Group>
+          <div className="row p-0">
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
+              <Form.Label>Candidate</Form.Label>
+              <Form.Control type="text" value={candidate?.full_name || ""} readOnly />
+            </Form.Group>
 
-          <Form.Group className="mb-3 form45">
-            <Form.Label>Interview Mode</Form.Label>
-            <Form.Select
-              name="interview_type"
-              value={interviewData.interview_type}
-              onChange={handleChange}
-            >
-              <option value="" disabled>
-                Select Interview Mode
-              </option>
-              {interviewModes.map((iv) => (
-                <option key={iv.id} value={iv.name}>
-                  {iv.name}
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
+              <Form.Label>Interview Mode</Form.Label>
+              <Form.Select
+                name="interview_type"
+                value={interviewData.interview_type}
+                onChange={handleChange}
+              >
+                <option value="" disabled>
+                  Select Interview Mode
                 </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-
-          {interviewData.interview_type === "In-Person" && (
-            <Form.Group className="mb-3 form45">
-              <Form.Label>Location</Form.Label>
-              <Form.Control
-                type="text"
-                name="location"
-                value={interviewData.location}
-                onChange={handleChange}
-                placeholder="Enter interview location"
-              />
+                {interviewModes.map((iv) => (
+                  <option key={iv.id} value={iv.name}>
+                    {iv.name}
+                  </option>
+                ))}
+              </Form.Select>
             </Form.Group>
-          )}
+          </div>
+          <div className="row p-0">
 
-          {interviewData.interview_type === "Telephonic" && (
-            <Form.Group className="mb-3 form45">
-              <Form.Label>Phone Number</Form.Label>
-              <Form.Control
-                type="tel"
-                name="phone"
-                value={interviewData.phone}
-                onChange={handleChange}
-                placeholder="Enter phone number"
-              />
-            </Form.Group>
-          )}
+            {interviewData.interview_type === "In-Person" && (
+              <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
+                <Form.Label>Location</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="location"
+                  value={interviewData.location}
+                  onChange={handleChange}
+                  placeholder="Enter interview location"
+                />
+              </Form.Group>
+            )}
 
-          {/* Interviewer dropdown (fetched) */}
-          <Form.Group className="mb-3 form45">
-            <Form.Label>{isPanelInterview ? "Select Panel" : "Select Interviewer"}</Form.Label>
+            {interviewData.interview_type === "Telephonic" && (
+              <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
+                <Form.Label>Phone Number</Form.Label>
+                <Form.Control
+                  type="tel"
+                  name="phone"
+                  value={interviewData.phone}
+                  onChange={handleChange}
+                  placeholder="Enter phone number"
+                />
+              </Form.Group>
+            )}
+
+            {/* Interviewer dropdown (fetched) */}
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
+              <Form.Label>{isPanelInterview ? "Select Panel" : "Select Interviewer"}</Form.Label>
               {loadingOptions ? (
                 <Spinner animation="border" size="sm" />
               ) : optionsError ? (
@@ -570,54 +573,55 @@ useEffect(() => {
                   ))}
                 </Form.Select>
               )}
-            <div className="mt-1">
-              <Form.Check
-                type="checkbox"
-                label="Panel Interview"
-                checked={isPanelInterview}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setIsPanelInterview(checked);
+              <div className="mt-1">
+                <Form.Check
+                  type="checkbox"
+                  label="Panel Interview"
+                  checked={isPanelInterview}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setIsPanelInterview(checked);
 
-                  // Reset interviewer/panel and interview time
-                  setInterviewerId("");
-                  setInterviewerName("");
-                  setInterviewerEmail("");
-                  setPanelId("");
-                  setPanelName("");
-                  setSelectedSlot(null);
-                  setSlots([]);
+                    // Reset interviewer/panel and interview time
+                    setInterviewerId("");
+                    setInterviewerName("");
+                    setInterviewerEmail("");
+                    setPanelId("");
+                    setPanelName("");
+                    setSelectedSlot(null);
+                    setSlots([]);
 
-                  // Force clear interview_time
-                  setInterviewData((prev) => ({
-                    ...prev,
-                    interview_time: "",
-                  }));
+                    // Force clear interview_time
+                    setInterviewData((prev) => ({
+                      ...prev,
+                      interview_time: "",
+                    }));
 
-                  setResetOnPanelToggle(true);
-                }}
-              />
-            </div>
-            {!isPanelInterview && (
-              <div className="text-muted mt-1" style={{ fontSize: 12 }}>
-                Using <b>{interviewerEmail || "—"}</b> to check availability.
+                    setResetOnPanelToggle(true);
+                  }}
+                />
               </div>
-            )}
-          </Form.Group>
+              {!isPanelInterview && (
+                <div className="text-muted mt-1" style={{ fontSize: 12 }}>
+                  Using <b>{interviewerEmail || "—"}</b> to check availability.
+                </div>
+              )}
+            </Form.Group>
+          </div>
+          <div className="row p-0">
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
+              <Form.Label>Interview Date</Form.Label>
+              <Form.Control
+                type="date"
+                name="interview_date"
+                value={interviewData.interview_date}
+                onChange={handleChange}
+                min={minDateIST}
+              />
+            </Form.Group>
 
-          <Form.Group className="mb-3 form45">
-            <Form.Label>Interview Date</Form.Label>
-            <Form.Control
-              type="date"
-              name="interview_date"
-              value={interviewData.interview_date}
-              onChange={handleChange}
-              min={minDateIST}
-            />
-          </Form.Group>
-
-          {/* Panel Interview Toggle */}
-          {/* <Form.Group className="mb-3 form45">
+            {/* Panel Interview Toggle */}
+            {/* <Form.Group className="mb-3 form45">
             <Form.Check
               type="checkbox"
               label="Panel Interview"
@@ -626,21 +630,22 @@ useEffect(() => {
             />
           </Form.Group> */}
 
-          <Form.Group className="mb-3 form45">
-            <Form.Label>Interview Time</Form.Label>
-            <Form.Control
-              type="time"
-              name="interview_time"
-              value={interviewData.interview_time}
-              onChange={handleChange}
-              disabled
-            />
-            {!!interviewData.interview_time && (
-              <div className="mt-2">
-                <Badge bg="secondary">Selected: {formatTimeRange(interviewData.interview_time)}</Badge>
-              </div>
-            )}
-          </Form.Group>
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
+              <Form.Label>Interview Time</Form.Label>
+              <Form.Control
+                type="time"
+                name="interview_time"
+                value={interviewData.interview_time}
+                onChange={handleChange}
+                disabled
+              />
+              {!!interviewData.interview_time && (
+                <div className="mt-2">
+                  <Badge bg="secondary">Selected: {formatTimeRange(interviewData.interview_time)}</Badge>
+                </div>
+              )}
+            </Form.Group>
+          </div>
 
           <Form.Group className="mb-2">
             <Form.Label>Available times (1 hour)</Form.Label>
@@ -698,7 +703,7 @@ useEffect(() => {
           </Button>
         )}
         <Button
-        className="btn_action"
+          className="btn_action"
           variant="primary"
           onClick={onSave}
           disabled={
@@ -706,7 +711,7 @@ useEffect(() => {
             (isPanelInterview && !panelId) ||
             (!selectedSlot && !(isReschedule && interviewData.interview_time))
           }
-          style={{ backgroundColor: "#FF7043", color: "#fff", borderColor: "#FF7043" }}
+          style={{ backgroundColor: "#162b75 ", color: "#fff", borderColor: "#162b75" }}
         >
           {isReschedule ? "Reschedule Interview" : "Schedule Interview"}
         </Button>

@@ -121,29 +121,31 @@ const OfferModal = ({
     <>
       <Modal show={show} onHide={handleClose} centered size="lg" className="fontinter">
         <Modal.Header closeButton>
-          <Modal.Title style={{ fontSize: "18px", color: '#FF7043' }}>Offers</Modal.Title>
+          <Modal.Title style={{ fontSize: "18px", color: '#162b75 ' }}>Offers</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           {tplError && <Alert variant="danger" className="mb-3">{tplError}</Alert>}
           <Form>
-            <Form.Group className="mb-3 form45">
+            <div className='row p-0'>
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
               <Form.Label>Candidate Name</Form.Label>
               <Form.Control type="text" value={candidate?.full_name || ''} readOnly />
             </Form.Group>
 
-            <Form.Group className="mb-3 form45">
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
               <Form.Label>Job Position</Form.Label>
               <Form.Control type="text" value={position_title || ''} readOnly />
             </Form.Group>
-
-            <Form.Group className="mb-3 form45">
+            </div>
+<div className='row p-0'>
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
               <Form.Label>Requisition ID</Form.Label>
               <Form.Control type="text" value={reqId || ''} readOnly />
             </Form.Group>
 
             {/* Template dropdown */}
-            <Form.Group className="mb-3 form45">
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
               <Form.Label>Offer Template</Form.Label>
               <div style={{ display: 'flex,', gap: 8, alignItems: 'center' }}>
                 <Form.Select
@@ -161,8 +163,10 @@ const OfferModal = ({
                 {tplLoading && <Spinner animation="border" size="sm" />}
               </div>
             </Form.Group>
+            </div>
+<div className='row p-0'>
 
-            <Form.Group className="mb-3 form45">
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
               <Form.Label>Salary</Form.Label>
               <Form.Control
                 type="text"
@@ -175,7 +179,7 @@ const OfferModal = ({
             </Form.Group>
 
             {/* Joining Date with validation */}
-            <Form.Group className="mb-3 form45">
+            <Form.Group className="col-12 col-md-6 col-lg-6 mb-4 formSpace space-y-1">
               <Form.Label>Joining Date</Form.Label>
               <Form.Control
                 type="date"
@@ -188,6 +192,8 @@ const OfferModal = ({
                 Joining date cannot be earlier than today.
               </Form.Control.Feedback>
             </Form.Group>
+            </div>
+
           </Form>
         </Modal.Body>
 
@@ -200,7 +206,7 @@ const OfferModal = ({
             variant="primary"
             onClick={handleDownloadClick}
             disabled={isActionDisabled}
-            style={{ backgroundColor: "#FF7043", borderColor: "#FF7043", color: "#fff" }}
+            style={{ backgroundColor: "#162b75 ", borderColor: "#162b75 ", color: "#fff" }}
           >
             Preview
           </Button>
@@ -209,7 +215,7 @@ const OfferModal = ({
             variant="primary"
             onClick={generateOfferAndSend}
             disabled={isActionDisabled}
-            style={{ backgroundColor: "#FF7043", borderColor: "#FF7043", color: "#fff" }}
+            style={{ backgroundColor: "#162b75 ", borderColor: "#162b75 ", color: "#fff" }}
           >
             {generatingOffer ? (
               <>

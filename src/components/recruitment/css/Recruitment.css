@@ -85,14 +85,14 @@ body {
 .btn-primary {
   background-color: #ffc107;
   border-color: #ffc107;
-  color: #000;
+  color: #fff;
 }
 
 .btn-primary:hover,
 .btn-primary:focus {
   background-color: #e0a800;
   border-color: #d39e00;
-  color: #000;
+  color: #fff;
 }
 
 /* Table styles */
@@ -257,14 +257,14 @@ body {
 
 .btn-secondary:hover {
   color: #fff !important;
-  background-color: #FF7043 !important;
-  border-color: #FF7043 !important;
+  background-color: #162b75  !important;
+  border-color: #162b75  !important;
 }
 
 .btn-secondary {
   background-color: #fff;
-  color: #FF7043;
-  border-color: #FF7043;
+  color: #162b75 ;
+  border-color: #162b75 ;
 }
 
 .success_class {
