@@ -190,7 +190,7 @@ const JobGrade = () => {
 
   const resetForm = () => {
     setShowModal(false);
-    setCurrentGrade({ job_grade_code: "", job_grade_desc: "", job_scale: "", min_salary: "", max_salary: "", max_salary: "" });
+    setCurrentGrade({ job_grade_code: "", job_grade_desc: "", job_scale: "", min_salary: "", max_salary: "" });
     setEditIndex(null);
     setErrr({});
   };
