@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent} from "../ui/card"; //removed CardDescription, CardHeader, CardTitle 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { Badge } from "../ui/badge";
+import { Textarea } from "../ui/textarea"; 
+// import { Badge } from "../ui/badge"; //not used
 import {
   Table,
   TableBody,
@@ -39,12 +39,12 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import {
-  Shield,
+  // Shield,
   Plus,
   Edit,
   Trash2,
   Search,
-  Filter,
+  // Filter,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -87,7 +87,7 @@ export function AccessControlModule() {
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isLoading,setLoading] = useState(false);
+  const [loading,setLoading] = useState(false);
   const[groups,setGroups] = useState<any[]>([]);
 
   useEffect(() => {
@@ -486,6 +486,24 @@ export function AccessControlModule() {
             <DialogDescription>Create a new role with specific privileges</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4">
+             <div className="space-y-2">
+              <Label htmlFor="add-group">
+                Group <span className="text-destructive">*</span>
+              </Label>
+              <Select value={roleFormData.groupId} onValueChange={(value) => setRoleFormData({ ...roleFormData, groupId: value })}>
+                <SelectTrigger id="add-group">
+                  <SelectValue placeholder="Select group" />
+                </SelectTrigger>
+                <SelectContent>
+                  {groups.map((group) => (
+                    <SelectItem key={group.id} value={group.id}>
+                      {group.groupName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.groupId && <p className="text-sm text-destructive mt-1">{errors.groupId}</p>}
+            </div>
             <div className="space-y-2">
               <Label htmlFor="add-roleName">
                 Role Name <span className="text-destructive">*</span>
@@ -521,24 +539,6 @@ export function AccessControlModule() {
               />
               {errors.roleDescription && <p className="text-sm text-destructive mt-1">{errors.roleDescription}</p>}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="add-group">
-                Group <span className="text-destructive">*</span>
-              </Label>
-              <Select value={roleFormData.groupId} onValueChange={(value) => setRoleFormData({ ...roleFormData, groupId: value })}>
-                <SelectTrigger id="add-group">
-                  <SelectValue placeholder="Select group" />
-                </SelectTrigger>
-                <SelectContent>
-                  {groups.map((group) => (
-                    <SelectItem key={group.id} value={group.id}>
-                      {group.groupName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.groupId && <p className="text-sm text-destructive mt-1">{errors.groupId}</p>}
-            </div>
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => { setIsAddRoleDialogOpen(false); resetRoleForm(); }}>
@@ -563,6 +563,25 @@ export function AccessControlModule() {
             <DialogDescription>Update role information and privileges</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-group">
+                Group <span className="text-destructive">*</span>
+              </Label>
+              <Select value={roleFormData.groupId} onValueChange={(value) => setRoleFormData({ ...roleFormData, groupId: value })}>
+                <SelectTrigger id="edit-group">
+                  <SelectValue placeholder="Select group" />
+                </SelectTrigger>
+                <SelectContent>
+                  {groups.map((group) => (
+                    <SelectItem key={group.id} value={group.id}>
+                      {group.groupName
+}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.group && <p className="text-sm text-destructive mt-1">{errors.group}</p>}
+            </div>
             <div className="space-y-2">
               <Label htmlFor="edit-roleName">
                 Role Name <span className="text-destructive">*</span>
@@ -597,25 +616,6 @@ export function AccessControlModule() {
                 rows={3}
               />
               {errors.roleDescription && <p className="text-sm text-destructive mt-1">{errors.roleDescription}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-group">
-                Group <span className="text-destructive">*</span>
-              </Label>
-              <Select value={roleFormData.groupId} onValueChange={(value) => setRoleFormData({ ...roleFormData, groupId: value })}>
-                <SelectTrigger id="edit-group">
-                  <SelectValue placeholder="Select group" />
-                </SelectTrigger>
-                <SelectContent>
-                  {groups.map((group) => (
-                    <SelectItem key={group.id} value={group.id}>
-                      {group.groupName
-}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.group && <p className="text-sm text-destructive mt-1">{errors.group}</p>}
             </div>
           </div>
           <DialogFooter className="gap-2">

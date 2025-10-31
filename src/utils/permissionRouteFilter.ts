@@ -14,13 +14,16 @@ export const pathToPermissionKey = (path: string) =>
 /**
  * Build a Set of allowed keys (where view === true) from staticRolePermissions.
  */
-export const buildAllowedSetFromStatic = (perms = staticRolePermissions): Set<string> => {
+export const buildAllowedSetFromStatic = (
+  perms: { screens?: Record<string, { view?: boolean }> } = {}
+): Set<string> => {
   const allowed = new Set<string>();
   if (!perms || !perms.screens) return allowed;
-  Object.entries(perms.screens).forEach(([k, v]) => {
-    // v might be typed as any if TS can't infer — assume { view: boolean }
-    if ((v as any).view) allowed.add(k);
+
+  Object.entries(perms.screens).forEach(([key, value]) => {
+    if ((value as any).view) allowed.add(key);
   });
+
   return allowed;
 };
 

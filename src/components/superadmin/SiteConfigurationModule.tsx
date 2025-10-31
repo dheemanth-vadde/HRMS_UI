@@ -1,4 +1,4 @@
-import { useState,useEffect,useRef } from "react";
+import { useState,useEffect} from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -93,7 +93,7 @@ export function SiteConfigurationModule() {
   const [currencies,setCurrencies]=useState<any[]>([]);
   const [bussinessUints,setBusinessUnits]=useState<any[]>([]);
   const [timezoneOpen, setTimezoneOpen] = useState(false);
-  const [isLoading,setLoading] = useState(false);
+  const [loading,setLoading] = useState(false);
   const [siteConfigFormData, setSiteConfigFormData] = useState({
     id:"",
     dateFormat: "DD/MM/YYYY",
@@ -106,6 +106,7 @@ export function SiteConfigurationModule() {
     currency: "", 
     bussinessUint:"",
   });
+  const[erros,setErrors] = useState<string[]>([]);
   
   
   
@@ -135,7 +136,7 @@ export function SiteConfigurationModule() {
         setLoading(true);
         if(siteConfigFormData.bussinessUint === "") return;
         const response = await api.get(SITE_CONFIG_ENDPOINTS.GET_SITE_CONFIG_BY_BU_ID(siteConfigFormData.bussinessUint));
-        const {siteConfigurationDto,passwordPolicyDto} = response?.data?.data;
+        const {siteConfigurationDto,passwordPolicyDto} = response?.data?.data || {};
 
         
         console.log("site-config-data",response)
@@ -143,7 +144,7 @@ export function SiteConfigurationModule() {
        // Map API response to form state, fallback to defaults if missing
 
         setSiteConfigFormData({
-          id:siteConfigurationDto?.id,
+          id:siteConfigurationDto?.id || "",
           dateFormat: siteConfigurationDto?.dateFormat || "DD/MM/YYYY",
           timeFormat: siteConfigurationDto?.timeFormat === "HH12:MI:SS" ? "12-Hour" : "24-Hour",
           timezone: siteConfigurationDto?.timezoneId || timezones[0].id, 
@@ -272,15 +273,19 @@ export function SiteConfigurationModule() {
       toast.warning("Select a bussiness unit")
       return;
     } 
+
+    if (!validPasswordPolicy()) {
+      return ;
+    }
     // Validate password length
-    if (siteConfigFormData?.minLength < 6 || siteConfigFormData?.minLength > 20) {
-      toast.error("Password length must be between 6 and 20 characters");
-      return;
-    }
-    if(!siteConfigFormData?.requireUppercase && !siteConfigFormData?.requireNumber && !siteConfigFormData?.requireSpecial){
-      toast.error("Password length must be between 6 and 20 characters");
-      return;
-    }
+    // if (siteConfigFormData?.minLength < 6 || siteConfigFormData?.minLength > 20 || isNaN(siteConfigFormData?.minLength)) {
+    //   toast.error("Password length must be between 6 and 20 characters");
+    //   return;
+    // }
+    // if(!siteConfigFormData?.requireUppercase && !siteConfigFormData?.requireNumber && !siteConfigFormData?.requireSpecial){
+    //   toast.error("Password length must be between 6 and 20 characters");
+    //   return;
+    // }
 
     
     const editedSiteConfig = {
@@ -326,19 +331,18 @@ export function SiteConfigurationModule() {
     toast.success("Configuration saved successfully");
   };
 
-  const getPasswordPolicyValidation = () => {
+  const validPasswordPolicy = () => {
     const messages:string[] = [];
-    if (siteConfigFormData?.minLength < 8) {
-      messages.push("Minimum length should be at least 8 for better security");
+    if (isNaN(siteConfigFormData?.minLength) || siteConfigFormData?.minLength < 8 || siteConfigFormData?.minLength > 20) {
+      messages.push("Password length must be between 8 and 20 characters");
     }
     if (!siteConfigFormData?.requireUppercase && !siteConfigFormData?.requireNumber && !siteConfigFormData?.requireSpecial) {
       messages.push("At least one password requirement should be enabled");
     }
-    return messages;
-  };
+    setErrors(messages);
+    return messages.length === 0 ;
+  }
 
-  const validationMessages = getPasswordPolicyValidation();
-  console.log(siteConfigFormData)
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -498,7 +502,7 @@ export function SiteConfigurationModule() {
                     min={6}
                     max={20}
                     value={siteConfigFormData?.minLength}
-                    onChange={(e) => setSiteConfigFormData({...siteConfigFormData,minLength:parseInt(e.target.value) || 8})}
+                    onChange={(e) => setSiteConfigFormData({...siteConfigFormData,minLength:parseInt(e.target.value)})}
                     className="w-32 border-gray-300"
                   />
                   <span className="text-sm text-muted-foreground">characters</span>
@@ -520,7 +524,7 @@ export function SiteConfigurationModule() {
                   <Switch
                     id="require-uppercase"
                     checked={siteConfigFormData?.requireUppercase}
-                    onCheckedChange={(checked) => setSiteConfigFormData({...siteConfigFormData,requireUppercase:checked})}
+                    onCheckedChange={(checked:boolean) => setSiteConfigFormData({...siteConfigFormData,requireUppercase:checked})}
                   />
                 </div>
 
@@ -534,7 +538,7 @@ export function SiteConfigurationModule() {
                   <Switch
                     id="require-numbers"
                     checked={siteConfigFormData?.requireNumber}
-                    onCheckedChange={(checked) => setSiteConfigFormData({...siteConfigFormData,requireNumber:checked})}
+                    onCheckedChange={(checked:boolean) => setSiteConfigFormData({...siteConfigFormData,requireNumber:checked})}
                   />
                 </div>
 
@@ -548,15 +552,15 @@ export function SiteConfigurationModule() {
                   <Switch
                     id="require-special"
                     checked={siteConfigFormData?.requireSpecial}
-                    onCheckedChange={(checked) => setSiteConfigFormData({...siteConfigFormData,requireSpecial:checked})}
+                    onCheckedChange={(checked:boolean) => setSiteConfigFormData({...siteConfigFormData,requireSpecial:checked})}
                   />
                 </div>
               </div>
 
               {/* Validation Messages */}
-              {validationMessages.length > 0 && (
+              {erros.length > 0 && (
                 <div className="bg-warning/10 border border-warning/20 rounded-lg p-3 space-y-1">
-                  {validationMessages.map((message, index) => (
+                  {erros.map((message, index) => (
                     <p key={index} className="text-xs text-warning-foreground flex items-start gap-2">
                       <span className="text-warning mt-0.5">⚠</span>
                       {message}
@@ -618,14 +622,14 @@ export function SiteConfigurationModule() {
               {/* Add New Type */}
               <div className="flex gap-2">
                 <Input
-                  placeholder="Example: SIL"
-                  // value={siteConfigFormData?.employeeIdPrefix}
-                  // onChange={(e) => {
-                  //   setSiteConfigFormData((prev)=>({...prev,employeeIdPrefix:e.target.value}));
-                  //   if(errors?.employeeIdPrefix){
-                  //     setErrors((prev)=>({...prev,employeeIdPrefix:null}));
-                  //   }
-                  //   }}
+                  // placeholder="Example: SIL"
+                  // // value={siteConfigFormData?.employeeIdPrefix}
+                  // // onChange={(e) => {
+                  // //   setSiteConfigFormData((prev)=>({...prev,employeeIdPrefix:e.target.value}));
+                  // //   if(errors?.employeeIdPrefix){
+                  // //     setErrors((prev)=>({...prev,employeeIdPrefix:null}));
+                  // //   }
+                  // //   }}
                   className="flex-1 border-gray-300"
                 />
               </div>
@@ -719,6 +723,7 @@ export function SiteConfigurationModule() {
                  bussinessUint:""
 
               });
+            setErrors([]);
             toast.success("Settings reset to defaults");
           }}
         >

@@ -1,12 +1,36 @@
 // src/config/permittedRoutes.ts
-import { routes as allRoutes, type AppRoute } from "./routes";
-import { staticRolePermissions } from "./staticPermissions";
+import { useSelector } from "react-redux";
+import { selectRolePermissions } from "../store/authSlice";
+import { normalizePermissions } from "../utils/permissionNormalizer";
 import { buildAllowedSetFromStatic, filterRoutesByAllowedKeys } from "../utils/permissionRouteFilter";
+import { routes as allRoutes } from "../config/routes";
+import { staticRolePermissions } from "./staticPermissions";
 
 /**
- * Compute allowed set from staticRolePermissions and export filtered routes.
- * If you later replace staticRolePermissions with dynamic data (from Redux / API),
- * you can re-export or compute routes at runtime in a provider instead.
+ * Dynamically build permitted routes based on logged-in user's permissions
  */
-const allowed = buildAllowedSetFromStatic(staticRolePermissions);
-export const routes: AppRoute[] = filterRoutesByAllowedKeys(allRoutes, allowed);
+export function usePermittedRoutes() {
+  const rolePermissions = useSelector(selectRolePermissions);
+console.log(  "rolePermissions",rolePermissions)
+  if (!rolePermissions || Object.keys(rolePermissions).length === 0) {
+    return [];
+  }
+
+  const normalizedScreens = normalizePermissions(rolePermissions);
+  console.log( "normalizedScreens", normalizedScreens)
+
+  const normalizedRolePermissions = {
+    RoleId: 0,
+    roleName: "dynamic",
+    screens: normalizedScreens,
+  };
+
+  const allowed = buildAllowedSetFromStatic(staticRolePermissions);
+  console.log("allowed",allowed)
+  console.log("allRoutes",allRoutes)
+  const permittedRoutes = filterRoutesByAllowedKeys(allRoutes, allowed);
+
+  console.log("permittedroute",permittedRoutes)
+
+  return permittedRoutes;
+}

@@ -1,7 +1,6 @@
 // src/layouts/Header.tsx
 import { useState, useEffect } from "react";
 import { Menu, Bell } from "lucide-react";
-import { useDispatch } from "react-redux";
 import { toggleSidebar } from "../store/uiSlice";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -10,9 +9,18 @@ import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { ChevronDown } from "lucide-react";
 import { UserCircle, Settings, LogOut } from "lucide-react";
 import { Search } from "lucide-react";
+import { logout } from "../store/authSlice";
+import { useNavigate } from "react-router-dom";
+import api from "../services/interceptors";
+import { useDispatch,useSelector } from 'react-redux';
+import { selectAuth } from '../store/authSlice'; 
 type UserRole = "employee" | "manager" | "hr" | "superadmin" | null;
 type ActiveModule = "dashboard" | "employees" | "hr" | "settings";
 const Header: React.FC = () => {
+  const dispatch = useDispatch();
+  const auth = useSelector(selectAuth);
+  console.log("auth",auth);
+    const navigate = useNavigate(); 
  const [userRole, setUserRole] = useState<UserRole>(null);
    const [activeModule, setActiveModule] = useState<ActiveModule>("dashboard");
     const getUserName = () => {
@@ -39,11 +47,26 @@ const Header: React.FC = () => {
         return "HR Administrator";
     }
   };
-    const handleLogout = () => {
-    setUserRole(null);
-    setActiveModule("dashboard");
-  };
-  const dispatch = useDispatch();
+  const handleLogout = async () => {
+  try {
+    if (auth.token) {
+      await api.post("auth/logout", null, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      });
+    }
+    
+    // Clear Redux state and redirect
+    dispatch(logout());
+    navigate('/login');
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Still clear state even if API call fails
+    dispatch(logout());
+    navigate('/login');
+  }
+};
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   return (
    <header className="h-16 bg-white dark:bg-card border-b border-border flex items-center justify-between px-6 shadow-md backdrop-blur-sm animate-slide-in-right">
@@ -102,6 +125,10 @@ const Header: React.FC = () => {
                 <DropdownMenuItem>
                   <Settings className="mr-2 size-4" />
                   <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/change-password")}>
+                  <Settings className="mr-2 size-4" />
+                  <span>Change Password</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">

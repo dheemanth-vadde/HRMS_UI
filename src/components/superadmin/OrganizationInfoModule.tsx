@@ -19,6 +19,8 @@ import ORGANIZATION_ENDPOINTS from "../../services/organizationEndpoints";
 import STATE_ENDPOINTS from "../../services/stateEndpoints";
 import COUNTRY_ENDPOINTS from "../../services/countryEndpoints";
 import CITY_ENDPOINTS from "../../services/cityEndpoints";
+import { usePermissions } from '../../utils/permissionUtils';
+
 
 interface OrganizationInfoModuleProps {
   viewOnly?: boolean;
@@ -29,6 +31,8 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
   const [hasOrganization, setHasOrganization] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+   const { hasPermission } = usePermissions();
+
   const [orgData, setOrgData] = useState({
     id: "",
     name: "",
@@ -368,7 +372,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
         </div>
         {!viewOnly && (
           <div className="flex gap-2">
-            {!isEditing && !hasOrganization ? (
+            {hasPermission('/superadmin/organization/info', 'create')===true && !isEditing && !hasOrganization ? (
               <Button
                 className="btn-add-purple"
                 onClick={handleAddOrganization}
@@ -376,7 +380,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <Plus className="size-4 mr-2" />
                 Add Organization
               </Button>
-            ) : !isEditing && hasOrganization ? (
+            ) : hasPermission('/superadmin/organization/info', 'edit')===true && !isEditing && hasOrganization ? (
               <Button
                 className="btn-gradient-primary"
                 onClick={() => setIsEditing(true)}
@@ -384,7 +388,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <Edit className="size-4 mr-2" />
                 Edit Info
               </Button>
-            ) : (
+            ) : hasPermission('/superadmin/organization/info', 'create')===true ?(
               <>
                 <Button
                   variant="outline"
@@ -401,7 +405,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                   Save Changes
                 </Button>
               </>
-            )}
+            ):null}
           </div>
         )}
       </div>

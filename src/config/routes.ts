@@ -342,6 +342,13 @@ export const routes: AppRoute[] = [
     name: "Site Configuration",
     elementPath: "superadmin/site-config",
     icon: Settings
+  },
+  {
+    path: "/change-password",
+    name: "Change Password",
+    elementPath: "/change-password",
+    icon: Settings
   }
+
 ];
 

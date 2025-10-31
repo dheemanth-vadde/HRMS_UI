@@ -1,8 +1,7 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import ORGANIZATION_ENDPOINTS from "../services/organizationEndpoints";
 import defaultLogo from "figma:asset/5e84dbe916feedfd8554f0268000392b84c23eb0.png";
-
+import api from "../services/interceptors";
 interface SagarsoftLogoProps {
   className?: string;
 }
@@ -12,7 +11,7 @@ export function SagarsoftLogo({ className }: SagarsoftLogoProps) {
 
   const fetchOrganizationLogo = async () => {
     try {
-      const response = await axios.get(ORGANIZATION_ENDPOINTS.GET_ORGANIZATION);
+      const response = await api.get(ORGANIZATION_ENDPOINTS.GET_ORGANIZATION);
       const orgData = Array.isArray(response.data?.data)
         ? response.data.data[0]
         : response.data?.data;

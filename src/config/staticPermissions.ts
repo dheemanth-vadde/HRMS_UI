@@ -55,7 +55,8 @@ export const staticRolePermissions = {
     "manager:performance": { all: false, view: false, create: false, edit: false, delete: false },
     "manager:recruitment": { all: false, view: false, create: false, edit: false, delete: false },
 
-    "settings:site": { all: false, view: true, create: false, edit: false, delete: false }
+    "settings:site": { all: false, view: true, create: false, edit: false, delete: false },
+    "change-password": { all: false, view: true, create: false, edit: false, delete: false }
   }
 };
 

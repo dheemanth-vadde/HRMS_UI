@@ -142,7 +142,7 @@ const ResumeUpload = ({ resumeFile, setResumeFile, setParsedData, setResumePubli
     parseFormData.append("resume", resumeFile);
     const parseResponse = await apiService.parseResume(parseFormData);
     const parsedData = parseResponse?.data || parseResponse;
-    // console.log("Parsed resume:", parsedData);
+    console.log("Parsed resume:", parsedData);
 
     setParsedData(parsedData);
 

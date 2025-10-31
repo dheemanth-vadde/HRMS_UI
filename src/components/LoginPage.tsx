@@ -5,48 +5,89 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { SagarsoftLogo } from "./SagarsoftLogo";
-import sagarsoftBuilding from "figma:asset/fa9eebd15dda20079679d5553e33bd622584070f.png";
+import sagarsoftBuilding from "../assets/fa9eebd15dda20079679d5553e33bd622584070f.png";
 import { useAppDispatch } from "../store/hooks";
-import { loginSuccess } from "../store/authSlice";
-
+import { loginSuccess,setPermissions } from "../store/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import api from "../services/interceptors";
+import PERMISSIONS_ENDPOINTS from "../services/permissionsEndPoints";
+import { ForgotPassword } from "./ForgotPassword";
 export function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   // dispatch(login({ id: '1', name: 'Dheemanth', email: 'dheemanth@sagarsoft.com' }));
   // dispatch(logout());
+ const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    let role: "employee" | "manager" | "hr" | "superadmin";
-    
-    // Demo login - assign role based on username
-    if (username.includes("super") || username === "superadmin") {
-      role = "superadmin";
-    } else if (username.includes("hr") || username.includes("admin")) {
-      role = "hr";
-    } else if (username.includes("manager")) {
-      role = "manager";
-    } else {
-      role = "employee";
-    }
+ const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  try {
+     const response = await api.post("auth/signin", { username, password });
+      const { id, username: userName, email, token, refreshToken, role, roleId } = response.data;
 
-    // Simulate login success
-    dispatch(loginSuccess({
-      user: {
-        id: '1',
-        name: username,
-        email: `${username}@sagarsoft.com`
-      },
-      token: 'demo-token',
-      role
+      console.log("✅ Login successful:", response.data);
+
+
+        dispatch(loginSuccess({
+      username: userName,
+      token: token,
+      refreshToken: refreshToken,
+      role: role,
+      rolePermissions: {} ,
+      roleId:roleId
     }));
 
-    // Navigate to dashboard
-    navigate('/dashboard');
-  };
+    // Step 3: Fetch permissions dynamically using roleId
+      const permissionsResponse = await api.get(
+        PERMISSIONS_ENDPOINTS.GET_PRIVILEGES(roleId),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ ensure token attached
+          },
+        }
+      );
+
+     
+      // ✅ Step 4: Store permissions in Redux properly
+      const privilegesDataRaw = permissionsResponse.data?.data?.[0]?.rolePermissions;
+console.log("privilegesDataRaw",privilegesDataRaw)
+      let privilegesData = {};
+      try {
+        privilegesData = privilegesDataRaw ? JSON.parse(privilegesDataRaw) : {};
+      } catch (err) {
+        console.error("❌ Error parsing rolePermissions JSON:", err);
+        privilegesData = {};
+      }
+
+      console.log("✅ Permissions stored:", privilegesData);
+
+      dispatch(setPermissions(privilegesData));
+   
+    
+    if(role != "" ){
+      navigate("/dashboard");
+    }
+    // }else if(role === "HR"){
+    //   navigate("/dashboard");
+    // }else if(role === "MANAGER"){
+    //   navigate("/dashboard");
+    // }else{
+    //   navigate("/dashboard");
+    // }
+    setLoading(false);
+  } catch (error) {
+    console.error(error);
+    alert("Login failed");
+  }
+};
+
+  if (showForgotPassword) {
+    return <ForgotPassword onBackToLogin={() => setShowForgotPassword(false)} />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -85,7 +126,16 @@ export function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+               <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <Input
                 id="password"
                 type="password"

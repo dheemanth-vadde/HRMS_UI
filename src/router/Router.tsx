@@ -7,9 +7,14 @@ import RecruitmentStyleManager from "../components/recruitment/RecruitmentStyleM
 import { LoginPage } from "../components/LoginPage";
 import LoadingPlaceholder from "../components/LoadingPlaceholder";
 import { AuthGuard } from "../auth/AuthGuard";
-import { routes } from "../config/permittedRoutes";
+// import { routes } from "../config/permittedRoutes";
  
+import { usePermittedRoutes } from "../config/permittedRoutes"
+import ChangePassword from "../components/ChangePassword";
+
 const Router: React.FC = () => {
+  const routes = usePermittedRoutes();
+  console.log("routes",routes)
   return (
     <BrowserRouter>
       <Suspense fallback={<LoadingPlaceholder />}>
@@ -99,7 +104,8 @@ const Router: React.FC = () => {
                 />
               );
             })}
-            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route index element={<Navigate to="/login" replace />} />
+            <Route path="/change-password" element={<ChangePassword/>} />
             <Route path="*" element={<div style={{ padding: 24 }}>Page not found</div>} />
           </Route>
         </Routes>

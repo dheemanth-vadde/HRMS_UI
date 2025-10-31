@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
-import { routes } from "../config/permittedRoutes";
+import { usePermittedRoutes } from "../config/permittedRoutes";
 import { SagarsoftLogo } from "../components/SagarsoftLogo";
 import { cn } from "../components/ui/utils";
 import { ChevronDown } from "lucide-react";
@@ -39,7 +39,7 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const collapsed = useAppSelector(state => state.ui.sidebarCollapsed);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
-
+ const routes = usePermittedRoutes();
   const toggleMenu = (path: string) => {
     if (collapsed) {
       dispatch(toggleSidebar());

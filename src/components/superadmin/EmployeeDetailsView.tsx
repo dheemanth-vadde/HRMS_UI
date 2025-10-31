@@ -8,6 +8,7 @@ import EMPLOYEE_ENDPOINTS from "../../services/employeeEndpoints";
 import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
 import DESIGNATION_ENDPOINTS from "../../services/designationEndpoints";
 import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
+import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
 
 interface Employee {
   id: number;
@@ -35,6 +36,7 @@ interface Employee {
   previousExperience?: string;
   workTelephone?: string;
   fax?: string;
+  unitId: string;
 }
 
 interface EmployeeDetailsViewProps {
@@ -49,6 +51,7 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
   const [designations, setDesignations] = useState<{ id: string; name: string }[]>([]);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
+  const [businessUnits, setBusinessUnits] = useState<{ id: string; name: string }[]>([]);
 
   const getInitials = (name: string) => {
     return name
@@ -139,6 +142,22 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
     fetchRoles();
   }, []);
 
+  useEffect(() => {
+    const fetchBusinessUnits = async () => {
+      try {
+        const response = await api.get(BUSSINESSUNIT_ENDPOINTS.GET_BUSSINESSUNIT);
+        const buData = response?.data?.data || [];
+        // map to { id, name } for Select usage
+        const mappedBusinessUnits = buData.map((d: any) => ({ id: d.id, name: d.unitName }));
+        setBusinessUnits(mappedBusinessUnits);
+      } catch (err) {
+        console.error("Error fetching business units:", err);
+        setBusinessUnits([]); // fallback empty
+      }
+    };
+    fetchBusinessUnits();
+  }, []);
+
   const getDepartmentName = (deptId: any) => {
     const dept = departments.find((d) => d.id === deptId);
     return dept ? dept.name : deptId || "-";
@@ -152,6 +171,11 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
   const getRolesName = (roleId: any) => {
     const role = roles.find((d) => d.id === roleId);
     return role ? role.name : roleId || "-";
+  };
+
+  const getBuinessUnitName = (unitId: any) => {
+    const bu = businessUnits.find((b) => b.id === unitId);
+    return bu ? bu.name : unitId || "-";
   };
 
   if (loading) {
@@ -169,6 +193,7 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
       </div>
     );
   }
+  console.log("Rendering details for employee:", employeeDetails);
 
   const renderOfficialTab = () => (
     <div className="grid grid-cols-2 gap-x-12 gap-y-4">
@@ -214,7 +239,7 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Business Unit</label>
-        <p className="text-sm">{employeeDetails.businessUnit || '-'}</p>
+        <p className="text-sm">{getBuinessUnitName(employeeDetails.unitId) || '-'}</p>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">L1 Manager</label>
