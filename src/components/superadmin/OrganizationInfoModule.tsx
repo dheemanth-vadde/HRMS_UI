@@ -46,7 +46,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     city: "",
     // category: "",
     headOffice: "",
-    regionalOffice: "",
     logo: "",
   });
   const [countries, setCountries] = useState<any[]>([]);
@@ -180,7 +179,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
           city: org.cityId || "",
           // category: org.orgCode || "",
           headOffice: org.address1 || "",
-          regionalOffice: org.address2 || "",
           logo: org.orgImage ? `data:image/png;base64,${org.orgImage}` : "",
         });
         setHasOrganization(true); // ✅
@@ -204,15 +202,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
         getValidationError("noSpaces", orgData[field], `Field has extra spaces`);
       if (error) newErrors[field] = error;
     });
+    
 
     // --- Phone validation for customer care ---
     if (orgData.customerCare) {
-      const phoneError = getValidationError(
-        "phone",
-        orgData.customerCare,
-        "Customer care number must be 10 digits"
-      );
-      if (phoneError) newErrors.customerCare = phoneError;
+      const phone = orgData.customerCare.replace(/[^0-9]/g, ''); // Remove all non-digit characters
+      if (phone.length < 10) {
+        newErrors.customerCare = "Phone number must be at least 10 digits";
+      }
     }
 
     // --- Optional text fields ---
@@ -224,7 +221,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
       "city",
       // "category",
       "headOffice",
-      "regionalOffice",
     ];
 
     optionalFields.forEach((field) => {
@@ -265,7 +261,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
       data.append("email", "");
       data.append("secondaryEmail", "");
       data.append("faxNumber", "");
-      data.append("description", orgData.regionalOffice);
       data.append("orgHead", "");
       // data.append("designation", orgData.category);
       data.append("address1", orgData.headOffice);
@@ -335,7 +330,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
         city: "",
         // category: "",
         headOffice: "",
-        regionalOffice: "",
         logo: "",
       });
       setLogoPreview(null);
@@ -608,7 +602,14 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     <>
                       <Input
                         value={orgData.customerCare}
-                        onChange={(e) => setOrgData({ ...orgData, customerCare: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setOrgData({ ...orgData, customerCare: value });
+                          // Clear error when user starts typing
+                          if (errors.customerCare) {
+                            setErrors(prev => ({ ...prev, customerCare: '' }));
+                          }
+                        }}
                         placeholder="Enter customer care number"
                       />
                       {errors.customerCare && <p className="text-sm text-red-600">{errors.customerCare}</p>}
@@ -760,23 +761,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                   )}
                 </div>
 
-                <div className="p-4 border rounded-lg bg-muted/30">
-                  <Label className="text-sm text-muted-foreground mb-2">Regional Office</Label>
-                  {isEditing && !viewOnly ? (
-                    <>
-                      <Textarea
-                        value={orgData.regionalOffice}
-                        onChange={(e) => setOrgData({ ...orgData, regionalOffice: e.target.value })}
-                        rows={4}
-                        className="mt-2"
-                        placeholder="Enter regional office address (optional)"
-                      />
-                      {errors.regionalOffice && <p className="text-sm text-red-600">{errors.regionalOffice}</p>}
-                    </>
-                  ) : (
-                    <p className="font-medium mt-2">{orgData.regionalOffice || "-"}</p>
-                  )}
-                </div>
+                
 
                 {!isEditing && hasOrganization && !viewOnly && (
                   <div className="flex gap-2 pt-4">

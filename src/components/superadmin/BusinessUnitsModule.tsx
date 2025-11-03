@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Building2, Search, RefreshCw, Plus, Edit, Trash2, MoreVertical, Check } from "lucide-react";
+import MultiSelectDropdown from "./MultiSelectDropdown";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -687,69 +688,34 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   <p className="text-destructive text-sm mt-1">{errors.empPrefix}</p>
                 )}
               </div>
-              <div className="space-y-2">
-    <Label>Employeement Types *</Label>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2 col-span-2">
+                <Label>Employment Types *</Label>
+                <MultiSelectDropdown
+                  items={employeeTypes.map(type => ({
+                    id: type.typeName,
+                    label: type.typeName
+                  }))}
+                  selectedIds={newUnit.empTypes}
+                  onChange={(selectedIds: string[]) => {
+                    setNewUnit(prev => ({
+                      ...prev,
+                      empTypes: selectedIds
+                    }));
+                    if (errors.empTypes) {
+                      setErrors(prev => ({ ...prev, empTypes: "" }));
+                    }
+                  }}
+                  placeholder="Select types"
+                  className="w-full"
+                />
+                {errors.empTypes && <p className="text-destructive text-sm mt-1">{errors.empTypes}</p>}
+              </div>
+              </div>
 
 
-    <Select
-        value={newUnit.empTypes}
-        onValueChange={(value: any) => {
-            // value is the clicked item
-            setNewUnit((prev) => {
-                const exists = prev.empTypes.includes(value);
-                let updated: string[];
-                if (exists) {
-                    // remove if already selected
-                    updated = prev.empTypes.filter((v) => v !== value);
-                } else {
-                    // add if not selected
-                    updated = [...prev.empTypes, value];
-                }
-                return { ...prev, empTypes: updated };
-            });
-            if (errors.empTypes) setErrors((prev) => ({ ...prev, empTypes: "" }));
-
-        }}
-        multiple
-    >
-        <SelectTrigger>
-            <SelectValue placeholder="Select employment types">
-                {newUnit.empTypes.length > 0
-                    ? newUnit.empTypes.join(", ")
-                    : "Select employment types"}
-            </SelectValue>
-        </SelectTrigger>
-
-        <SelectContent>
-            {employeeTypes.map((type) => {
-                const isSelected = newUnit.empTypes.includes(type.typeName);
-                return (
-                    <div
-                        key={type.id}
-                        onClick={() => {
-                            const updated = isSelected
-                                ? newUnit.empTypes.filter((v) => v !== type.typeName)
-                                : [...newUnit.empTypes, type.typeName]; 
-                            setNewUnit((prev) => ({ ...prev, empTypes: updated }));
-                            if (errors.empTypes) setErrors((prev) => ({ ...prev, empTypes: "" }));
-                        }}
-                        // CHANGE MADE HERE: Added hover:text-primary
-                        className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent hover:accent-foreground text-sm ${isSelected ? "bg-accent text-primary" : ""
-                            }`}
-                    >
-                        <span>{type.typeName}</span>
-                        {isSelected && <Check className="size-4 text-green-500" />}
-                    </div>
-                );
-            })}
-        </SelectContent>
-    </Select>
-
-    {errors.empTypes && <p className="text-destructive text-sm mt-1">{errors.empTypes}</p>}
-</div>
-
-
-
+ <div className="grid grid-cols-3 gap-4">
 
               <div className="space-y-2">
                 <Label>Started On *</Label>
@@ -808,6 +774,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 </Select>
                 {errors.countryId && <p className="text-destructive text-sm mt-1">{errors.countryId}</p>}
               </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>State *</Label>
                 <Select
@@ -856,8 +824,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 </Select>
                 {errors.cityId && <p className="text-destructive text-sm mt-1">{errors.cityId}</p>}
               </div>
-
-            </div>
+              </div>  
+            
             <DialogFooter>
               <Button variant="outline" onClick={() => { setShowAddDialog(false); resetNewUnit(); }}>
                 Cancel
@@ -935,64 +903,35 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                     <p className="text-destructive text-sm mt-1">{errors.empPrefix}</p>
                   )}
                 </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
 
 
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-2">
                   <Label>Employment Types *</Label>
-
-                  <Select
-                    value={editingUnit.empTypes || []}
-                    onValueChange={(value: any) => {
-                      setEditingUnit((prev: any) => {
-                        if (!prev) return prev;
-                        const exists = prev.empTypes.includes(value);
-                        let updated: string[];
-                        if (exists) {
-                          updated = prev.empTypes.filter((v: any) => v !== value);
-                        } else {
-                          updated = [...prev.empTypes, value];
-                        }
-                        return { ...prev, empTypes: updated };
+                  <MultiSelectDropdown
+                    items={employeeTypes.map(type => ({
+                      id: type.typeName,
+                      label: type.typeName
+                    }))}
+                    selectedIds={editingUnit.empTypes || []}
+                    onChange={(selectedIds: string[]) => {
+                      setEditingUnit({
+                        ...editingUnit,
+                        empTypes: selectedIds
                       });
-
-                      if (errors.empTypes) setErrors((prev) => ({ ...prev, empTypes: "" }));
+                      if (errors.empTypes) {
+                        setErrors(prev => ({ ...prev, empTypes: "" }));
+                      }
                     }}
-                    multiple
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select employment types">
-                        {editingUnit.empTypes?.length > 0
-                          ? editingUnit.empTypes.join(", ")
-                          : "Select employment types"}
-                      </SelectValue>
-                    </SelectTrigger>
-
-                    <SelectContent>
-                      {employeeTypes.map((type) => {
-                        const isSelected = editingUnit.empTypes?.includes(type.typeName);
-                        return (
-                          <div
-                            key={type.id}
-                            onClick={() => {
-                              const updated = isSelected
-                                ? editingUnit.empTypes.filter((v: any) => v !== type.typeName)
-                                : [...(editingUnit.empTypes || []), type.typeName];
-                              setEditingUnit((prev: any) => prev ? { ...prev, empTypes: updated } : prev);
-                              if (errors.empTypes) setErrors((prev) => ({ ...prev, empTypes: "" }));
-                            }}
-                            className={`flex items-center justify-between w-full cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent ${isSelected ? "bg-accent text-primary font-medium" : ""
-                              }`}
-                          >
-                            <span>{type.typeName}</span>
-                            {isSelected && <Check className="size-4 text-green-500" />}
-                          </div>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Select employment types"
+                    className="w-full"
+                  />
 
                   {errors.empTypes && <p className="text-destructive text-sm mt-1">{errors.empTypes}</p>}
                 </div>
+</div>
+                <div className="grid grid-cols-3 gap-4">
 
                 <div className="space-y-2">
                   <Label>Started On *</Label>
@@ -1029,6 +968,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   />
                   {errors.streetAddress && <p className="text-destructive text-sm mt-1">{errors.streetAddress}</p>}
                 </div>
+                
                 <div className="space-y-2">
                   <Label>Country *</Label>
                   <Select
@@ -1062,6 +1002,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   </Select>
                   {errors.countryId && <p className="text-destructive text-sm mt-1">{errors.countryId}</p>}
                 </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>State *</Label>
                   <Select
