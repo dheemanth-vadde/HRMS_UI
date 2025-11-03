@@ -105,14 +105,15 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
       let error: string | null = null;
  
       // Handle City, State, Country, and Employment Types
-      if (["cityId", "stateId", "countryId", "empTypes"].includes(field)) {
+      if (["cityId", "stateId", "countryId"].includes(field)) {
+        // Check for empty or placeholder value
+        if (!value || value === "__select_placeholder__") {
+          error = "Please select an option";
+        }
+      } else if (field === "empTypes") {
         // For empTypes, check array length
-        if (field === "empTypes") {
-          if (!Array.isArray(value) || value.length === 0) {
-            error = "Please select an option";
-          }
-        } else {
-          error = getValidationError("required", value as any, "Please select an option");
+        if (!Array.isArray(value) || value.length === 0) {
+          error = "Please select an option";
         }
       }
       // Handle other text fields
@@ -765,6 +766,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                     {countries.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.country}
@@ -791,6 +793,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                     <SelectValue placeholder="Select state" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                     {filteredStates.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
                         {s.state}
@@ -815,6 +818,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                     <SelectValue placeholder="Select city" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                     {filteredCities.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.city}
@@ -995,10 +999,11 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
-                      {countries.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.country}</SelectItem>
-                      ))}
-                    </SelectContent>
+                    <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+                    {countries.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.country}</SelectItem>
+                    ))}
+                  </SelectContent>
                   </Select>
                   {errors.countryId && <p className="text-destructive text-sm mt-1">{errors.countryId}</p>}
                 </div>
@@ -1032,10 +1037,11 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                       <SelectValue placeholder="Select state" />
                     </SelectTrigger>
                     <SelectContent>
-                      {filteredStates.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>{s.state}</SelectItem>
-                      ))}
-                    </SelectContent>
+                    <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+                    {filteredStates.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.state}</SelectItem>
+                    ))}
+                  </SelectContent>
                   </Select>
                   {errors.stateId && <p className="text-destructive text-sm mt-1">{errors.stateId}</p>}
                 </div>
@@ -1055,6 +1061,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                       <SelectValue placeholder="Select city" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                       {filteredCities.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.city}

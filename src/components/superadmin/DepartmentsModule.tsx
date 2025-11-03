@@ -188,7 +188,13 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
       // --- Required validation ---
       if (["businessUnit", "deptHead", "timezoneId"].includes(field)) {
-        error = getValidationError("required", value, "Please select an option");
+        // Check for empty, placeholder value, or if the referenced entity doesn't exist
+        if (!value || value === "__select_placeholder__" || 
+            (field === "businessUnit" && !businessUnits.some(u => u.id === value)) ||
+            (field === "deptHead" && !employees.some(e => e.id === value)) ||
+            (field === "timezoneId" && !timezones.some(t => t.id === value))) {
+          error = "Please select an option";
+        }
       } else {
         error = getValidationError("required", value, `This field is required`);
       }
@@ -211,9 +217,10 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     return errors;
   };
 
-  const getBusinessUnitName = (unitId: string): string => {
+  const getBusinessUnitName = (unitId: string): string | null => {
+    if (!unitId) return null;
     const unit = businessUnits.find(u => u.id === unitId);
-    return unit ? unit.unitName : "Unknown";
+    return unit?.unitName || null;
   };
 
   const getDeptHeadName = (empId: string | null): string => {
@@ -268,7 +275,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       id: String(dept.id), // <-- force to string
       deptHead: dept.deptHead || "",
       timezoneId: dept.timezoneId || "",
-      businessUnit: dept.businessUnit || "",
+      businessUnit: dept.unitId || "",
       deptName: dept.deptName || "",
       deptCode: dept.deptCode || "",
       startedOn: dept.startedOn || "",
@@ -437,7 +444,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                         <TableCell>{dept.startedOn}</TableCell>
                         <TableCell>{getDeptHeadName(dept.deptHead)}</TableCell>
                         <TableCell>{timezones.find(t => t.id === dept.timezoneId)?.timezone || "-"}</TableCell>
-                        <TableCell>{getBusinessUnitName(dept.businessUnit)}</TableCell>
+                        <TableCell>{getBusinessUnitName(dept.businessUnit) || "-"}</TableCell>
                         <TableCell className="text-right">
                           {!viewOnly && (
                             <div className="flex items-center justify-end gap-2">
@@ -466,7 +473,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                     ))
                 ) : (
                   <TableRow>
-                     <TableCell colSpan={7} className="text-center text-muted-foreground py-4">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-4">
                       No records found
                     </TableCell>
                   </TableRow>
@@ -604,12 +611,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                       {employees.map((emp: any) => (
                         <SelectItem key={emp.id} value={emp.id}>
                           {emp.fullName}
                         </SelectItem>
                       ))}
                     </SelectContent>
+
                   </Select>
                   {formErrors.deptHead && (
                     <p className="text-sm text-destructive">{formErrors.deptHead}</p>
@@ -628,9 +637,10 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select an option" />
+                      <SelectValue placeholder="Select unit" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                       {businessUnits.map((unit) => (
                         <SelectItem key={unit.id} value={String(unit.id)}>
                           {unit.unitName}
@@ -653,6 +663,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                       <SelectValue placeholder="Select timezone" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                       {timezones.map((tz: any) => (
                         <SelectItem key={tz.id} value={tz.id}>
                           {tz.timezone}
@@ -805,6 +816,8 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+
                       {employees.map(emp => (
                         <SelectItem key={emp.id} value={emp.id}>{emp.fullName}</SelectItem>
                       ))}
@@ -823,10 +836,12 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                       if (formErrors.businessUnit) setFormErrors(prev => ({ ...prev, businessUnit: null }));
                     }}
                   >
-                    <SelectTrigger>
+                   <SelectTrigger>
                       <SelectValue placeholder="Select unit" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+
                       {businessUnits.map(unit => (
                         <SelectItem key={unit.id} value={String(unit.id)}>{unit.unitName}</SelectItem>
                       ))}
@@ -849,6 +864,8 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                       <SelectValue placeholder="Select timezone" />
                     </SelectTrigger>
                     <SelectContent>
+                                            <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+
                       {timezones.map(tz => (
                         <SelectItem key={tz.id} value={tz.id}>{tz.timezone}</SelectItem>
                       ))}

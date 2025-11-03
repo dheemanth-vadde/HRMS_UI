@@ -40,7 +40,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     website: "",
     employees: "",
     established: "",
-    customerCare: "",
+    phone : "",
     country: "",
     state: "",
     city: "",
@@ -173,7 +173,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
           website: org.website || "",
           employees: org.totalEmployees?.toString() || "",
           established: org.orgStartDate || "",
-          customerCare: org.phoneNumber || "",
+          phone : org.phoneNumber || "",
           country: org.countryId || "",
           state: org.stateId || "",
           city: org.cityId || "",
@@ -205,10 +205,10 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
     
 
     // --- Phone validation for customer care ---
-    if (orgData.customerCare) {
-      const phone = orgData.customerCare.replace(/[^0-9]/g, ''); // Remove all non-digit characters
+    if (orgData.phone ) {
+      const phone = orgData.phone .replace(/[^0-9]/g, ''); // Remove all non-digit characters
       if (phone.length < 10) {
-        newErrors.customerCare = "Phone number must be at least 10 digits";
+        newErrors.phone  = "Phone number must be at least 10 digits";
       }
     }
 
@@ -256,7 +256,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
       data.append("countryId", orgData.country);
       data.append("stateId", orgData.state);
       data.append("cityId", orgData.city);
-      data.append("phoneNumber", orgData.customerCare);
+      data.append("phoneNumber", orgData.phone );
       data.append("secondaryPhone", "");
       data.append("email", "");
       data.append("secondaryEmail", "");
@@ -324,7 +324,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
         website: "",
         employees: "",
         established: "",
-        customerCare: "",
+        phone : "",
         country: "",
         state: "",
         city: "",
@@ -596,26 +596,26 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     {/* <Phone className="size-4" /> */}
-                    Customer Care
+                    Phone
                   </Label>
                   {isEditing && !viewOnly ? (
                     <>
                       <Input
-                        value={orgData.customerCare}
+                        value={orgData.phone }
                         onChange={(e) => {
                           const value = e.target.value;
-                          setOrgData({ ...orgData, customerCare: value });
+                          setOrgData({ ...orgData, phone : value });
                           // Clear error when user starts typing
-                          if (errors.customerCare) {
-                            setErrors(prev => ({ ...prev, customerCare: '' }));
+                          if (errors.phone ) {
+                            setErrors(prev => ({ ...prev, phone : '' }));
                           }
                         }}
                         placeholder="Enter customer care number"
                       />
-                      {errors.customerCare && <p className="text-sm text-red-600">{errors.customerCare}</p>}
+                      {errors.phone  && <p className="text-sm text-red-600">{errors.phone }</p>}
                     </>
                   ) : (
-                    <p className="font-medium">{orgData.customerCare || "-"}</p>
+                    <p className="font-medium">{orgData.phone  || "-"}</p>
                   )}
                 </div>
 
