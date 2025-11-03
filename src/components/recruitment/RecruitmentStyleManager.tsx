@@ -38,7 +38,7 @@ const routeCssMap: Record<string, string> = {
   "/recruitment/master/department": "/src/components/recruitment/css/Department.css",
   "/recruitment/master/job-grade": "/src/components/recruitment/css/JobGrade.css",
   "/recruitment/master/position": "/src/components/recruitment/css/Position.css",
-  "/recruitment/master/offer-template": "/src/components/recruitment/css/Editor.css",
+  "/recruitment/master/template": "/src/components/recruitment/css/Editor.css",
 };
 
 const bootstrapHref = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css";
@@ -49,9 +49,11 @@ const RecruitmentStyleManager: React.FC<{ children: React.ReactNode }> = ({ chil
   const location = useLocation();
 
   useEffect(() => {
-    // Mount bootstrap + overrides once when manager mounts
-    addLink(HEAD_ID_PREFIX + "bootstrap", bootstrapHref);
-    addLink(HEAD_ID_PREFIX + "overrides", overridesHref);
+    // Only mount bootstrap if not on the skills page
+    if (!location.pathname.toLowerCase().startsWith('/recruitment/master/skill')) {
+      addLink(HEAD_ID_PREFIX + "bootstrap", bootstrapHref);
+      addLink(HEAD_ID_PREFIX + "overrides", overridesHref);
+    }
 
     return () => {
       // Remove all recruitment links on unmount (i.e., leaving recruitment module)
@@ -64,38 +66,38 @@ const RecruitmentStyleManager: React.FC<{ children: React.ReactNode }> = ({ chil
         removeLink(id);
       });
     };
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
-
     // Remove all previously added route-specific CSS links
-
     Object.keys(routeCssMap).forEach((p) => {
-
       const id = HEAD_ID_PREFIX + sanitizeId(p);
-
       removeLink(id);
-
     });
 
+    // Remove bootstrap if we're on the skills page
+    if (location.pathname.toLowerCase().startsWith('/recruitment/master/skill')) {
+      removeLink(HEAD_ID_PREFIX + "bootstrap");
+      removeLink(HEAD_ID_PREFIX + "overrides");
+    } else {
+      // Only add bootstrap for non-skills pages
+      if (!document.getElementById(HEAD_ID_PREFIX + "bootstrap")) {
+        addLink(HEAD_ID_PREFIX + "bootstrap", bootstrapHref);
+        addLink(HEAD_ID_PREFIX + "overrides", overridesHref);
+      }
+    }
+
     // Find the first route CSS that matches the current path prefix
-
-    const normalizedPath = location.pathname.toLowerCase().replace(/\/+$/, ""); // remove trailing slash
-
+    const normalizedPath = location.pathname.toLowerCase().replace(/\/+$/, "");
     const matchingRoute = Object.keys(routeCssMap).find((p) =>
       normalizedPath.startsWith(p.toLowerCase())
     );
 
     if (matchingRoute) {
-
       const id = HEAD_ID_PREFIX + sanitizeId(matchingRoute);
-
       addLink(id, routeCssMap[matchingRoute]);
-
     }
-
   }, [location.pathname]);
-
 
   return <>{children}</>;
 };

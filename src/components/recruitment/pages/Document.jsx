@@ -184,7 +184,7 @@ const Document = () => {
   const docsToDisplay = filteredAndSortedDocs();
 
   if (loading) return <div className="text-center mt-5">Loading...</div>;
-  if (error) return <div className="alert alert-danger mt-5">{error}</div>;
+  // if (error) return <div className="alert alert-danger mt-5">{error}</div>;
 
   return (
     <div className="space-y-6 py-3">

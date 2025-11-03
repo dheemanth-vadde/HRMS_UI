@@ -163,7 +163,7 @@ else {
   
 
   if (loading) return <div className="text-center mt-5">Loading...</div>;
-  if (dataError) return <div className="alert alert-danger mt-5">{dataError}</div>;
+  // if (dataError) return <div className="alert alert-danger mt-5">{dataError}</div>;
 
   // Add filtered and sorted positions function
   const filteredAndSortedPositions = () => {
