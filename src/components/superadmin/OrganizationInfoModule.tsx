@@ -625,10 +625,16 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                   {isEditing && !viewOnly ? (
                     <>
                       <Select
-                        value={orgData.country}
-                        onValueChange={(selectedCountry: any) => {
-                          setOrgData({ ...orgData, country: selectedCountry, state: "", city: "" });
-                          fetchStates(selectedCountry);
+                        value={orgData.country || ""}
+                        onValueChange={(selectedCountry: string) => {
+                          const value = selectedCountry === "__select_placeholder__" ? "" : selectedCountry;
+                          setOrgData({ ...orgData, country: value, state: "", city: "" });
+                          if (value) {
+                            fetchStates(value);
+                          }
+                          if (errors.country) {
+                            setErrors(prev => ({ ...prev, country: "" }));
+                          }
                         }}
                       >
                         <SelectTrigger className="w-full border rounded-md p-2 text-sm">
@@ -636,6 +642,7 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                         </SelectTrigger>
 
                         <SelectContent>
+                          <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                           {countries.map((c) => (
                             <SelectItem key={c.id} value={c.id}>
                               {c.country}
@@ -660,17 +667,22 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                   {isEditing && !viewOnly ? (
                     <>
                       <Select
-                        value={orgData.state}
-                        onValueChange={(selectedState: any) => {
-                          setOrgData({ ...orgData, state: selectedState, city: "" });
-                          // useEffect will automatically fetch cities
+                        value={orgData.state || ""}
+                        onValueChange={(selectedState: string) => {
+                          const value = selectedState === "__select_placeholder__" ? "" : selectedState;
+                          setOrgData({ ...orgData, state: value, city: "" });
+                          if (errors.state) {
+                            setErrors(prev => ({ ...prev, state: "" }));
+                          }
                         }}
+                        disabled={!orgData.country}
                       >
                         <SelectTrigger className="w-full border rounded-md p-2 text-sm">
-                          <SelectValue placeholder="Select State" />
+                          <SelectValue placeholder={!orgData.country ? "Select country first" : "Select State"} />
                         </SelectTrigger>
 
                         <SelectContent>
+                          <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                           {states.map((s) => (
                             <SelectItem key={s.id} value={s.id}>
                               {s.state}
@@ -711,16 +723,22 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                   {isEditing && !viewOnly ? (
                     <>
                       <Select
-                        value={orgData.city}
-                        onValueChange={(selectedCity: any) =>
-                          setOrgData({ ...orgData, city: selectedCity })
-                        }
+                        value={orgData.city || ""}
+                        onValueChange={(selectedCity: string) => {
+                          const value = selectedCity === "__select_placeholder__" ? "" : selectedCity;
+                          setOrgData({ ...orgData, city: value });
+                          if (errors.city) {
+                            setErrors(prev => ({ ...prev, city: "" }));
+                          }
+                        }}
+                        disabled={!orgData.state}
                       >
                         <SelectTrigger className="w-full border rounded-md p-2 text-sm">
-                          <SelectValue placeholder="Select City" />
+                          <SelectValue placeholder={!orgData.state ? "Select state first" : "Select City"} />
                         </SelectTrigger>
 
                         <SelectContent>
+                          <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                           {cities.map((c) => (
                             <SelectItem key={c.id} value={c.id}>
                               {c.city}
