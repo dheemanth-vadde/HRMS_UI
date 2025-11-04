@@ -39,7 +39,7 @@ export default function BackgroundLogoPicker() {
           <Button size="sm" variant="secondary" onClick={open}>Upload</Button>
           <Button
             size="sm"
-            variant="outline-danger"
+            variant=""
             onClick={() => setBranding({ backgroundLogoUrl: '' })}
             disabled={!branding.backgroundLogoUrl}
           >

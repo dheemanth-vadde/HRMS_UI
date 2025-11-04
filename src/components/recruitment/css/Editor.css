@@ -136,8 +136,8 @@ font-size: 14px;
   display: flex;
 }
 .form-check-input:checked {
-  background-color: rgb(255, 112, 67) !important;
-  border-color: rgb(255, 112, 67) !important;
+  background-color: #162b75 !important;
+  border-color: #162b75 !important;
 }
 .fields_data{
   width: 100%;
@@ -146,7 +146,7 @@ font-size: 14px;
 .offer .card-body label{
   color:#162b75;
 font-size: 14px;
-   font-weight: 500;
+   font-weight: 600;
 }
 .offer .card-body input{
   color:#000;
@@ -158,25 +158,25 @@ font-size: 14px;
   background: #162b75 !important;
   color: #fff;
   font-size: 14px;
-  border: 1px solid #162b75;
+  border: 1px solid #162b75 !important;
 }
 .change_btn:hover{
-border-color: #FF7043;
-background:#FF7043;
+border-color: #162b75;
+background:#162b75;
 color:#fff;}
 
 .save-template-btn {
-  background-color: rgb(255, 112, 67) !important;
+  background-color: #162b75 !important;
   color: #fff !important;
 }
 .save-template-btn:hover {
-  background-color: rgb(255, 112, 67) !important;
+  background-color: #162b75 !important;
   color: #fff !important;
 }
 
 .intro-editor .ql-editor strong {
- color:#FF7043;
-  background:rgba(255,112,67,.12);
+ color:#162b75;
+  background:rgba(22, 43, 117, .12);
   font-weight:600;
   padding:0 4px;
   margin:0 2px;
