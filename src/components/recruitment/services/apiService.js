@@ -48,7 +48,7 @@ function getToken() {
 // const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/jobcreation/api/v1'
 const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/hrms-job-portal/api/v1'
 // const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/master/api'
-const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/hrms-master-data/api'
+const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/hrms-master-app/api'
 const NODE_API_URL = 'https://bobbe.sentrifugo.com/api';
 //  const NODE_API_URL = 'http://localhost:5000/api';
 // //const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
@@ -346,51 +346,61 @@ export const apiService = {
   deleteData: (id) => api.delete(`/data/${id}`),
 
   // --- Approval trail for a requisition (username, useremail, status) ---
- getApprovalTrail: (requisition_id) => api.get(`job-requisitions/workflow-approvals-details/${requisition_id}`),
+  getApprovalTrail: (requisition_id) => api.get(`job-requisitions/workflow-approvals-details/${requisition_id}`),
 
-
+  // Requisition endpoints
   getReqData: () => api.get('/job-requisitions/all'),
-  getPosData: () => api.get('/job-positions/all'),
-  getCanByPosition: (position_id) => candidateApi.get(`/candidates/details-by-position/${position_id}`),
-  getCanByStatus: (status) => candidateApi.get(`/candidates/get-by-status/${status}`),
-
   createRequisition: (data) => api.post('/job-requisitions/create', data),
   updateRequisition: (id, data) => api.put(`/job-requisitions/update/${id}`, data),
   deleteRequisition: (id) => api.delete(`/job-requisitions/delete/${id}`),
-
-  jobCreation: (data) => api.post('/job-positions/create', data),
-  getMasterData: () => apis.get('/all'),
-
-  uploadJobExcel: (data) => api.post('/job-positions/create-bulk', data), 
-  postJobRequisitions: (payload) => api.post("/requisitionpost", payload), // Not using this anywhere
-  getByRequisitionId: (requisition_id) => api.get(`job-positions/get-by-requisition/${requisition_id}`), 
   jobpost: (data) => api.post('/job-requisitions/submit-for-approval', data),
+  postJobRequisitions: (payload) => api.post("/requisitionpost", payload), // Not using this anywhere
+
+  // Approvals
+  updateApproval: (data) => api.post('/job-requisitions/approve', data), 
+  getApprovalstatus: (userid) => api.get(`job-requisitions/approvals/${userid}`),
+  getWorkflowApprovals:(userid) =>api.get(`job-requisitions/workflow-approvals/${userid}`),
+
+  // Job Position endpoints
+  getPosData: () => api.get('/job-positions/all'),
+  jobCreation: (data) => api.post('/job-positions/create', data),
+  uploadJobExcel: (data) => api.post('/job-positions/create-bulk', data),
+  getByRequisitionId: (requisition_id) => api.get(`job-positions/get-by-requisition/${requisition_id}`), 
+  updateJob: (data) => api.put('/job-positions/update', data),
+  getByPositionId: (position_id) => api.get(`job-positions/get/${position_id}`),
+
+  getCanByPosition: (position_id) => candidateApi.get(`/candidates/details-by-position/${position_id}`),
+  getCanByStatus: (status) => candidateApi.get(`/candidates/get-by-status/${status}`),
+
+  getMasterData: () => apis.get('/all'),
+  getallCities: () => apis.get('v1/master/cities'),
+  getDashboardQueries: () => api.get('/dashboard/queries'),
+  getDashboardMetrics: () => api.get('/dashboard/metrics'),
+
+  // Locations
   getallLocations: () => apis.get('/location/all'),
-  getallCities: () => apis.get('/city/all'),
   addLocation: (data) => apis.post("/location/add", data),
   updateLocation: (id, data) => apis.put(`/location/update/${id}`, data),
   deleteLocation: (id) => apis.delete(`/location/delete/${id}`),
-  updateJob: (data) => api.put('/job-positions/update', data),
-  getByPositionId: (position_id) => api.get(`job-positions/get/${position_id}`),
-  getDashboardQueries: () => api.get('/dashboard/queries'),
-  getDashboardMetrics: () => api.get('/dashboard/metrics'),
-  getallDepartment: () => apis.get('/departments/all'),
-  addDepartment: (data) => apis.post('/departments/add', data),
-  updateDepartment: (id, data) => apis.put(`/departments/update/${id}`, data),
-  deleteDepartment: (id) => apis.delete(`/departments/delete/${id}`),
+
+  // Departments
+  getallDepartment: () => apis.get('v1/master/departments'),
+  addDepartment: (data) => apis.post('v1/master/departments', data),
+  updateDepartment: (id, data) => apis.put(`v1/master/departments/${id}`, data),
+  deleteDepartment: (id) => apis.delete(`v1/master/departments/${id}`),
+
+  // Skills
   getallSkills: () => apis.get('/skill/all'),
   addSkill: (data) => apis.post('/skill/add', data),
   updateSkill: (id, data) => apis.put(`/skill/update/${id}`, data),
   deleteSkill: (id) => apis.delete(`/skill/delete/${id}`),
+
+  // Job Grades
   getallJobGrade: () => apis.get('/jobgrade/all'),
   addJobGrade: (data) => apis.post('/jobgrade/add', data),
   updateJobGrade: (id, data) => apis.put(`/jobgrade/update/${id}`, data),
   deleteJobGrade: (id) => apis.delete(`/jobgrade/delete/${id}`),
 
-  // Approvals
-  updateApproval: (data) => api.post('/job-requisitions/approve', data), 
-  getApprovalstatus: (userid) => api.get(`job-requisitions/approvals/${userid}`),
-getWorkflowApprovals:(userid) =>api.get(`job-requisitions/workflow-approvals/${userid}`),
   //Candidate Interview
   createInterview: (applicationId) => 
     candidateApi.get(`/candidates/interviews/${applicationId}`),
@@ -466,30 +476,36 @@ parseResume: (formData) => parseResumeApi.post("/parseresume", formData),
   getTemplateContent: (id) => templateApi.get(`/offer-templates/${encodeURIComponent(id)}/content`, {
     responseType: 'text',
   }),
+
+  // Master Positions
   getAllPositions: () => apis.get("/master-positions/all"),
   addPosition: (data) => apis.post("/master-positions/add", data),
   updatePosition: (id, data) => apis.put(`/master-positions/update/${id}`, data),
   deletePosition: (id) => apis.delete(`/master-positions/delete/${id}`),
 
+  // Special Categories
   getAllSpecialCategories: () => apis.get('/special-categories/all'),
   addSpecialCategory: (data) => apis.post('/special-categories/add', data),
   updateSpecialCategory: (id, data) => apis.put(`/special-categories/update/${id}`, data),
   deleteSpecialCategory: (id) => apis.delete(`/special-categories/delete/${id}`),
 
+  // Categories
   getAllCategories: () => apis.get('/categories/all'),
   addCategory: (data) => apis.post('/categories/add', data),
   updateCategory: (id, data) => apis.put(`/categories/update/${id}`, data),
   deleteCategory: (id) => apis.delete(`/categories/delete/${id}`),
 
+  // Relaxation Types
   getAllRelaxationType: () => apis.get('/relaxation-type/all'),
   addRelaxationType: (data) => apis.post('/relaxation-type/add', data),
   updateRelaxationType: (id, data) => apis.put(`/relaxation-type/update/${id}`, data),
   deleteRelaxationType: (id) => apis.delete(`/relaxation-type/delete/${id}`),
+
   //documents
   getAllDocuments: () => apis.get("/document-types/all"),
- addDocument: (data) => apis.post("/document-types/add", data),
-updateDocument: (id, data) => apis.put(`/document-types/update/${id}`, data),
-deleteDocument: (id) => apis.delete(`/document-types/delete/${id}`),
+  addDocument: (data) => apis.post("/document-types/add", data),
+  updateDocument: (id, data) => apis.put(`/document-types/update/${id}`, data),
+  deleteDocument: (id) => apis.delete(`/document-types/delete/${id}`),
 
   //Relaxation
   saveRelaxation: (data) => api.post('/job-relaxation-policy/add', data),
@@ -497,28 +513,24 @@ deleteDocument: (id) => apis.delete(`/document-types/delete/${id}`),
   updateRelaxation: (id, data) => api.put(`/job-relaxation-policy/update/${id}`, data),
 
   processResumesJC:()=>api.post("/resume/start-batch-process",{}),
-
   getbulkcandidatesJC:()=>api.get("/bulkresumes/all"),
+  deleteResumeJC: (resumeId) =>
+    api.delete(`/resume/delete-resume/${encodeURIComponent(resumeId)}`),
 
-deleteResumeJC: (resumeId) =>
-  api.delete(`/resume/delete-resume/${encodeURIComponent(resumeId)}`),
+  // Fetch bulk-uploaded candidates who have NOT applied for the selected position
+  getNotAppliedBulkUploadCandidates: (position_id) =>
+    candidateApi.get(`/candidates/not-applied-bulk-upload/${position_id}`),
 
-// Fetch bulk-uploaded candidates who have NOT applied for the selected position
-getNotAppliedBulkUploadCandidates: (position_id) =>
-  candidateApi.get(`/candidates/not-applied-bulk-upload/${position_id}`),
-
-
-// Assign (bulk shortlist) selected candidates to a position
-bulkShortlistCandidates: (positionId, candidateIds) =>
-  candidateApi.post("/candidates/bulk-shortlist", {
-    positionId,
-    candidateIds,
-  }),
+  // Assign (bulk shortlist) selected candidates to a position
+  bulkShortlistCandidates: (positionId, candidateIds) =>
+    candidateApi.post("/candidates/bulk-shortlist", {
+      positionId,
+      candidateIds,
+    }),
 
   uploadResumeJC: (file) => {
     const form = new FormData();
     form.append("file", file, file?.name || "resume");
-
     return api.post("/resume/upload", form, {
       headers: { "Content-Type": "multipart/form-data" },
     });

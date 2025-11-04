@@ -324,10 +324,10 @@ const JobGrade = () => {
                       {job.job_scale || '-'}
                     </td>
                     <td className="px-2 py-4 whitespace-normal">
-                      {job.min_salary ? `$${parseFloat(job.min_salary).toLocaleString()}` : '-'}
+                      {job.min_salary ? `₹${parseFloat(job.min_salary).toLocaleString()}` : '-'}
                     </td>
                     <td className="px-2 py-4 whitespace-normal">
-                      {job.max_salary ? `$${parseFloat(job.max_salary).toLocaleString()}` : '-'}
+                      {job.max_salary ? `₹${parseFloat(job.max_salary).toLocaleString()}` : '-'}
                     </td>
                     <td className="px-2 py-4 whitespace-normal">
                       {job.job_grade_desc || '-'}

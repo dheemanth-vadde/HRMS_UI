@@ -23,8 +23,8 @@ import {
 const Department = () => {
   const [showModal, setShowModal] = useState(false);
   const [currentDept, setCurrentDept] = useState({
-    department_name: "",
-    department_desc: "",
+    deptName: "",
+    description: "",
   });
   const [editIndex, setEditIndex] = useState(null);
   const [depts, setDepts] = useState([]);
@@ -52,7 +52,7 @@ const Department = () => {
     }
   };
 
-  const openModal = (req = { department_name: "", department_desc: "" }, index = null) => {
+  const openModal = (req = { deptName: "", description: "" }, index = null) => {
     setCurrentDept(req);
     setEditIndex(index);
     setShowModal(true);
@@ -61,24 +61,24 @@ const Department = () => {
   const handleSave = () => {
     const newErrors = {};
 
-    const trimmedName = currentDept.department_name?.trim();
-    const trimmedDesc = currentDept.department_desc?.trim();
+    const trimmedName = currentDept.deptName?.trim();
+    const trimmedDesc = currentDept.description?.trim();
 
     if (!trimmedName) {
-      newErrors.department_name = "Name is required";
+      newErrors.deptName = "Name is required";
     }
    
 
     // Check if either name or description already exists
     const isDuplicate = depts.some((dept, index) =>
-      (dept.department_name?.trim().toLowerCase() === trimmedName?.toLowerCase() ||
-        dept.department_desc?.trim().toLowerCase() === trimmedDesc?.toLowerCase()) &&
+      (dept.deptName?.trim().toLowerCase() === trimmedName?.toLowerCase() ||
+        dept.description?.trim().toLowerCase() === trimmedDesc?.toLowerCase()) &&
       index !== editIndex
     );
 
     if (isDuplicate) {
-      newErrors.department_name = "Department name already exists";
-      newErrors.department_desc = "Department description already exists";
+      newErrors.deptName = "Department name already exists";
+      newErrors.description = "Department description already exists";
     }
 
     setErrr(newErrors);
@@ -135,7 +135,7 @@ const Department = () => {
 
   const resetForm = () => {
     setShowModal(false);
-    setCurrentDept({ department_name: "", department_desc: "" });
+    setCurrentDept({ deptName: "", description: "" });
     setEditIndex(null);
     setErrr({});
   };
@@ -160,8 +160,8 @@ const Department = () => {
       const lowerTerm = searchTerm.toLowerCase();
       filteredItems = filteredItems.filter(
         (dept) =>
-          dept.department_name?.toLowerCase().includes(lowerTerm) ||
-          dept.department_desc?.toLowerCase().includes(lowerTerm)
+          dept.deptName?.toLowerCase().includes(lowerTerm) ||
+          dept.description?.toLowerCase().includes(lowerTerm)
       );
     }
 
@@ -227,17 +227,17 @@ const Department = () => {
               <tr className="bg-muted/50">
                 <th 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
-                  onClick={() => handleSort("department_name")}
+                  onClick={() => handleSort("deptName")}
                 >
                   Department
-                  <span className="ml-1">{getSortIndicator("department_name")}</span>
+                  <span className="ml-1">{getSortIndicator("deptName")}</span>
                 </th>
                 <th 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
-                  onClick={() => handleSort("department_desc")}
+                  onClick={() => handleSort("description")}
                 >
                   Description
-                  <span className="ml-1">{getSortIndicator("department_desc")}</span>
+                  <span className="ml-1">{getSortIndicator("description")}</span>
                 </th>
                 <th className="text-foreground h-10 px-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 text-right">
                   Actions
@@ -249,10 +249,10 @@ const Department = () => {
                 jobsToDisplay.map((job, index) => (
                   <tr key={job.department_id || index} className="hover:bg-gray-50">
                     <td className="px-2 py-4 whitespace-normal">
-                      {job.department_name}
+                      {job.deptName}
                     </td>
                     <td className="px-2 py-4 whitespace-normal">
-                      {job.department_desc || '-'}
+                      {job.description || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
@@ -303,14 +303,14 @@ const Department = () => {
                 <Textarea
                   id="departmentName"
                   placeholder="Enter department name"
-                  value={currentDept.department_name}
+                  value={currentDept.deptName}
                   onChange={(e) => 
-                    setCurrentDept({ ...currentDept, department_name: e.target.value })
+                    setCurrentDept({ ...currentDept, deptName: e.target.value })
                   }
-                  className={errr.department_name ? "border-red-500 min-h-[100px]" : "min-h-[100px]"}
+                  className={errr.deptName ? "border-red-500 min-h-[100px]" : "min-h-[100px]"}
                 />
-                {errr.department_name && (
-                  <p className="mt-1 text-sm text-red-600">{errr.department_name}</p>
+                {errr.deptName && (
+                  <p className="mt-1 text-sm text-red-600">{errr.deptName}</p>
                 )}
               </div>
               
@@ -321,14 +321,14 @@ const Department = () => {
                 <Textarea
                   id="departmentDesc"
                   placeholder="Enter description"
-                  value={currentDept.department_desc}
+                  value={currentDept.description}
                   onChange={(e) => 
-                    setCurrentDept({ ...currentDept, department_desc: e.target.value })
+                    setCurrentDept({ ...currentDept, description: e.target.value })
                   }
-                  className={errr.department_desc ? "border-red-500 min-h-[100px]" : "min-h-[100px]"}
+                  className={errr.description ? "border-red-500 min-h-[100px]" : "min-h-[100px]"}
                 />
-                {errr.department_desc && (
-                  <p className="mt-1 text-sm text-red-600">{errr.department_desc}</p>
+                {errr.description && (
+                  <p className="mt-1 text-sm text-red-600">{errr.description}</p>
                 )}
               </div>
             </div>

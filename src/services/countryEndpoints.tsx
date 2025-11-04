@@ -1,7 +1,7 @@
-const BASE_URL = "https://bobjava.sentrifugo.com:8443/hrms-employees-app/api/employees";
+const BASE_URL = "https://bobjava.sentrifugo.com:8443/hrms-master-app/api";
 
 export const COUNTRY_ENDPOINTS = {
-  GET_COUNTRY: `${BASE_URL}/countries`,
+  GET_COUNTRY: `${BASE_URL}/v1/master/countries`,
  
   // Add more department-related endpoints here
 };
