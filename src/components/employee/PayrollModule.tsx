@@ -146,7 +146,7 @@ export function PayrollModule() {
       </div>
 
       {/* Salary Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-columns-three gap-4">
         <Card className="border-l-4 border-l-primary">
           <CardHeader className="pb-3">
             <CardDescription>Gross Salary</CardDescription>
@@ -188,7 +188,7 @@ export function PayrollModule() {
       </div>
 
       <Tabs defaultValue="payslips" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-columns-three">
           <TabsTrigger value="payslips">Payslips</TabsTrigger>
           <TabsTrigger value="tax-forms">Tax & Forms</TabsTrigger>
           <TabsTrigger value="queries">Submit Query</TabsTrigger>

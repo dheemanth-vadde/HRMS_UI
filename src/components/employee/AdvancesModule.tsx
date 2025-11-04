@@ -166,7 +166,7 @@ export function AdvancesModule() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-columns-three gap-4">
         <Card className="border border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-bold">Total Requested</CardTitle>

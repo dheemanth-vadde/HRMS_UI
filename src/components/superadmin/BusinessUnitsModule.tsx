@@ -640,7 +640,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-columns-three gap-4">
               <div className="space-y-2">
                 <Label>Unit Name *</Label>
                 <Input
@@ -854,8 +854,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
           </DialogHeader>
 
           {editingUnit && (
-            <div className="space-y-4 mt-4">
-              <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-4 mt-3">
+              <div className="grid grid-columns-three">
                 <div className="space-y-2">
                   <Label>Unit Name *</Label>
                   <Input

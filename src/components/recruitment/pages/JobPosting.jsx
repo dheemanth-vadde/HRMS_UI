@@ -1084,7 +1084,7 @@ const JobPosting = () => {
                   <p className="error-message">{errr.requisition_description}</p>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-columns-three gap-4">
                 <div className="space-y-2">
                   <label className="form-label-modern">
                     Start Date <span className="text-destructive">*</span>

@@ -75,8 +75,8 @@ body {
 }
 
 /* Form controls */
-.form-control:focus,
-.form-select:focus {
+.recruitment-module .form-control:focus,
+.recruitment-module .form-select:focus {
   box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.1);
   border-color: #ffc107;
 }
@@ -120,15 +120,15 @@ body {
   border-radius: 10px !important;
 }
 
-.form-control {
+.recruitment-module .form-control {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
 }
 
-.fonreg {
+.recruitment-module .fonreg {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
 }
 
-.fonall {
+.recruitment-module .fonall {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
   font-weight: 600 !important;
   /* 600 = semibold */
@@ -137,7 +137,7 @@ body {
 }
 
 /* Badge styles */
-.badge {
+.recruitment-module .badge {
   font-weight: 500;
   padding: 0.35em 0.65em;
   font-size: 0.75em;
@@ -154,7 +154,7 @@ body {
 }
 
 /* Bullet circle */
-.bullet-columns {
+.recruitment-module .bullet-columns {
   background-color: #FFE6D5;
   /* Light orange background from Figma style */
   padding: 6px 8px;
@@ -164,7 +164,7 @@ body {
   justify-content: center;
 }
 
-.job-bullet {
+.recruitment-module .job-bullet {
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -174,7 +174,7 @@ body {
 
 
 /* Orange checkbox styling */
-.form-check-orange .form-check-input {
+.recruitment-module .form-check-orange .form-check-input {
   border-color: #FF7043;
   background-color: transparent;
   width: 1.1em;
@@ -421,13 +421,13 @@ body {
   border-radius: 4px;
 }
 
-.accordion {
+.recruitment-module .accordion {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.accordion-item {
+.recruitment-module .accordion-item {
   border: 1px solid #e5e7eb;
   border-left: 4px solid #000000;
   border-radius: 8px;
@@ -436,27 +436,27 @@ body {
   transition: box-shadow 0.3s;
 }
 
-.accordion-item:hover {
+.recruitment-module .accordion-item:hover {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.accordion-header {
+.recruitment-module .accordion-header {
   padding: 16px;
   cursor: pointer;
   background-color: #fff;
   transition: background-color 0.2s;
 }
 
-.accordion-header:hover {
+.recruitment-module .accordion-header:hover {
   background-color: #f9fafb;
 }
 
-.accordion-header.active {
+.recruitment-module .accordion-header.active {
   background-color: #fff;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.accordion-body {
+.recruitment-module .accordion-body {
   padding: 0;
   background-color: #fff;
 }
@@ -524,7 +524,7 @@ body {
 }
 
 /* Modal Styles */
-.modal-overlay {
+.recruitment-module .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -537,7 +537,7 @@ body {
   z-index: 1050;
 }
 
-.modal-content {
+.recruitment-module .modal-content {
   background-color: #fff;
   border-radius: 8px;
   /* max-width: 900px;
@@ -546,11 +546,11 @@ body {
   overflow: auto;
 }
 
-.modal-content.modal-xl {
+.recruitment-module .modal-content.modal-xl {
   max-width: 1200px;
 }
 
-.modal-header {
+.recruitment-module .modal-header {
   padding: 16px 24px;
   border-bottom: 1px solid #dee2e6;
   display: flex;
@@ -558,11 +558,11 @@ body {
   align-items: center;
 }
 
-.modal-header h5 {
+.recruitment-module .modal-header h5 {
   margin: 0;
 }
 
-.modal-close-btn {
+.recruitment-module .modal-close-btn {
   background: none;
   border: none;
   font-size: 24px;
@@ -572,11 +572,11 @@ body {
   color: #000;
 }
 
-.modal-close-btn:hover {
+.recruitment-module .modal-close-btn:hover {
   color: #FF7043;
 }
 
-.modal-footer {
+.recruitment-module .modal-footer {
   padding: 16px 24px;
   border-top: 1px solid #dee2e6;
   display: flex;
@@ -584,11 +584,11 @@ body {
   gap: 8px;
 }
 
-.form-group {
+.recruitment-module .form-group {
   margin-bottom: 16px;
 }
 
-.form-label {
+.recruitment-module .form-label {
   font-weight: 600;
   margin-bottom: 6px;
   color: #333;
@@ -596,28 +596,28 @@ body {
   display: block;
 }
 
-.form-control {
+.recruitment-module .form-control {
   width: 100%;
   padding: 8px 12px;
   border-radius: 4px;
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
 }
 
-.form-control.is-invalid {
+.recruitment-module .form-control.is-invalid {
   border-color: #dc3545;
 }
 
-.form-control:disabled {
+.recruitment-module .form-control:disabled {
   background-color: #e9ecef;
   cursor: not-allowed;
 }
 
-.form-row {
+.recruitment-module .form-row {
   display: flex;
   gap: 16px;
 }
 
-.form-col {
+.recruitment-module .form-col {
   flex: 1;
 }
 

@@ -377,7 +377,7 @@ export function GrievanceModule() {
 
       {/* Tabs for Grievances and Escalation Matrix */}
       <Tabs defaultValue="grievances" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-columns-three">
           <TabsTrigger value="grievances">My Grievances</TabsTrigger>
           <TabsTrigger value="escalation">Escalation Matrix</TabsTrigger>
           <TabsTrigger value="guidelines">Guidelines</TabsTrigger>

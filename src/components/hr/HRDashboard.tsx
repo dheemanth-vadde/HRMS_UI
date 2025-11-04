@@ -175,7 +175,7 @@ export function HRDashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-columns-three gap-6">
         {/* Recent Activities - Takes 2 columns */}
         <Card className="lg:col-span-2 border shadow-lg animate-slide-in-left">
           <CardHeader className="border-b bg-gradient-to-r from-accent/40 to-blue-50/40 pb-4">

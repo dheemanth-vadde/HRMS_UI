@@ -553,7 +553,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                       </div>
 
                       {/* Fixed columns: Business Unit | Department | Posted On */}
-                      <div className="grid grid-cols-3 gap-4 mb-2 text-sm text-muted-foreground">
+                      <div className="grid grid-columns-three gap-4 mb-2 text-sm text-muted-foreground">
                         <div>
                           <strong className="inline">Business Units:</strong>{" "}
                           <span className="inline break-words">

@@ -267,7 +267,7 @@ export function PerformanceManagement() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-columns-three gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Team Size</p>
               <p className="text-2xl font-bold text-primary">{teamMembers.length}</p>
@@ -370,7 +370,7 @@ export function PerformanceManagement() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-3 bg-muted/50 rounded-lg mb-3">
+                <div className="grid grid-cols-1 md:grid-columns-three gap-4 p-3 bg-muted/50 rounded-lg mb-3">
                   <div>
                     <p className="text-xs text-muted-foreground">Self-Assessment</p>
                     <Badge

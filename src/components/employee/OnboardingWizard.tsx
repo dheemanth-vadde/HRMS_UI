@@ -348,7 +348,7 @@ export function OnboardingWizard() {
                   rows={3}
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-columns-three gap-4">
                 <div className="space-y-2">
                   <Label>City *</Label>
                   <Input
@@ -374,7 +374,7 @@ export function OnboardingWizard() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-columns-three gap-4">
                 <div className="space-y-2">
                   <Label>Personal Email *</Label>
                   <Input

@@ -1,13 +1,6 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-// Dynamically inject and remove <link> tags for recruitment module styles.
-// - Loads Bootstrap CSS and a project-specific override when the recruitment
-//   parent route is entered.
-// - Loads per-route CSS files (if mapped) when navigating between recruitment
-//   child routes.
-// - Removes all recruitment-related links when unmounted.
-
 const HEAD_ID_PREFIX = "recruitment-style-";
 
 function addLink(id: string, href: string) {
@@ -21,13 +14,9 @@ function addLink(id: string, href: string) {
 
 function removeLink(id: string) {
   const el = document.getElementById(id);
-  if (el && el.parentNode) el.parentNode.removeChild(el);
+  if (el) el.remove();
 }
 
-// Map pathname -> CSS file (relative to project public/build location or served path).
-// These paths assume the CSS files are served from the app (bundled). We point
-// to the same relative path used in the repo so the bundler resolves them in dev
-// and production. Adjust paths if your build outputs CSS under a different folder.
 const routeCssMap: Record<string, string> = {
   "/recruitment/job-postings": "/src/components/recruitment/css/JobPosting.css",
   "/recruitment/candidate-shortlist": "/src/components/recruitment/css/Recruitment.css",
@@ -42,64 +31,60 @@ const routeCssMap: Record<string, string> = {
 };
 
 const bootstrapHref = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css";
-// Project-specific overrides that expect bootstrap variables / classes to exist
 const overridesHref = "/src/components/recruitment/css/custom-bootstrap-overrides.css";
 
 const RecruitmentStyleManager: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    // Only mount bootstrap if not on the skills page
-    if (!location.pathname.toLowerCase().startsWith('/recruitment/master/skill')) {
+    const path = location.pathname.toLowerCase();
+    const inRecruitment =
+      path.startsWith("/recruitment") || path.startsWith("/recruitment/master");
+
+    // 🧹 Always clean before applying new styles
+    Object.keys(routeCssMap).forEach((p) =>
+      removeLink(HEAD_ID_PREFIX + sanitizeId(p))
+    );
+    removeLink(HEAD_ID_PREFIX + "bootstrap");
+    removeLink(HEAD_ID_PREFIX + "overrides");
+
+    if (inRecruitment) {
+      // Add bootstrap + overrides
       addLink(HEAD_ID_PREFIX + "bootstrap", bootstrapHref);
       addLink(HEAD_ID_PREFIX + "overrides", overridesHref);
-    }
 
-    return () => {
-      // Remove all recruitment links on unmount (i.e., leaving recruitment module)
-      removeLink(HEAD_ID_PREFIX + "bootstrap");
-      removeLink(HEAD_ID_PREFIX + "overrides");
-
-      // Remove any route-specific css links
-      Object.keys(routeCssMap).forEach((p) => {
-        const id = HEAD_ID_PREFIX + sanitizeId(p);
-        removeLink(id);
-      });
-    };
-  }, [location.pathname]);
-
-  useEffect(() => {
-    // Remove all previously added route-specific CSS links
-    Object.keys(routeCssMap).forEach((p) => {
-      const id = HEAD_ID_PREFIX + sanitizeId(p);
-      removeLink(id);
-    });
-
-    // Remove bootstrap if we're on the skills page
-    if (location.pathname.toLowerCase().startsWith('/recruitment/master/skill')) {
-      removeLink(HEAD_ID_PREFIX + "bootstrap");
-      removeLink(HEAD_ID_PREFIX + "overrides");
-    } else {
-      // Only add bootstrap for non-skills pages
-      if (!document.getElementById(HEAD_ID_PREFIX + "bootstrap")) {
-        addLink(HEAD_ID_PREFIX + "bootstrap", bootstrapHref);
-        addLink(HEAD_ID_PREFIX + "overrides", overridesHref);
+      // Add page-specific CSS
+      const normalizedPath = path.replace(/\/+$/, "");
+      const matchingRoute = Object.keys(routeCssMap).find((p) =>
+        normalizedPath.startsWith(p.toLowerCase())
+      );
+      if (matchingRoute) {
+        addLink(
+          HEAD_ID_PREFIX + sanitizeId(matchingRoute),
+          routeCssMap[matchingRoute]
+        );
       }
-    }
+    } else {
+      // 🧼 Hard reset to ensure Tailwind fully re-applies
+      requestAnimationFrame(() => {
+        document.body.style.cssText = ""; // remove inline bootstrap resets
+        document.querySelectorAll("style, link").forEach((el) => {
+          if (
+            el.id.startsWith(HEAD_ID_PREFIX) ||
+            (el instanceof HTMLLinkElement &&
+              el.href.includes("bootstrap"))
+          ) {
+            el.remove();
+          }
+        });
 
-    // Find the first route CSS that matches the current path prefix
-    const normalizedPath = location.pathname.toLowerCase().replace(/\/+$/, "");
-    const matchingRoute = Object.keys(routeCssMap).find((p) =>
-      normalizedPath.startsWith(p.toLowerCase())
-    );
-
-    if (matchingRoute) {
-      const id = HEAD_ID_PREFIX + sanitizeId(matchingRoute);
-      addLink(id, routeCssMap[matchingRoute]);
+        // Force reflow to re-trigger Tailwind cascade
+        void document.body.offsetHeight;
+      });
     }
   }, [location.pathname]);
 
-  return <>{children}</>;
+  return <div className="recruitment-module">{children}</div>;
 };
 
 function sanitizeId(p: string) {

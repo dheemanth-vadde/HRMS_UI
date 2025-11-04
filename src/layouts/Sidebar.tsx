@@ -75,7 +75,12 @@ const Sidebar = () => {
           {routes.filter(route => !route.hidden).map((route) => {
             if (route.children) {
               const isExpanded = expandedMenus.includes(route.path);
-              const isActive = location.pathname.startsWith(route.path);
+              const isActive =
+                location.pathname === route.path ||
+                (
+                  location.pathname.startsWith(`${route.path}/`) &&
+                  !location.pathname.startsWith(`${route.path}/master`)
+                );
               
               return (
                 <div key={route.path} className="space-y-1">
@@ -99,10 +104,10 @@ const Sidebar = () => {
                   </button>
                   
                   {!collapsed && isExpanded && (
-                    <div className="mt-1 ml-4 space-y-1 border-l-2 border-white/20 pl-4">
-                                    {route.children
-  .filter(child => !child.hidden) // 👈 skip hidden children
-  .map(child => {
+                    <div className="mt-1 ml-4 space-y-1 border-l-2 border-white/20 pl-0">
+                      {route.children
+                        .filter(child => !child.hidden) // 👈 skip hidden children
+                        .map(child => {
                 // Build the full URL used by NavLink:
                 // if child.path already starts with '/', use it as-is; otherwise join parent + child
                 const childFullPath = child.path.startsWith("/")

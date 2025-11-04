@@ -704,7 +704,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
 
       {/* Employee Grid */}
       {viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-columns-three xl:grid-cols-4 gp-4">
           {filteredEmployees.map((employee) => (
             <Card
               key={employee.id}
@@ -952,7 +952,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
             </TabsList>
 
             <TabsContent value="manual" className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gp-4">
                 {/* <div className="space-y-2">
                   <Label>Employee ID *</Label>
                   <Input
@@ -1168,7 +1168,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
             <TabsContent value="import" className="space-y-4 mt-4">
               <div className="border-2 border-dashed rounded-lg p-8">
                 <div className="text-center space-y-4">
-                  <div className="flex justify-center gap-4">
+                  <div className="flex justify-center gp-4">
                     <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10">
                       <FileSpreadsheet className="size-12 text-primary" />
                     </div>
@@ -1179,7 +1179,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                       Support for CSV and XLSX formats
                     </p>
                   </div>
-                  <div className="flex justify-center gap-4">
+                  <div className="flex justify-center gp-4">
                     {/* <div>
                       <input
                         type="file"
@@ -1209,7 +1209,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   </div>
                   <div className="mt-4 p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm font-medium mb-2">Required Columns:</p>
-                    <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                    <div className="grid grid-columns-three gap-2 text-xs text-muted-foreground">
                       {/* <span>• Employee ID</span> */}
                       <span>• Full Name</span>
                       <span>• Personal Email</span>
@@ -1244,7 +1244,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 Update employee information
               </DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-2 gp-4 mt-4">
               <div className="space-y-2">
                 <Label>Employee ID *</Label>
                 <Input

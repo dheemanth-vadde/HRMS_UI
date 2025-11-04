@@ -153,7 +153,7 @@ export function SuperAdminDashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-columns-three gap-6">
         {/* Recent Activities - Takes 2 columns */}
         <Card className="lg:col-span-2 border shadow-lg animate-slide-in-left">
            <CardHeader className="border-b pb-4">
@@ -221,7 +221,7 @@ export function SuperAdminDashboard() {
       </div>
 
       {/* Bottom Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-columns-three gap-6">
         <Card className="border shadow-lg" style={{animationDelay: '0.2s'}}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">

@@ -216,7 +216,7 @@ export function RecruitmentModule() {
                   </div>
                   <Button variant="outline" size="sm">View Details</Button>
                 </div>
-                <div className="grid grid-cols-3 gap-4 p-3 bg-muted/50 rounded-lg">
+                <div className="grid grid-columns-three gap-4 p-3 bg-muted/50 rounded-lg">
                   <div>
                     <p className="text-xs text-muted-foreground">Total Candidates</p>
                     <p className="text-lg font-bold text-primary">{req.candidates}</p>
@@ -261,7 +261,7 @@ export function RecruitmentModule() {
                   <Button variant="ghost" size="sm">View Resume</Button>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-3 bg-muted/50 rounded-lg mb-3">
+                <div className="grid grid-cols-2 md:grid-columns-three gap-4 p-3 bg-muted/50 rounded-lg mb-3">
                   <div>
                     <p className="text-xs text-muted-foreground">Experience</p>
                     <p className="text-sm font-medium">{candidate.experience}</p>

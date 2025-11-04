@@ -166,7 +166,7 @@ export function ExitModule() {
               <CardDescription>Track your clearance progress</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-columns-three gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Resignation Status</p>
                   <Badge variant="secondary" className="mt-1">Manager Review Pending</Badge>

@@ -247,7 +247,7 @@ export function ProfileModule() {
       {/* Profile Summary */}
       <Card className="border-l-4 border-l-primary">
         <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-columns-three gap-6">
             <div className="flex items-center gap-3">
               <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <User className="size-6 text-orange-600" />
@@ -482,7 +482,7 @@ export function ProfileModule() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-columns-three gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="emergencyContact">Contact Name</Label>
                   <Input
@@ -804,7 +804,7 @@ export function ProfileModule() {
               <CardTitle className="text-base">Service Information</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-columns-three gap-6">
                 <div>
                   <p className="text-sm text-muted-foreground">Date of Joining</p>
                   <p className="font-medium">June 1, 2018</p>
@@ -1017,7 +1017,7 @@ export function ProfileModule() {
             </CardHeader>
             <CardContent>
               {/* Holiday Statistics */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-columns-three gap-4 mb-6">
                 <Card className="border-l-4 border-l-primary">
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">

@@ -90,7 +90,7 @@ export function PoliciesModule() {
           <CardDescription>Frequently accessed documents</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-columns-three gap-4">
             <Button variant="outline" className="h-auto py-6 flex flex-col items-center gap-2">
               <Shield className="size-6 text-orange-600" />
               <span className="text-sm">Employee Handbook</span>

@@ -116,7 +116,7 @@ export function AttendanceModule() {
       </Card>
 
       {/* Attendance Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-columns-three gap-4">
         <Card className="border-2 border-secondary">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-bold">This Month</CardTitle>
