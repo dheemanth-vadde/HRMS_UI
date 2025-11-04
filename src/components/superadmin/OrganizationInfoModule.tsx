@@ -593,6 +593,11 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                   )}
                 </div>
 
+                
+
+              </div>
+
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     {/* <Phone className="size-4" /> */}
@@ -755,10 +760,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                     <p className="font-medium">{getCityName(orgData.city)}</p>
                   )}
                 </div>
-
-              </div>
-
-              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     {/* <MapPin className="size-4" /> */}

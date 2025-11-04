@@ -488,7 +488,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
             {viewOnly ? "View organization business units" : "Manage organization business units"}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gp-2">
           <div className="relative w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
@@ -523,7 +523,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   <TableHead className="font-semibold text-base mb-1">Country</TableHead>
                   <TableHead className="font-semibold text-base mb-1">State</TableHead>
                   <TableHead className="font-semibold text-base mb-1">City</TableHead>
-                  <TableHead className="font-semibold text-base mb-1 text-right">Actions</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -544,7 +544,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                       <TableCell>{unit.city}</TableCell>
                       <TableCell className="text-right">
                         {!viewOnly && (
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex items-center gp-2">
                             <Button
                               variant="ghost"
                               size="icon"
@@ -579,8 +579,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
             </Table>
           </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between mtop-4">
+            <div className="flex items-center gp-2">
               <Button
                 variant="outline"
                 size="icon"
@@ -601,7 +601,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 Page {currentPage} of {totalPages || 1}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gp-2">
               <span className="text-sm text-muted-foreground">Records per page:</span>
               <Select
                 value={pageSize.toString()}  // CHANGED: Controlled by pageSize state
@@ -639,8 +639,8 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 mt-4">
-            <div className="grid grid-columns-three gap-4">
+          <div className="space-y-4 mtop-4">
+            <div className="grid grid-columns-three gp-4">
               <div className="space-y-2">
                 <Label>Unit Name *</Label>
                 <Input
@@ -690,7 +690,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 )}
               </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gp-4">
               <div className="space-y-2 col-span-2">
                 <Label>Employment Types *</Label>
                 <MultiSelectDropdown
@@ -716,7 +716,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
               </div>
 
 
- <div className="grid grid-cols-3 gap-4">
+ <div className="grid grid-columns-three gp-4">
 
               <div className="space-y-2">
                 <Label>Started On *</Label>
@@ -777,7 +777,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 {errors.countryId && <p className="text-destructive text-sm mt-1">{errors.countryId}</p>}
               </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-columns-three gp-4">
               <div className="space-y-2">
                 <Label>State *</Label>
                 <Select
@@ -908,7 +908,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   )}
                 </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gp-4">
 
 
                 <div className="space-y-2 col-span-2">
@@ -935,7 +935,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   {errors.empTypes && <p className="text-destructive text-sm mt-1">{errors.empTypes}</p>}
                 </div>
 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-columns-three gp-4">
 
                 <div className="space-y-2">
                   <Label>Started On *</Label>
@@ -1008,7 +1008,7 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                   {errors.countryId && <p className="text-destructive text-sm mt-1">{errors.countryId}</p>}
                 </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-columns-three gp-4">
                 <div className="space-y-2">
                   <Label>State *</Label>
                   <Select

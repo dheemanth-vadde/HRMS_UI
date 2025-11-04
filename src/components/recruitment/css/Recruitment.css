@@ -1031,10 +1031,11 @@ margin-bottom: 0px !important;
 }
 
 .text-base {
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 14px;
 }
-
+button{
+  font-size: 14px;
+}
 .mb-1 {
   margin-bottom: 4px;
 }
