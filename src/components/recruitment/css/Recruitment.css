@@ -965,7 +965,7 @@ margin-bottom: 0px !important;
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
-  background-color: #111827;
+  background-color: #2d2d58;
   color: #fff;
   font-size: 14px;
   font-weight: 500;
@@ -977,12 +977,12 @@ margin-bottom: 0px !important;
 }
 
 .btn-primary-modern:hover {
-  background-color: #1f2937;
+  background-color: #2d2d58;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary-modern:active {
-  background-color: #374151;
+  background-color: #2d2d58;
 }
 
 /* Modern Table Styles - matching Business Unit */

@@ -1239,6 +1239,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .grid-columns-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1466,8 +1470,9 @@
   }
 
   .rounded-xl {
-    border-radius: calc(var(--radius)  + 4px);
+    border-radius: calc(var(--radius)  + 4px) !important;
   }
+  
 
   .rounded-xs {
     border-radius: var(--radius-xs);
@@ -1643,7 +1648,7 @@
   }
 
   .border-transparent {
-    border-color: #0000;
+    border-color: #0000 !important;
   }
 
   .border-warning\/20 {

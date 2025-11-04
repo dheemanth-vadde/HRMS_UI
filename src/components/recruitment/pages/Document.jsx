@@ -1,13 +1,8 @@
 // Documents.jsx
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Form,
-  Table,
-  InputGroup,
-  Row,
-  Col
-} from "react-bootstrap";
+// Remove react-bootstrap imports since we're using custom UI components
+import { Button } from "../../ui/button";
+import { Input } from "../../ui/input";
 import {
   Dialog,
   DialogContent,
@@ -294,7 +289,7 @@ const Document = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="grid gap-4 py-4">
+          <div className="grid gp-4 ">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="document_name" className="text-sm font-medium">
@@ -350,7 +345,7 @@ const Document = () => {
             </Button>
             <Button 
               onClick={handleSave}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
+              className="bg-[#4F46E5] hover:bg-[#4338CA] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:ring-offset-2 transition-colors"
             >
               {editIndex !== null ? "Update Document" : "Save"}
             </Button>

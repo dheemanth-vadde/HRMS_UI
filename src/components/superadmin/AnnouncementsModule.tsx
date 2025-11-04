@@ -553,7 +553,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                       </div>
 
                       {/* Fixed columns: Business Unit | Department | Posted On */}
-                      <div className="grid grid-columns-three gap-4 mb-2 text-sm text-muted-foreground">
+                      <div className="grid grid-columns-three gp-4 mb-2 text-sm text-muted-foreground">
                         <div>
                           <strong className="inline">Business Units:</strong>{" "}
                           <span className="inline break-words">
@@ -622,7 +622,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                 <Megaphone className="size-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">No announcements found</p>
                 {/* {!viewOnly && (
-                  <Button className="mt-4" onClick={() => setShowAddDialog(true)}>
+                  <Button className="mtop-4" onClick={() => setShowAddDialog(true)}>
                     <Plus className="size-4 mr-2" />
                     Create Announcement
                   </Button>
@@ -632,7 +632,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
           </div>
         </CardContent>
       </Card>
-      <div className="flex items-center justify-between mt-4">
+      <div className="flex items-center justify-between mtop-4">
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -690,35 +690,13 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
           </DialogHeader>
 
           <Tabs defaultValue="manual" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-columns-two">
               <TabsTrigger value="manual">Manual Entry</TabsTrigger>
               <TabsTrigger value="import">Import File</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="manual" className="space-y-4 mt-4">
+            <TabsContent value="manual" className="space-y-4 mtop-4">
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Title *</Label>
-                  <Input
-                    placeholder="Enter announcement title"
-                    value={newAnnouncement.title}
-                    onChange={(e) => {
-                      setNewAnnouncement({ ...newAnnouncement, title: e.target.value });
-                      setFormErrors((prev) => ({ ...prev, title: "" }));
-                    }}
-                  />
-                  {formErrors.title && <p className="text-sm text-destructive">{formErrors.title}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label>Description</Label>
-                  <Textarea
-                    placeholder="Enter announcement details"
-                    value={newAnnouncement.message}
-                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })}
-                    rows={4}
-                  />
-                </div>
-
                 {/* Business Unit Multi-Select (ADD) */}
                 <div className="space-y-2">
                   <Label>Business Units</Label>
@@ -743,26 +721,37 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                     <p className="text-sm text-destructive">{formErrors.unitId}</p>
                   )}
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Departments</Label>
+                  <MultiSelectDropdown
+                    items={filteredDepartments.map((d: any) => ({ id: d.id, label: d.deptName, unitId: d.unitId }))}
+                    selectedIds={newAnnouncement.deptId}
+                    onChange={(ids) => {
+                      setNewAnnouncement((prev) => ({ ...prev, deptId: ids }));
+                      setFormErrors(prev => ({ ...prev, deptId: "" }));
+                    }}
+                    placeholder="Select Departments"
+                    dropdownClassName="department-dropdown"
+                  />
+                  {formErrors.deptId && <p className="text-sm text-destructive">{formErrors.deptId}</p>}
+                </div>
+                <div className="grid grid-columns-two gp-4">
 
                   {/* Department Multi-Select (ADD) */}
+
+
                   <div className="space-y-2">
-                    <Label>Departments</Label>
-                    <MultiSelectDropdown
-                      items={filteredDepartments.map((d: any) => ({ id: d.id, label: d.deptName, unitId: d.unitId }))}
-                      selectedIds={newAnnouncement.deptId}
-                      onChange={(ids) => {
-                        setNewAnnouncement((prev) => ({ ...prev, deptId: ids }));
-                        setFormErrors(prev => ({ ...prev, deptId: "" }));
+                    <Label>Title *</Label>
+                    <Input
+                      placeholder="Enter announcement title"
+                      value={newAnnouncement.title}
+                      onChange={(e) => {
+                        setNewAnnouncement({ ...newAnnouncement, title: e.target.value });
+                        setFormErrors((prev) => ({ ...prev, title: "" }));
                       }}
-                      placeholder="Select Departments"
-                      dropdownClassName="department-dropdown"
                     />
-                    {formErrors.deptId && <p className="text-sm text-destructive">{formErrors.deptId}</p>}
+                    {formErrors.title && <p className="text-sm text-destructive">{formErrors.title}</p>}
                   </div>
-
-
                   {/* Date */}
                   <div className="space-y-2">
                     <Label>Date *</Label>
@@ -777,8 +766,21 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                     {formErrors.startDate && <p className="text-sm text-destructive">{formErrors.startDate}</p>}
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    placeholder="Enter announcement details"
+                    value={newAnnouncement.message}
+                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })}
+                    rows={4}
+                  />
+                </div>
 
-                {/* <div className="grid grid-cols-2 gap-4">
+
+
+
+
+                {/* <div className="grid grid-columns-two gp-4">
                   <div className="space-y-2">
                     <Label>Category *</Label>
                     <Input
@@ -833,10 +835,10 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
             </TabsContent>
 
             {/* Import Tab (Unchanged) */}
-            <TabsContent value="import" className="space-y-4 mt-4">
+            <TabsContent value="import" className="space-y-4 mtop-4">
               <div className="border-2 border-dashed rounded-lg p-8">
                 <div className="text-center space-y-4">
-                  <div className="flex justify-center gap-4">
+                  <div className="flex justify-center gp-4">
                     <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10">
                       <FileSpreadsheet className="size-12 text-primary" />
                     </div>
@@ -847,7 +849,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                       Support for CSV and XLSX formats
                     </p>
                   </div>
-                  <div className="flex justify-center gap-4">
+                  <div className="flex justify-center gp-4">
                     <div>
                       <input
                         type="file"
@@ -901,32 +903,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
               <DialogDescription>Update announcement information</DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label>Title *</Label>
-                <Input
-                  value={editingAnnouncement.title}
-                  onChange={(e) => {
-                    setEditingAnnouncement({ ...editingAnnouncement, title: e.target.value });
-                    setFormErrors((prev) => ({ ...prev, title: "" }));
-                  }}
-                />
-                {formErrors.title && (
-                  <p className="text-sm text-destructive">{formErrors.title}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={editingAnnouncement.message}
-                  onChange={(e) =>
-                    setEditingAnnouncement({ ...editingAnnouncement, message: e.target.value })
-                  }
-                  rows={3}
-                />
-              </div>
-
+            <div className="space-y-4 mtop-4">
               {/* Business Unit Multi-Select (EDIT) */}
               <div className="space-y-2">
                 <Label>Business Unit(s) *</Label>
@@ -949,24 +926,41 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                 />
                 {formErrors.unitId && <p className="text-sm text-destructive">{formErrors.unitId}</p>}
               </div>
+              {/* Department Multi-Select (EDIT) */}
+              <div className="space-y-2">
+                <Label>Department(s) *</Label>
+                <MultiSelectDropdown
+                  items={filteredDepartmentsEdit.map((d: any) => ({ id: d.id, label: d.deptName, unitId: d.unitId }))}
+                  selectedIds={editingAnnouncement.deptId}
+                  onChange={(ids) => {
+                    setEditingAnnouncement((prev: any) => ({ ...prev, deptId: ids }));
+                    setFormErrors(prev => ({ ...prev, deptId: "" }));
+                  }}
+                  placeholder="Select Department(s)"
+                  dropdownClassName="department-dropdown"
+                />
+                {formErrors.deptId && <p className="text-sm text-destructive">{formErrors.deptId}</p>}
+              </div>
+              <div className="grid grid-columns-two gp-4">
 
-              <div className="grid grid-cols-2 gap-4">
 
-                {/* Department Multi-Select (EDIT) */}
+
                 <div className="space-y-2">
-                  <Label>Department(s) *</Label>
-                  <MultiSelectDropdown
-                    items={filteredDepartmentsEdit.map((d: any) => ({ id: d.id, label: d.deptName, unitId: d.unitId }))}
-                    selectedIds={editingAnnouncement.deptId}
-                    onChange={(ids) => {
-                      setEditingAnnouncement((prev: any) => ({ ...prev, deptId: ids }));
-                      setFormErrors(prev => ({ ...prev, deptId: "" }));
+                  <Label>Title *</Label>
+                  <Input
+                    value={editingAnnouncement.title}
+                    onChange={(e) => {
+                      setEditingAnnouncement({ ...editingAnnouncement, title: e.target.value });
+                      setFormErrors((prev) => ({ ...prev, title: "" }));
                     }}
-                    placeholder="Select Department(s)"
-                    dropdownClassName="department-dropdown"
                   />
-                  {formErrors.deptId && <p className="text-sm text-destructive">{formErrors.deptId}</p>}
+                  {formErrors.title && (
+                    <p className="text-sm text-destructive">{formErrors.title}</p>
+                  )}
                 </div>
+
+             
+
 
 
                 <div className="space-y-2">
@@ -984,8 +978,17 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                   )}
                 </div>
               </div>
-
-              {/* <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={editingAnnouncement.message}
+                    onChange={(e) =>
+                      setEditingAnnouncement({ ...editingAnnouncement, message: e.target.value })
+                    }
+                    rows={3}
+                  />
+                </div>
+              {/* <div className="grid grid-columns-two gp-4">
                 <div className="space-y-2">
                   <Label>Category *</Label>
                   <Input

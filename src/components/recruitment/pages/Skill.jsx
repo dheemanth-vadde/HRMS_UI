@@ -1,13 +1,6 @@
 // Skill.js
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Form,
-  Table,
-  InputGroup,
-  Row,
-  Col
-} from "react-bootstrap";
+import { Button } from '../../ui/button'
 import {
   Dialog,
   DialogContent,
@@ -24,7 +17,6 @@ import {
   faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import { Label } from "../../ui/label";
-import axios from "axios";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import apiService from "../services/apiService";
@@ -207,7 +199,7 @@ const Skill = () => {
   // if (error) return <div className="alert alert-danger mt-5">{error}</div>;
 
   return (
-    <div className="space-y-6 py-3">
+    <div className="space-y-6 py-3 skills">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold">Skills</h1>
@@ -261,7 +253,7 @@ const Skill = () => {
                     <span className="ml-1">{getSortIndicator("skill_desc")}</span>
                  
                 </th>
-                <th className="text-foreground h-10 px-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 text-right">
+                <th className="text-foreground h-10 px-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
                   Actions
                 </th>
               </tr>
@@ -276,7 +268,7 @@ const Skill = () => {
                     <td className="px-2 py-4 whitespace-normal">
                       {job.skill_desc || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap  text-sm font-medium">
                       <button
                         onClick={() => openModal(job, index)}
                         className="text-blue-600 hover:text-blue-900 mr-4"
@@ -316,7 +308,7 @@ const Skill = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="grid gap-4 py-4">
+          <div className="grid gp-4 py-4">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="skill_name" className="text-sm font-medium">

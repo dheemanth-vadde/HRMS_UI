@@ -94,3 +94,13 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
    color: #FF7043;
    font-weight: 600;
 }
+.skills .text-base {
+	font-size: 16px !important;
+}
+.bg-background .btn-primary {
+	background-color: #2d2d58 !important;
+  border-color: #2d2d58;
+}
+/* .bg-background .px-4, .bg-background .py-4 {
+	padding: 12px !important;
+} */

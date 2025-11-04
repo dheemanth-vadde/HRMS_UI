@@ -430,7 +430,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <TableHead className="font-semibold text-base mb-1">Department Head</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Time Zone</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Business Unit</TableHead>
-                  <TableHead className="font-semibold text-base mb-1 text-right">Actions</TableHead>
+                  <TableHead className="font-semibold text-base mb-1">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -447,7 +447,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                         <TableCell>{getBusinessUnitName(dept.businessUnit) || "-"}</TableCell>
                         <TableCell className="text-right">
                           {!viewOnly && (
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center gap-2">
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -544,13 +544,40 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
           </DialogHeader>
 
           <Tabs defaultValue="manual" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-columns-two">
               <TabsTrigger value="manual">Manual Entry</TabsTrigger>
               <TabsTrigger value="import">Import File</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="manual" className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
+            <TabsContent value="manual" className="space-y-4 mtop-4">
+              <div className="grid grid-columns-two gp-4">
+                <div className="space-y-2">
+                  <Label>Business Unit *</Label>
+                  <Select
+                    value={newDept.businessUnit}
+                    onValueChange={(value: any) => {
+                      setNewDept({ ...newDept, businessUnit: value });
+                      if (formErrors.businessUnit) {
+                        setFormErrors((prev) => ({ ...prev, businessUnit: null }));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+                      {businessUnits.map((unit) => (
+                        <SelectItem key={unit.id} value={String(unit.id)}>
+                          {unit.unitName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formErrors.businessUnit && (
+                    <p className="text-sm text-destructive">{formErrors.businessUnit}</p>
+                  )}
+                </div>
                 <div className="space-y-2">
                   <Label>Department Name *</Label>
                   <Input
@@ -625,33 +652,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Business Unit *</Label>
-                  <Select
-                    value={newDept.businessUnit}
-                    onValueChange={(value: any) => {
-                      setNewDept({ ...newDept, businessUnit: value });
-                      if (formErrors.businessUnit) {
-                        setFormErrors((prev) => ({ ...prev, businessUnit: null }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select unit" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
-                      {businessUnits.map((unit) => (
-                        <SelectItem key={unit.id} value={String(unit.id)}>
-                          {unit.unitName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {formErrors.businessUnit && (
-                    <p className="text-sm text-destructive">{formErrors.businessUnit}</p>
-                  )}
-                </div>
+                
 
                 <div className="space-y-2">
                   <Label>Time Zone</Label>
@@ -689,7 +690,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
             <TabsContent value="import" className="space-y-4 mt-4">
               <div className="border-2 border-dashed rounded-lg p-8">
                 <div className="text-center space-y-4">
-                  <div className="flex justify-center gap-4">
+                  <div className="flex justify-center gp-4">
                     <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10">
                       <FileSpreadsheet className="size-12 text-primary" />
                     </div>
@@ -700,7 +701,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                       Support for CSV and XLSX formats
                     </p>
                   </div>
-                  <div className="flex justify-center gap-4">
+                  <div className="flex justify-center gp-4">
                     <div>
                       <input
                         type="file"
@@ -758,7 +759,30 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
           {editingDept && (
             <div className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-columns-two gp-4">
+                {/* Business Unit */}
+                <div className="space-y-2">
+                  <Label>Business Unit *</Label>
+                  <Select
+                    value={editingDept.businessUnit}
+                    onValueChange={(value: any) => {
+                      setEditingDept({ ...editingDept, businessUnit: value });
+                      if (formErrors.businessUnit) setFormErrors(prev => ({ ...prev, businessUnit: null }));
+                    }}
+                  >
+                   <SelectTrigger>
+                      <SelectValue placeholder="Select unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+
+                      {businessUnits.map(unit => (
+                        <SelectItem key={unit.id} value={String(unit.id)}>{unit.unitName}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formErrors.businessUnit && <p className="text-destructive text-sm">{formErrors.businessUnit}</p>}
+                </div>
                 {/* Department Name */}
                 <div className="space-y-2">
                   <Label>Department Name *</Label>
@@ -826,29 +850,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   {formErrors.deptHead && <p className="text-destructive text-sm">{formErrors.deptHead}</p>}
                 </div>
 
-                {/* Business Unit */}
-                <div className="space-y-2">
-                  <Label>Business Unit *</Label>
-                  <Select
-                    value={editingDept.businessUnit}
-                    onValueChange={(value: any) => {
-                      setEditingDept({ ...editingDept, businessUnit: value });
-                      if (formErrors.businessUnit) setFormErrors(prev => ({ ...prev, businessUnit: null }));
-                    }}
-                  >
-                   <SelectTrigger>
-                      <SelectValue placeholder="Select unit" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
-
-                      {businessUnits.map(unit => (
-                        <SelectItem key={unit.id} value={String(unit.id)}>{unit.unitName}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {formErrors.businessUnit && <p className="text-destructive text-sm">{formErrors.businessUnit}</p>}
-                </div>
+                
 
                 {/* Time Zone */}
                 <div className="space-y-2">

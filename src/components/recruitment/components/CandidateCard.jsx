@@ -1006,40 +1006,63 @@ const CandidateCard = ({ setTriggerDownload }) => {
                 </div>
                 <div className="d-flex gap-3 w-50 justify-content-end">
                     <div className="position-relative w-100" style={{ maxWidth: '400px' }}>
-                        <InputGroup className="search-container">
-                            <InputGroup.Text className="bg-white border-end-0">
-                                <FontAwesomeIcon icon={faSearch} className="text-muted" />
-                            </InputGroup.Text>
-                            <Form.Control
+                        <div style={{
+                            position: 'relative',
+                            display: 'flex',
+                            alignItems: 'center',
+                            width: '100%',
+                            height: '38px',
+                            backgroundColor: '#fff',
+                            border: '1px solid #dee2e6',
+                            borderRadius: '0.375rem',
+                            overflow: 'hidden',
+                            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        }}>
+                            <div style={{
+                                position: 'absolute',
+                                left: '12px',
+                                color: '#6c757d',
+                                pointerEvents: 'none'
+                            }}>
+                                <FontAwesomeIcon icon={faSearch} />
+                            </div>
+                            <input
+                                type="text"
                                 placeholder="Search candidates..."
-                                aria-label="Search candidates"
-                                className="border-start-0 ps-0"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 style={{
-                                    boxShadow: 'none',
-                                    borderLeft: 'none',
-                                    paddingLeft: '0.5rem'
+                                    width: '100%',
+                                    height: '100%',
+                                    padding: '0.375rem 2.5rem 0.375rem 2.5rem',
+                                    border: 'none',
+                                    outline: 'none',
+                                    backgroundColor: 'transparent',
+                                    fontSize: '0.875rem'
                                 }}
                             />
                             {search && (
-                                <Button
-                                    variant="link"
-                                    className="position-absolute end-0 top-50 translate-middle-y me-2 p-0"
+                                <button
+                                    type="button"
+                                    onClick={() => setSearch('')}
                                     style={{
-                                        color: '#6c757d',
-                                        textDecoration: 'none',
+                                        position: 'absolute',
+                                        right: '10px',
                                         background: 'transparent',
                                         border: 'none',
-                                        transform: 'translateY(-50%)',
-                                        lineHeight: 1
+                                        color: '#6c757d',
+                                        cursor: 'pointer',
+                                        padding: '0.25rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '0.75rem'
                                     }}
-                                    onClick={() => setSearch('')}
                                 >
                                     <i className="bi bi-x-lg"></i>
-                                </Button>
+                                </button>
                             )}
-                        </InputGroup>
+                        </div>
                     </div>
                 </div>
             </div>

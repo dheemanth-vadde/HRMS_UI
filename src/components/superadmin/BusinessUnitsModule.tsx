@@ -514,11 +514,13 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="font-semibold text-base mb-1">Employee ID</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Name</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Code</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">Started On</TableHead>
+                
+                  
+                  <TableHead className="font-semibold text-base mb-1">Employee Prefix</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Employment Types</TableHead>
+                    <TableHead className="font-semibold text-base mb-1">Started On</TableHead>
                   {/* <TableHead>Street Address</TableHead> */}
                   <TableHead className="font-semibold text-base mb-1">Country</TableHead>
                   <TableHead className="font-semibold text-base mb-1">State</TableHead>
@@ -530,15 +532,16 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                 {paginatedUnits.length > 0 ? (
                   paginatedUnits.map((unit) => (
                     <TableRow key={unit.id}>
-                      <TableCell>{unit.empPrefix || "-"}</TableCell>
                       <TableCell>{unit.name}</TableCell>
                       <TableCell>{unit.code}</TableCell>
-                      <TableCell>{unit.startedOn}</TableCell>
+                    
+                        <TableCell>{unit.empPrefix || "-"}</TableCell>
                       <TableCell>
                         {Array.isArray(unit.empTypes) && unit.empTypes.length > 0
                           ? unit.empTypes.join(", ")
                           : "-"}
                       </TableCell>
+                        <TableCell>{unit.startedOn}</TableCell>
                       <TableCell>{unit.country}</TableCell>
                       <TableCell>{unit.state}</TableCell>
                       <TableCell>{unit.city}</TableCell>

@@ -26,7 +26,7 @@ export function LoginPage() {
   e.preventDefault();
   setLoading(true);
   try {
-     const response = await api.post("auth/signin", { username, password });
+     const response = await api.post("auth/signin", { username:username.toUpperCase(), password });
       const { id, username: userName, email, token, refreshToken, role, roleId } = response.data;
 
       console.log("✅ Login successful:", response.data);
