@@ -1,7 +1,7 @@
-const BASE_URL = "https://bobjava.sentrifugo.com:8443/hrms-master-app/api";
+const BASE_URL = "https://bobjava.sentrifugo.com:8443/hrms-master-app/api/v1/master";
 
 export const STATE_ENDPOINTS = {
-  GET_STATE: `${BASE_URL}/v1/master/states`,
+  GET_STATE: `${BASE_URL}/states`,
  
 };
 

@@ -48,13 +48,13 @@ function getToken() {
 // const NODE_API_URL = process.env.REACT_APP_NODE_API_URL;
 // const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
 // const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/jobcreation/api/v1'
-const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/hrms-recruitment-app/api/v1'
+const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/hrms-recruitment-app/api/recruitment'
 // const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/master/api'
 const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/hrms-master-app/api/v1/master'
 const NODE_API_URL = 'https://bobbe.sentrifugo.com/api';
 //  const NODE_API_URL = 'http://localhost:5000/api';
 // //const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
-const CANDIDATE_API_URL = 'https://bobjava.sentrifugo.com:8443/hrms-candidate/api/v1/'
+const CANDIDATE_API_URL = 'https://bobjava.sentrifugo.com:8443/hrms-employees-app/api/employees'
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -348,7 +348,7 @@ export const apiService = {
   deleteData: (id) => api.delete(`/data/${id}`),
 
   // --- Approval trail for a requisition (username, useremail, status) ---
-  getApprovalTrail: (requisition_id) => api.get(`job-requisitions/workflow-approvals-details/${requisition_id}`),
+  getApprovalTrail: (requisition_id) => api.get(`/job-requisitions/workflow-approvals-details/${requisition_id}`),
 
   // Requisition endpoints
   getReqData: () => api.get('/job-requisitions/all'),
@@ -360,22 +360,22 @@ export const apiService = {
 
   // Approvals
   updateApproval: (data) => api.post('/job-requisitions/approve', data), 
-  getApprovalstatus: (userid) => api.get(`job-requisitions/approvals/${userid}`),
-  getWorkflowApprovals:(userid) =>api.get(`job-requisitions/workflow-approvals/${userid}`),
+  getApprovalstatus: (userid) => api.get(`/job-requisitions/approvals/${userid}`),
+  getWorkflowApprovals:(userid) =>api.get(`/job-requisitions/workflow-approvals/${userid}`),
 
   // Job Position endpoints
   getPosData: () => api.get('/job-positions/all'),
   jobCreation: (data) => api.post('/job-positions/create', data),
   uploadJobExcel: (data) => api.post('/job-positions/create-bulk', data),
-  getByRequisitionId: (requisition_id) => api.get(`job-positions/get-by-requisition/${requisition_id}`), 
+  getByRequisitionId: (requisition_id) => api.get(`/job-positions/get-by-requisition/${requisition_id}`), 
   updateJob: (data) => api.put('/job-positions/update', data),
-  getByPositionId: (position_id) => api.get(`job-positions/get/${position_id}`),
+  getByPositionId: (position_id) => api.get(`/job-positions/get/${position_id}`),
 
   getCanByPosition: (position_id) => candidateApi.get(`/candidates/details-by-position/${position_id}`),
   getCanByStatus: (status) => candidateApi.get(`/candidates/get-by-status/${status}`),
 
-  getMasterData: () => apis.get('display/all'),
-  getallCities: () => apis.get('v1/master/cities'),
+  getMasterData: () => apis.get('/display/all'),
+  getallCities: () => apis.get('/cities'),
   getDashboardQueries: () => api.get('/dashboard/queries'),
   getDashboardMetrics: () => api.get('/dashboard/metrics'),
 
@@ -386,10 +386,10 @@ export const apiService = {
   deleteLocation: (id) => apis.delete(`/location/delete/${id}`),
 
   // Departments
-  getallDepartment: () => apis.get('v1/master/departments'),
-  addDepartment: (data) => apis.post('v1/master/departments', data),
-  updateDepartment: (id, data) => apis.put(`v1/master/departments/${id}`, data),
-  deleteDepartment: (id) => apis.delete(`v1/master/departments/${id}`),
+  getallDepartment: () => apis.get('/departments'),
+  addDepartment: (data) => apis.post('/departments', data),
+  updateDepartment: (id, data) => apis.put(`/departments/${id}`, data),
+  deleteDepartment: (id) => apis.delete(`/departments/${id}`),
 
   // Skills
   getallSkills: () => apis.get('/skill/all'),

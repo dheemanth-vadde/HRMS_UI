@@ -1,7 +1,7 @@
-const BASE_URL = "https://bobjava.sentrifugo.com:8443/hrms-master-app/api";
+const BASE_URL = "https://bobjava.sentrifugo.com:8443/hrms-master-app/api/v1/master";
 
 export const CITY_ENDPOINTS = {
-  GET_CITY: `${BASE_URL}/v1/master/cities`,
+  GET_CITY: `${BASE_URL}/cities`,
  
 };
 
