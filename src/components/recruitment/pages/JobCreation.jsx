@@ -346,19 +346,19 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
 
           });
           const states = masterData.allStates.filter(
-            (s) => s.country_id === Number(selectedPosition.countryId)
+            (s) => s.country_id === selectedPosition.country_id
           );
           setFilteredStates(states);
 
           // 2. Filter cities for the selected state
           const cities = masterData.allCities.filter(
-            (c) => c.state_id === Number(selectedPosition.stateId)
+            (c) => c.state_id === selectedPosition.state_id
           );
           setFilteredCities(cities);
 
           // 3. Filter locations for the selected city
           const locations = masterData.allLocations.filter(
-            (l) => l.city_id === Number(selectedPosition.cityId)
+            (l) => l.city_id === selectedPosition.city_id
           );
           setFilteredLocations(locations);
 
@@ -434,7 +434,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
 
     if (name === "country_id") {
       // Convert the value to a number since IDs are numbers
-      const countryId = Number(value);
+      const countryId = value;
       // console.log('Selected country ID:', countryId);
       if (countryId) {
         // Filter states based on the countryId
@@ -459,7 +459,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
 
     } else if (name === "state_id") {
       // Convert the value to a number since IDs are numbers
-      const stateId = Number(value);
+      const stateId = value;
 
       if (stateId) {
         // Filter cities where the state_id matches the selected state's ID
@@ -481,7 +481,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
 
     } else if (name === "city_id") {
       // Convert the value to a number since IDs are numbers
-      const cityId = Number(value);
+      const cityId = value;
 
       if (cityId) {
         // Filter locations where the city_id matches the selected city's ID
@@ -526,7 +526,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
     //if (!formData.preferred_qualification) newErrors.preferred_qualification = 'Preferred Qualification is required';
     if (!formData.mandatory_experience || isNaN(formData.mandatory_experience) || Number(formData.mandatory_experience) <= 0) newErrors.mandatory_experience = 'Mandatory Experience is required and must be a positive number';
     //if (!formData.preferred_experience || isNaN(formData.preferred_experience) || Number(formData.preferred_experience) <= 0) newErrors.preferred_experience = 'Preferred Experience is required and must be a positive number';
-    if (!formData.probation_period || isNaN(formData.probation_period) || Number(formData.probation_period) <= 0) {newErrors.probation_period = 'Probation Period is required and must be a positive number';}
+    // if (!formData.probation_period || isNaN(formData.probation_period) || Number(formData.probation_period) <= 0) {newErrors.probation_period = 'Probation Period is required and must be a positive number';}
      if (!formData.documents_required.trim()) newErrors.documents_required = 'Documents Required is required';
     // if (!String(formData.min_credit_score ?? '').trim()) newErrors.min_credit_score = 'Min Credit Score is required';
     //if (!formData.selection_procedure || !formData.selection_procedure.trim()) newErrors.selection_procedure = 'Selection Process is required';
@@ -538,22 +538,22 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
     ) {
       newErrors.preferred_experience = 'Preferred Experience must be a positive number';
     }
-    if (
-      formData.probation_period !== '' &&
-      formData.probation_period !== null &&
-      formData.probation_period !== undefined &&
-      (isNaN(formData.probation_period) || Number(formData.probation_period) < 0)
-    ) {
-      newErrors.probation_period = 'Probation Period must be a positive number';
-    }
-    if (
-      formData.min_credit_score !== '' &&
-      formData.min_credit_score !== null &&
-      formData.min_credit_score !== undefined &&
-      isNaN(formData.min_credit_score)
-    ) {
-      newErrors.min_credit_score = 'Min Credit Score must be a number';
-    }
+    // if (
+    //   formData.probation_period !== '' &&
+    //   formData.probation_period !== null &&
+    //   formData.probation_period !== undefined &&
+    //   (isNaN(formData.probation_period) || Number(formData.probation_period) < 0)
+    // ) {
+    //   newErrors.probation_period = 'Probation Period must be a positive number';
+    // }
+    // if (
+    //   formData.min_credit_score !== '' &&
+    //   formData.min_credit_score !== null &&
+    //   formData.min_credit_score !== undefined &&
+    //   isNaN(formData.min_credit_score)
+    // ) {
+    //   newErrors.min_credit_score = 'Min Credit Score must be a number';
+    // }
     if (formData.grade_id === '0') {
       // Validate min_salary when grade is 'Others'
       if (!formData.min_salary || isNaN(formData.min_salary) || Number(formData.min_salary) <= 0) {
@@ -659,8 +659,8 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
         ),
         dept_id: findId(masterData.departmentOptions, "department_name", "department_id", item["Department"]),
         country_id: findId(masterData.allCountries, "country_name", "country_id", item["Country"]),
-        state_id: findId(masterData.allStates, "state", "id", item["State"]),
-        city_id: findId(masterData.allCities, "city", "id", item["City"]),
+        state_id: findId(masterData.allStates, "state_name", "state_id", item["State"]),
+        city_id: findId(masterData.allCities, "city_name", "city_id", item["City"]),
         location_id: findId(masterData.allLocations, "location_name", "location_id", item["Location"]),
         description: item["Description"] ?? null,
         roles_responsibilities: item["Roles & Responsibilities"] ?? null,

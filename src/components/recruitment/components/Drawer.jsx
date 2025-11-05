@@ -149,7 +149,7 @@ function Drawer({
                   {
                     // console.log("feedbackRes",feedbackRes.data);
                     
-                     setFeedbacks(feedbackRes?.data);
+                     setFeedbacks(feedbackRes);
                   }
       }
 

@@ -767,8 +767,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   )}
                 </div>
               )}
-
-              <CardContent className="p-5">
+              <CardContent className="pp-5">
                 {/* Profile Image */}
                 <div className="flex items-start gap-3 mb-4">
                   <div className="relative flex-shrink-0">

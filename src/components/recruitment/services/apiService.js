@@ -47,7 +47,7 @@ function getToken() {
 // const API_BASE_URLS = process.env.REACT_APP_API_BASE_URLS;
 // const NODE_API_URL = process.env.REACT_APP_NODE_API_URL;
 // const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
-// const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/jobcreation/api/v1'
+// const API_BASE_URL = 'http://192.168.20.111:8081/hrms-recruitment-app/api/recruitment'
 const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/hrms-recruitment-app/api/recruitment'
 // const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/master/api'
 const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/hrms-master-app/api/v1/master'
@@ -371,8 +371,8 @@ export const apiService = {
   updateJob: (data) => api.put('/job-positions/update', data),
   getByPositionId: (position_id) => api.get(`/job-positions/get/${position_id}`),
 
-  getCanByPosition: (position_id) => candidateApi.get(`/candidates/details-by-position/${position_id}`),
-  getCanByStatus: (status) => candidateApi.get(`/candidates/get-by-status/${status}`),
+  getCanByPosition: (position_id) => api.get(`/candidates/details-by-position/${position_id}`),
+  getCanByStatus: (status) => api.get(`/candidates/get-by-status/${status}`),
 
   getMasterData: () => apis.get('/display/all'),
   getallCities: () => apis.get('/cities'),
@@ -405,18 +405,18 @@ export const apiService = {
 
   //Candidate Interview
   createInterview: (applicationId) => 
-    candidateApi.get(`/candidates/interviews/${applicationId}`),
-  updateInterviewStatus: (data) => candidateApi.put('/candidates/schedule-interview', data),
+    api.get(`/candidates/interviews/${applicationId}`),
+  updateInterviewStatus: (data) => api.put('/candidates/schedule-interview', data),
   getPanelSlots: (panelId, date) =>
-    candidateApi.get('/candidates/panel-free-slots', { params: { panelId, date } }),
+    api.get('/candidates/panel-free-slots', { params: { panelId, date } }),
    //getfeedback: (candidate_id,position_id) => candidateApi.get(`/candidates/getfeedback/${candidate_id}/${position_id}`),
    getfeedback: (application_id) =>
-  candidateApi.get(`/candidates/get-feedback/${application_id}`),
+  api.get(`/candidates/get-feedback/${application_id}`),
 
-  postFeedback: (data) => candidateApi.post('/candidates/feedback', data),
+  postFeedback: (data) => api.post('/candidates/feedback', data),
   // updateInterviewStatus: (data) => candidateApi.put('/candidates/update-interview-status', data),
   //Payment
-  getPayment: () => candidateApi.get('/razorpay/all'),
+  getPayment: () => api.get('/razorpay/all'),
 
   // --- Auth (Node API) ---
   forgotPassword: (email) => nodeApi.post('/auth/candidate-forgot-password', { email }),
@@ -436,13 +436,13 @@ export const apiService = {
   }),
 
   scheduleInterview: (interviewPayload) =>
-    candidateApi.put("/candidates/schedule-interview", interviewPayload),
+    api.put("/candidates/schedule-interview", interviewPayload),
 
   sendOffer: (payload) =>
-    candidateApi.put("/candidates/offer", payload),
+    api.put("/candidates/offer", payload),
 
   getInterviewsByDateRange: (startTimestamp, endTimestamp) =>
-    candidateApi.get('/candidates/interviews/by-date-range', {
+    api.get('/candidates/interviews/by-date-range', {
       params: { startTimestamp, endTimestamp },
     }),
 
@@ -451,9 +451,9 @@ export const apiService = {
     params: { email, date, interval, tz }
   }),
 
-  getCandidateDetails: (candidate_id) => candidateApi.get(`candidates/get-by-candidate/${candidate_id}`),
-updateCandidates: (data) => candidateApi.put('candidates/update_candidate', data),
-applyJobs: (data) => candidateApi.post('candidates/apply/job',data),
+  getCandidateDetails: (candidate_id) => api.get(`candidates/get-by-candidate/${candidate_id}`),
+updateCandidates: (data) => api.put('candidates/update_candidate', data),
+applyJobs: (data) => api.post('candidates/apply/job',data),
 
 
 parseResume: (formData) => parseResumeApi.post("/parseresume", formData),
@@ -521,11 +521,11 @@ parseResume: (formData) => parseResumeApi.post("/parseresume", formData),
 
   // Fetch bulk-uploaded candidates who have NOT applied for the selected position
   getNotAppliedBulkUploadCandidates: (position_id) =>
-    candidateApi.get(`/candidates/not-applied-bulk-upload/${position_id}`),
+    api.get(`/candidates/not-applied-bulk-upload/${position_id}`),
 
   // Assign (bulk shortlist) selected candidates to a position
   bulkShortlistCandidates: (positionId, candidateIds) =>
-    candidateApi.post("/candidates/bulk-shortlist", {
+    api.post("/candidates/bulk-shortlist", {
       positionId,
       candidateIds,
     }),

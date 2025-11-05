@@ -436,11 +436,11 @@ const InterviewModal = ({
     setSlots([]);
     try {
       const data = await apiService.getPanelSlots(panelId, ymd);
-
+      // console.log("Fetched panel slots data:", data);
       let nextSlots =
-        Array.isArray(data.data.data) && data.data.data.length
-          ? data.data.data.map((s) => ({ startISO: s.start, endISO: s.end }))
-          : generateSlotsFromFree(data.data.data.free, SLOT_MINUTES);
+        Array.isArray(data.data) && data.data.length
+          ? data.data.map((s) => ({ startISO: s.start, endISO: s.end }))
+          : generateSlotsFromFree(data.data.free, SLOT_MINUTES);
 
       // Filter expired slots (compare against current IST time)
       const nowIST = new Date(

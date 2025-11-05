@@ -94,9 +94,9 @@ async function httpGetRange(startDateObj, endDateObj) {
   try {
     const res = await apiService.getInterviewsByDateRange(from, to);
     // console.log("API response:", res);
-    return Array.isArray(res.data) ? res.data : [];
+    return Array.isArray(res) ? res : [];
   } catch (err) {
-    const msg = err?.response?.data?.message || err.message || "Request failed";
+    const msg = err?.response?.message || err.message || "Request failed";
     throw new Error(msg);
   }
 }

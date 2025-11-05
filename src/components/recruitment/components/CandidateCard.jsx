@@ -178,8 +178,8 @@ const CandidateCard = ({ setTriggerDownload }) => {
                 // console.log("Fetched candidates response:", fetchedCandidatesResponse);
                 //  const fetchedCandidates = fetchedCandidatesResponse || fetchedCandidatesResponse?.data || [];//
                 //const fetchedCandidatesResponse =  await axios.get('http://192.168.20.111:8081/api/candidates/details-by-position/' + selectedPositionId);
-                const fetchedCandidates = fetchedCandidatesResponse?.data || [];
-                // console.log("Fetched candidates for position:", fetchedCandidates);
+                const fetchedCandidates = fetchedCandidatesResponse || [];
+                // console.log("Fetched candidates for position:", fetchedCandidatesResponse);
 
                 // Filter for each column based on application_status
                 const shortlistedCandidates = fetchedCandidates.filter(
@@ -673,15 +673,15 @@ const CandidateCard = ({ setTriggerDownload }) => {
 
                 // console.log("res111", res);
 
-                if (res && res.data) {
-                    setSelectedInterview(res.data);
+                if (res) {
+                    setSelectedInterview(res);
                     // console.log("SelectedInterview", res.data); // ✅ use res.data directly
 
                     const feedbackRes = await apiService.getfeedback(c.application_id);
                     // console.log("feedbackRes", feedbackRes);
 
                     if (feedbackRes) {
-                        setInterviewFeedBack(feedbackRes?.data);
+                        setInterviewFeedBack(feedbackRes);
                         // setIsOpen(true);
                     } else {
                         setInterviewFeedBack([]);
