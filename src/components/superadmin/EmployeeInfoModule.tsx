@@ -70,6 +70,7 @@ import { saveAs } from "file-saver";
 import { readExcelFile } from "../../utils/utils";
 import Papa from "papaparse";
 import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
+import { usePermissions } from "../../utils/permissionUtils";
 
 interface EmployeeInfoModuleProps {
   viewOnly?: boolean;
@@ -88,6 +89,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
   const [filterDepartment, setFilterDepartment] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterLocation, setFilterLocation] = useState("all");
+  const { hasPermission } = usePermissions();
   const [newEmployee, setNewEmployee] = useState({
     fullName: "",
     personalEmail: "",
@@ -627,7 +629,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
               </Button>
             </div>
           </div>
-          {!viewOnly && (
+          {!viewOnly && hasPermission('/employees', 'create') === true && (
             <>
               {/* <Button variant="outline" size="sm">
                 <FileUp className="size-4 mr-2" />
@@ -738,26 +740,34 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
               )} */}
               {!viewOnly && (
                 <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(employee);
-                    }}
-                    className="size-8 rounded-full bg-[#f5f5f5] hover:bg-gray-300 flex items-center justify-center shadow-sm transition-colors"
-                  >
-                    <Edit className="size-4 text-gray-600" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteClick(employee.id);
-                    }}
-                    className="size-8 rounded-full bg-[#f5f5f5] hover:bg-gray-300 flex items-center justify-center shadow-sm transition-colors"
-                  >
-                    <Trash2 className="size-4 text-gray-600" />
-                  </button>
+                  {/* ✅ Show Edit button only if user has 'edit' permission */}
+                  {hasPermission('/employees', 'edit') === true && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(employee);
+                      }}
+                      className="size-8 rounded-full bg-[#f5f5f5] hover:bg-gray-300 flex items-center justify-center shadow-sm transition-colors"
+                    >
+                      <Edit className="size-4 text-gray-600" />
+                    </button>
+                  )}
+
+                  {/* ✅ Show Delete button only if user has 'delete' permission */}
+                  {hasPermission('/employees', 'delete') === true && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(employee.id);
+                      }}
+                      className="size-8 rounded-full bg-[#f5f5f5] hover:bg-gray-300 flex items-center justify-center shadow-sm transition-colors"
+                    >
+                      <Trash2 className="size-4 text-gray-600" />
+                    </button>
+                  )}
                 </div>
               )}
+
               <CardContent className="p-5">
                 {/* Profile Image */}
                 <div className="flex items-start gap-3 mb-4">

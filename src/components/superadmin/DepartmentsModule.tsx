@@ -50,6 +50,7 @@ import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
 import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
 import EMPLOYEE_ENDPOINTS from "../../services/employeeEndpoints";
 import TIMEZONE_ENDPOINTS from "../../services/timeZoneEndpoints";
+import { usePermissions } from "../../utils/permissionUtils";
 
 interface DepartmentsModuleProps {
   viewOnly?: boolean;
@@ -67,6 +68,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deptToDelete, setDeptToDelete] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+       const { hasPermission } = usePermissions();
   const [newDept, setNewDept] = useState({
     deptName: "",
     deptCode: "",
@@ -408,7 +410,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          {!viewOnly && (
+          {(!viewOnly && hasPermission('/superadmin/organization/departments', 'create')===true) && (
             <Button className="btn-add-purple" onClick={() => setShowAddDialog(true)}>
               <Plus className="size-4 mr-2" />
               Add Department
@@ -430,7 +432,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <TableHead className="font-semibold text-base mb-1">Department Head</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Time Zone</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Business Unit</TableHead>
-                  <TableHead className="font-semibold text-base mb-1">Actions</TableHead>
+                    {!viewOnly && (
+                      (hasPermission('/superadmin/organization/departments', 'edit') === true ||
+                      hasPermission('/superadmin/organization/departments', 'delete') === true) && (
+                        <TableHead className="font-semibold text-base mb-1">
+                          Actions
+                        </TableHead>
+                      )
+                    )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -448,27 +457,34 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                         <TableCell className="text-right">
                           {!viewOnly && (
                             <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => {
-                                  handleEdit(dept);
-                                  setShowEditDialog(true); // open dialog
-                                }}
-                              >
-                                <Edit className="size-4 text-gray-500" />
-                              </Button>
+                              {/* ✅ Show Edit button only if user has 'edit' permission */}
+                              {hasPermission('/superadmin/organization/departments', 'edit') === true && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    handleEdit(dept);
+                                    setShowEditDialog(true); // open dialog
+                                  }}
+                                >
+                                  <Edit className="size-4 text-gray-500" />
+                                </Button>
+                              )}
 
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDeleteClick(dept.id)}
-                              >
-                                <Trash2 className="size-4 text-gray-500" />
-                              </Button>
+                              {/* ✅ Show Delete button only if user has 'delete' permission */}
+                              {hasPermission('/superadmin/organization/departments', 'delete') === true && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteClick(dept.id)}
+                                >
+                                  <Trash2 className="size-4 text-gray-500" />
+                                </Button>
+                              )}
                             </div>
                           )}
                         </TableCell>
+
                       </TableRow>
                     ))
                 ) : (

@@ -365,16 +365,26 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
           </p>
         </div>
         {!viewOnly && (
-          <div className="flex gap-2">
-            {hasPermission('/superadmin/organization/info', 'create')===true && !isEditing && !hasOrganization ? (
-              <Button
-                className="btn-add-purple"
-                onClick={handleAddOrganization}
-              >
-                <Plus className="size-4 mr-2" />
-                Add Organization
-              </Button>
-            ) : hasPermission('/superadmin/organization/info', 'edit')===true && !isEditing && hasOrganization ? (
+  <div className="flex gap-2">
+    {/* ✅ Show Add Organization button — only if user has 'create' permission,
+        not editing, and organization doesn't exist */}
+    {hasPermission('/superadmin/organization/info', 'create') === true &&
+      !isEditing &&
+      !hasOrganization && (
+        <Button
+          className="btn-add-purple"
+          onClick={handleAddOrganization}
+        >
+          <Plus className="size-4 mr-2" />
+          Add Organization
+        </Button>
+      )}
+
+          {/* ✅ Show Edit Info button — only if user has 'edit' permission,
+              not editing, and organization exists */}
+          {hasPermission('/superadmin/organization/info', 'edit') === true &&
+            !isEditing &&
+            hasOrganization && (
               <Button
                 className="btn-gradient-primary"
                 onClick={() => setIsEditing(true)}
@@ -382,26 +392,27 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <Edit className="size-4 mr-2" />
                 Edit Info
               </Button>
-            ) : hasPermission('/superadmin/organization/info', 'create')===true ?(
-              <>
-                <Button
-                  variant="outline"
-                  onClick={handleCancel}
-                >
-                  <X className="size-4 mr-2" />
-                  Cancel
-                </Button>
-                <Button
-                  className="btn-gradient-primary"
-                  onClick={handleSave}
-                >
-                  <Save className="size-4 mr-2" />
-                  Save Changes
-                </Button>
-              </>
-            ):null}
-          </div>
-        )}
+            )}
+
+          {/* ✅ Show Cancel + Save Changes buttons — only while editing,
+              and if user has 'create' OR 'edit' permission */}
+          {(isEditing &&
+            (hasPermission('/superadmin/organization/info', 'create') === true ||
+              hasPermission('/superadmin/organization/info', 'edit') === true)) && (
+            <>
+              <Button variant="outline" onClick={handleCancel}>
+                <X className="size-4 mr-2" />
+                Cancel
+              </Button>
+              <Button className="btn-gradient-primary" onClick={handleSave}>
+                <Save className="size-4 mr-2" />
+                Save Changes
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+
       </div>
 
       {(hasOrganization || isEditing || viewOnly) && (

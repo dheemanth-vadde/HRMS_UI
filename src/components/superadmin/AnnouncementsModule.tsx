@@ -45,7 +45,7 @@ import api from "../../services/interceptors";
 import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
 import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
 import MultiSelectDropdown from "./MultiSelectDropdown";
-
+import { usePermissions } from '../../utils/permissionUtils';
 // --- Define Interfaces for clarity (UPDATED for multi-select) ---
 
 interface BusinessUnit {
@@ -89,7 +89,7 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
   const [departments, setDepartments] = useState<Department[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // Default to 10, matching your Select
-
+const { hasPermission } = usePermissions();
 
 
   useEffect(() => {
@@ -522,12 +522,18 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          {!viewOnly && (
-            <Button className="btn-add-purple" onClick={() => { setShowAddDialog(true); resetNewAnnoc(); }}>
-              <Plus className="size-4 mr-2" />
-              New Announcement
-            </Button>
-          )}
+          {!viewOnly && hasPermission('/superadmin/organization/announcements', 'create') === true && (
+              <Button
+                className="btn-add-purple"
+                onClick={() => {
+                  setShowAddDialog(true);
+                  resetNewAnnoc();
+                }}
+              >
+                <Plus className="size-4 mr-2" />
+                New Announcement
+              </Button>
+            )}
         </div>
       </div>
 
@@ -597,22 +603,30 @@ export function AnnouncementsModule({ viewOnly = false }: AnnouncementsModulePro
                     {/* Edit/Delete Buttons */}
                     {!viewOnly && (
                       <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(announcement)}
-                        >
-                          <Edit className="size-4 text-gray-500" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteClick(announcement.id)}
-                        >
-                          <Trash2 className="size-4 text-gray-500" />
-                        </Button>
+                        {/* ✅ Show Edit button only if user has 'edit' permission */}
+                        {hasPermission('/superadmin/organization/announcements', 'edit') === true && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(announcement)}
+                          >
+                            <Edit className="size-4 text-gray-500" />
+                          </Button>
+                        )}
+
+                        {/* ✅ Show Delete button only if user has 'delete' permission */}
+                        {hasPermission('/superadmin/organization/announcements', 'delete') === true && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(announcement.id)}
+                          >
+                            <Trash2 className="size-4 text-gray-500" />
+                          </Button>
+                        )}
                       </div>
                     )}
+
                   </CardContent>
                 </Card>
 

@@ -113,11 +113,16 @@ const Position = () => {
     if (!currentPosition.jobGradeId) newErrors.jobGradeId = "Job Grade is required";
     if (!currentPosition.deptId) newErrors.deptId = "Department is required";
     // Check duplicate name
-    const isDuplicate = positions.some((pos, index) =>
-      pos.positionName.trim().toLowerCase() === currentPosition.positionName.trim().toLowerCase() &&
-      index !== editIndex
-    );
-    if (isDuplicate) newErrors.positionName = "Position name already exists";
+     const isDuplicate = positions.some((pos, index) => {
+  const existingName = (pos?.positionName || "").trim().toLowerCase();
+  const currentName = (currentPosition?.positionName || "").trim().toLowerCase();
+
+  return existingName === currentName && index !== editIndex;
+});
+
+if (isDuplicate) {
+  newErrors.positionName = "Position name already exists";
+}
 
     setErrr(newErrors);
     if (Object.keys(newErrors).length > 0) return;
@@ -175,7 +180,7 @@ else {
         (pos) =>
           pos.positionName?.toLowerCase().includes(lowerTerm) ||
           pos.positionDescription?.toLowerCase().includes(lowerTerm) ||
-          departments.find(d => d.department_id === pos.deptId)?.deptName.toLowerCase().includes(lowerTerm) ||
+          departments.find(d => d.department_id === pos.deptId)?.department_name.toLowerCase().includes(lowerTerm) ||
           jobGrades.find(g => g.job_grade_id === pos.jobGradeId)?.job_scale.toLowerCase().includes(lowerTerm)
       );
     }
@@ -185,8 +190,8 @@ else {
         let aValue, bValue;
         
         if (sortConfig.key === 'department') {
-          aValue = departments.find(d => d.department_id === a.deptId)?.deptName || '';
-          bValue = departments.find(d => d.department_id === b.deptId)?.deptName || '';
+          aValue = departments.find(d => d.department_id === a.deptId)?.department_name || '';
+          bValue = departments.find(d => d.department_id === b.deptId)?.department_name || '';
         } else if (sortConfig.key === 'jobGrade') {
           aValue = jobGrades.find(g => g.job_grade_id === a.jobGradeId)?.job_scale || '';
           bValue = jobGrades.find(g => g.job_grade_id === b.jobGradeId)?.job_scale || '';
@@ -281,7 +286,7 @@ else {
                       {pos.positionName}
                     </td>
                     <td className="px-2 py-4 whitespace-normal">
-                      {departments.find(d => d.department_id === pos.deptId)?.deptName || '-'}
+                      {departments.find(d => d.department_id === pos.deptId)?.department_name || '-'}
                     </td>
                     <td className="px-2 py-4 whitespace-normal">
                       {jobGrades.find(g => g.job_grade_id === pos.jobGradeId)?.job_scale || '-'}
@@ -359,7 +364,7 @@ else {
                   <SelectContent>
                     {departments.map((dept) => (
                       <SelectItem key={dept.department_id} value={dept.department_id}>
-                        {dept.deptName}
+                        {dept.department_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
