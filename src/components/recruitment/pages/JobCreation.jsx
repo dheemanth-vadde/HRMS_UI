@@ -346,19 +346,19 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
 
           });
           const states = masterData.allStates.filter(
-            (s) => s.country_id === Number(selectedPosition.country_id)
+            (s) => s.country_id === Number(selectedPosition.countryId)
           );
           setFilteredStates(states);
 
           // 2. Filter cities for the selected state
           const cities = masterData.allCities.filter(
-            (c) => c.state_id === Number(selectedPosition.state_id)
+            (c) => c.state_id === Number(selectedPosition.stateId)
           );
           setFilteredCities(cities);
 
           // 3. Filter locations for the selected city
           const locations = masterData.allLocations.filter(
-            (l) => l.city_id === Number(selectedPosition.city_id)
+            (l) => l.city_id === Number(selectedPosition.cityId)
           );
           setFilteredLocations(locations);
 
@@ -659,8 +659,8 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
         ),
         dept_id: findId(masterData.departmentOptions, "department_name", "department_id", item["Department"]),
         country_id: findId(masterData.allCountries, "country_name", "country_id", item["Country"]),
-        state_id: findId(masterData.allStates, "state_name", "state_id", item["State"]),
-        city_id: findId(masterData.allCities, "city_name", "city_id", item["City"]),
+        state_id: findId(masterData.allStates, "state", "id", item["State"]),
+        city_id: findId(masterData.allCities, "city", "id", item["City"]),
         location_id: findId(masterData.allLocations, "location_name", "location_id", item["Location"]),
         description: item["Description"] ?? null,
         roles_responsibilities: item["Roles & Responsibilities"] ?? null,

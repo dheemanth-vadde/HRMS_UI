@@ -364,7 +364,7 @@ const ReviewDetails = ({ initialData = {}, onSubmit ,resumePublicUrl, selectedPo
             id="nationality_id"
             value={formData.nationality_id || ''}
             onChange={handleChange}
-            required
+            
           >
             <option value="">Select Nationality</option>
             {masterData.countries.map(country => (

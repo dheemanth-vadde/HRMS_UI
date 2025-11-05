@@ -19,10 +19,12 @@ function decodeJWT(token) {
 
 function getToken() {
   const state = store.getState();
-  const token = state.user?.authUser?.access_token || null;
+  console.log("state", state);
+ // const token = state.user?.authUser?.access_token || null;
+   const auth = state.auth;
 
-  if (token) {
-    const decoded = decodeJWT(token);
+  if (auth?.token) {
+    const decoded = decodeJWT(auth?.token);
     if (decoded?.exp) {
       const expiry = new Date(decoded.exp * 1000);
       // console.log("🔑 Token will expire at:", expiry.toLocaleString());
@@ -36,7 +38,7 @@ function getToken() {
     }
   }
 
-  return token;
+  return auth?.token;
 }
 
 // Use the environment variables with a fallback to the new URLs you provided.
@@ -46,9 +48,9 @@ function getToken() {
 // const NODE_API_URL = process.env.REACT_APP_NODE_API_URL;
 // const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
 // const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/jobcreation/api/v1'
-const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/hrms-job-portal/api/v1'
+const API_BASE_URL = 'https://bobjava.sentrifugo.com:8443/hrms-recruitment-app/api/v1'
 // const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/master/api'
-const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/hrms-master-app/api'
+const API_BASE_URLS = 'https://bobjava.sentrifugo.com:8443/hrms-master-app/api/v1/master'
 const NODE_API_URL = 'https://bobbe.sentrifugo.com/api';
 //  const NODE_API_URL = 'http://localhost:5000/api';
 // //const CANDIDATE_API_URL = process.env.REACT_APP_CANDIDATE_API_URL;
@@ -372,7 +374,7 @@ export const apiService = {
   getCanByPosition: (position_id) => candidateApi.get(`/candidates/details-by-position/${position_id}`),
   getCanByStatus: (status) => candidateApi.get(`/candidates/get-by-status/${status}`),
 
-  getMasterData: () => apis.get('/all'),
+  getMasterData: () => apis.get('display/all'),
   getallCities: () => apis.get('v1/master/cities'),
   getDashboardQueries: () => api.get('/dashboard/queries'),
   getDashboardMetrics: () => api.get('/dashboard/metrics'),
