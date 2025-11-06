@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button, Dropdown } from "react-bootstrap";
 import { useTemplateStore } from '../../../../store/useTemplateStore';
 import { buildHtmlForExport } from "./utils/exportHtml";
-import apiService from "../../services/apiService";
+import apiService, { NODE_API_URL } from "../../services/apiService";
 import defaultTemplate from "./defaultTemplate.json";
 
 // Only wrap tokens if not already wrapped by Quill (prevents double)
@@ -25,7 +25,7 @@ export default function Toolbar({ templates, selectedId, setSelectedId }) {
   const handleSelect = async (tpl) => {
     try {
       const contentUrl = tpl?.id
-        ? `${process.env.REACT_APP_NODE_API_URL}/offer-templates/${encodeURIComponent(tpl.id)}/content`
+        ? `${NODE_API_URL}/offer-templates/${encodeURIComponent(tpl.id)}/content`
         // ? `http://localhost:5000/api/offer-templates/${encodeURIComponent(tpl.id)}/content`
 
         : tpl?.path;
