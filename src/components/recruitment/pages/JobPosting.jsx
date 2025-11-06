@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import DownloadReqPdfButton from "../components/DownloadReqPdfButton";
 import { faDownload } from "@fortawesome/free-solid-svg-icons"; // ensure this import exists
 import { useDispatch, useSelector } from 'react-redux';
+import { selectAuth } from '../../../store/authSlice';
 import {
   Dialog,
   DialogContent,
@@ -79,7 +80,8 @@ const JobPosting = () => {
   const [showReqModal, setReqShowModal] = useState(false);
   const [errr, setErrr] = useState({});
   const [selectedReq, setSelectedReq] = useState(null);
-  const user = useSelector((state) => state?.user?.user);
+  // const user = useSelector((state) => state?.user?.user);
+  const user = useSelector(selectAuth);
   // console.log("user",user)
   //setNoOfApprovals(user?.manager_depth);
   const manager_dept = user?.manager_depth;
@@ -300,7 +302,7 @@ const JobPosting = () => {
       job_postings: selectedJobBoards,
       approval_status: approvalStatus,
       noOfApprovals: approvalStatus === "Workflow" ? noOfApprovals : 0, // Include noOfApprovals in payload only if WorkFlow is selected
-      userId: user?.userid// Default user ID as per the payload structure
+      userId: user?.userId// Default user ID as per the payload structure
     };
 
     try {
