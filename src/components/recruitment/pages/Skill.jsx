@@ -17,8 +17,9 @@ import {
   faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import { Label } from "../../ui/label";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import { toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "sonner";
 import apiService from "../services/apiService";
 
 

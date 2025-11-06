@@ -13,6 +13,7 @@ export const EMPLOYEE_ENDPOINTS = {
   DELETE_EMPLOYEE: (id: any) => `${BASE_URL}/users/${id}`,
   BULK_UPLOAD_EMPLOYEES: `${AUTH_URL}/register/bulkUpload`, // FILE UPLOAD
   EXCEL_TEMPLATE_DOWNLOAD: `${AUTH_URL}/register/download-template`,
+  GET_MANAGERS: `${BASE_URL}/users/manager`,
   // Add more employee-related endpoints here
 };
 

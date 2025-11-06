@@ -19,8 +19,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "../css/JobGrade.css";
 import axios from "axios";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "sonner";
 import apiService from "../services/apiService";
 
 

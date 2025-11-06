@@ -100,6 +100,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     empRole: "",        // was role
     selectedDate: "",   // was joiningDate
     unitId: "",
+    managerId: "",    
     userStatus: "Active", // was status
   });
   const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
@@ -109,7 +110,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const statusOptions = ["Active", "Inactive", "On Leave"];
   const [showFilters, setShowFilters] = useState(false);
-
+const [filteredDepartments, setFilteredDepartments] = useState<{ id: string; name: string }[]>([]);
+const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
   const emptyForm = {
     fullName: "",
     personalEmail: "",
@@ -120,6 +122,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
     empRole: "",        // was role
     selectedDate: "",   // was joiningDate
     unitId: "",
+    managerId: "",    
     userStatus: "Active", // was status
   }
 
@@ -174,20 +177,64 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
   }, []);
 
   useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const response = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS);
-        const deptData = response?.data?.data || [];
-        // map to { id, name } for Select usage
-        const mappedDepartments = deptData.map((d: any) => ({ id: d.id, name: d.deptName }));
-        setDepartments(mappedDepartments);
-      } catch (err) {
-        console.error("Error fetching departments:", err);
-        setDepartments([]); // fallback empty
-      }
-    };
-    fetchDepartments();
-  }, []);
+  const fetchManagers = async () => {
+    try {
+      const response = await api.get(EMPLOYEE_ENDPOINTS.GET_MANAGERS);
+      const data = response?.data?.data || [];
+      const mappedManagers = data.map((m: any) => ({
+        id: m.id,
+        name: m.fullName || m.name,
+      }));
+      setManagers(mappedManagers);
+    } catch (err) {
+      console.error("Error fetching managers:", err);
+      setManagers([]);
+    }
+  };
+
+  fetchManagers();
+}, []);
+
+const fetchDepartmentsByUnit = async (unitId: string) => {
+  console.log(unitId,"unitId")
+  if (!unitId) {
+    setFilteredDepartments([]);
+    return;
+  }
+
+  try {
+    const response = await  api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS_BY_UNIT(unitId));
+    const deptData = response?.data?.data || [];
+    const mappedDepartments = deptData.map((d: any) => ({
+      id: d.department_id,
+      name: d.department_name || "",
+    }));
+    setFilteredDepartments(mappedDepartments);
+    setDepartments(mappedDepartments);
+  } catch (err) {
+    console.error("Failed to fetch departments by unit", err);
+    toast.error("Unable to load departments for this business unit");
+    setFilteredDepartments([]);
+  }
+};
+
+
+  // useEffect(() => {
+  //   const fetchDepartments = async () => {
+  //     try {
+  //       const response = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS);
+  //       const deptData = response?.data?.data || [];
+  //       // map to { id, name } for Select usage
+  //       const mappedDepartments = deptData.map((d: any) => ({ id: d.department_id, name: d.department_name }));
+  //       setDepartments(mappedDepartments);
+  //     } catch (err) {
+  //       console.error("Error fetching departments:", err);
+  //       setDepartments([]); // fallback empty
+  //     }
+  //   };
+    
+  //   fetchDepartments();
+  // }, []);
 
   useEffect(() => {
     const fetchDesignations = async () => {
@@ -270,10 +317,12 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         designationId,
         empRole,
         unitId,
+        managerId: newEmployee.managerId,
         selectedDate: newEmployee.selectedDate || "",
         userStatus: newEmployee.userStatus || "Active",
         firstName: newEmployee.fullName
       };
+      console.log("Payload:", payload);
       const response = await api.post(EMPLOYEE_ENDPOINTS.POST_EMPLOYEE, payload);
       const createdEmployee = response.data.data;
       setEmployees([...employees, mapEmployeeForUI(createdEmployee)]);
@@ -288,6 +337,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         empRole: "",
         selectedDate: "",
         unitId: "",
+        managerId: "",
         userStatus: "Active",
       });
 
@@ -310,6 +360,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
   };
 
   const handleEdit = (employee: any) => {
+    fetchDepartmentsByUnit(employee.unitId);
+    console.log('departments',departments)
     setEditingEmployee({
       ...employee,
       department: departments.find(d => d.id === employee.deptId)?.name || "",
@@ -318,6 +370,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       businessUnit: businessUnits.find(b => b.id === employee.unitId)?.name || "",
       userStatus: employee.userStatus || "Active",
       joiningDate: employee.selectedDate || "",
+      managerId: employee.managerId || "",
     });
   };
 
@@ -332,6 +385,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
         designationId: designations.find(d => d.name === editingEmployee.designation)?.id || "",
         empRole: roles.find(r => r.name === editingEmployee.role)?.id || "",
         unitId: businessUnits.find(b => b.name === editingEmployee.businessUnit)?.id || "",
+        managerId: editingEmployee.managerId || "",
         selectedDate: editingEmployee.joiningDate || "",
         userStatus: editingEmployee.userStatus || "Active",
       };
@@ -499,6 +553,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
       "designationId",
       "empRole",
       "unitId",
+      "managerId",   
       "selectedDate",
     ];
 
@@ -1023,14 +1078,17 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   <Label>Business Unit *</Label>
                   <Select
                     value={newEmployee.unitId}
-                    onValueChange={(value: any) => setNewEmployee({ ...newEmployee, unitId: value })}
+                    onValueChange={(value: any) => {
+                        setNewEmployee({ ...newEmployee, unitId: value, deptId: "" });
+                        fetchDepartmentsByUnit(value); // ✅ dynamic API call
+                      }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select business unit" />
                     </SelectTrigger>
                     <SelectContent>
                       {businessUnits.map(unit => (
-                        <SelectItem key={unit.id} value={unit.name}>{unit.name}</SelectItem>
+                        <SelectItem key={unit.id} value={unit.id}>{unit.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -1043,13 +1101,16 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   <Select
                     value={newEmployee.deptId}
                     onValueChange={(value: any) => setNewEmployee({ ...newEmployee, deptId: value })}
+                    disabled={!newEmployee.unitId}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
+                      <SelectValue placeholder={!newEmployee.unitId ? "Select business unit first" : "Select department"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {departments.map(dept => (
-                        <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                      {filteredDepartments.map((dept) => (
+                        <SelectItem key={dept.id} value={dept.id}>
+                          {dept.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -1139,7 +1200,8 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     </SelectContent>
                   </Select>
                 </div> */}
-                <div className="space-y-2">
+                 <div className="space-y-2">
+                  
                   <Label>Status</Label>
                   <Select
                     value={newEmployee.userStatus}
@@ -1158,6 +1220,28 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                     <small className="error_text">{errors["new_userStatus"]}</small>
                   )}
                 </div>
+                <div className="space-y-2">
+                      <Label>Reporting Manager *</Label>
+                      <Select
+                        value={newEmployee.managerId}
+                        onValueChange={(value: any) => setNewEmployee({ ...newEmployee, managerId: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select reporting manager" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {managers.map(manager => (
+                            <SelectItem key={manager.id} value={manager.id}>
+                              {manager.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors["new_managerId"] && (
+                        <small className="error_text">{errors["new_managerId"]}</small>
+                      )}
+                    </div>
+               
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => {
@@ -1309,45 +1393,64 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 )}
               </div>
               <div className="space-y-2">
-                <Label>Business Unit *</Label>
-                <Select
-                  value={editingEmployee.businessUnit}
-                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, businessUnit: value })}
-                  onBlur={(e: any) => validateField("businessUnit", e.target.value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {businessUnits.map(unit => (
-                      <SelectItem key={unit.id} value={unit.name}>{unit.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors["new_businessUnit"] && (
-                  <small className="error_text">{errors["new_businessUnit"]}</small>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label>Department *</Label>
-                <Select
-                  value={editingEmployee.department}
-                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, department: value })}
-                  onBlur={(e: any) => validateField("department", e.target.value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.map(dept => (
-                      <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors["new_department"] && (
-                  <small className="error_text">{errors["new_department"]}</small>
-                )}
-              </div>
+                  <Label>Business Unit *</Label>
+                  <Select
+                    value={businessUnits.find(u => u.name === editingEmployee.businessUnit)?.id || editingEmployee.unitId}
+                    onValueChange={(value: any) => {
+                      setEditingEmployee({ ...editingEmployee, unitId: value, department: "" });
+                      fetchDepartmentsByUnit(value); // ✅ fetch depts by selected business unit
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select business unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {businessUnits.map(unit => (
+                        <SelectItem key={unit.id} value={unit.id}>
+                          {unit.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors["new_unitId"] && (
+                    <small className="error_text">{errors["new_unitId"]}</small>
+                  )}
+                </div>
+
+             <div className="space-y-2">
+                  <Label>Department *</Label>
+                  <Select
+                    value={
+                      filteredDepartments.find(d => d.name === editingEmployee.department)?.id ||
+                      editingEmployee.deptId
+                    }
+                    onValueChange={(value: any) =>
+                      setEditingEmployee({ ...editingEmployee, deptId: value })
+                    }
+                    disabled={!editingEmployee.unitId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          !editingEmployee.unitId
+                            ? "Select business unit first"
+                            : "Select department"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredDepartments.map((dept) => (
+                        <SelectItem key={dept.id} value={dept.id}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors["new_deptId"] && (
+                    <small className="error_text">{errors["new_deptId"]}</small>
+                  )}
+                </div>
+
               <div className="space-y-2">
                 <Label>Designation *</Label>
                 <Select
@@ -1457,6 +1560,27 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                 </Select>
               </div> */}
               <div className="space-y-2">
+                <Label>Reporting Manager *</Label>
+                <Select
+                  value={editingEmployee.managerId}
+                  onValueChange={(value: any) => setEditingEmployee({ ...editingEmployee, managerId: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select reporting manager" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {managers.map(manager => (
+                      <SelectItem key={manager.id} value={manager.id}>
+                        {manager.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors["new_managerId"] && (
+                  <small className="error_text">{errors["new_managerId"]}</small>
+                )}
+              </div>
+              <div className="space-y-2">
                 <Label>Status</Label>
                 <Select
                   value={editingEmployee.userStatus}
@@ -1472,6 +1596,7 @@ export function EmployeeInfoModule({ viewOnly = false }: EmployeeInfoModuleProps
                   </SelectContent>
                 </Select>
               </div>
+              
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setEditingEmployee(null)}>
