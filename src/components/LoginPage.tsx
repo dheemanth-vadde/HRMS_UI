@@ -27,7 +27,7 @@ export function LoginPage() {
   setLoading(true);
   try {
      const response = await api.post("auth/signin", { username:username.toUpperCase(), password });
-      const { id, username: userName, email, token, refreshToken, role, roleId } = response.data;
+      const { id, username: userName, email, token, refreshToken, role, roleId,employeeId,userId } = response.data;
 
       console.log("✅ Login successful:", response.data);
 
@@ -40,6 +40,8 @@ export function LoginPage() {
         rolePermissions: {} ,
         roleId:roleId,
         managerLevels: response.data.managerLevels,
+        employeeId:employeeId,
+        userId:userId
       }));
 
     // Step 3: Fetch permissions dynamically using roleId

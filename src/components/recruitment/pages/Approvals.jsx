@@ -20,10 +20,12 @@ import JobCreation from "./JobCreation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
-
+import { selectAuth } from '../../../store/authSlice';
 const Approvals = () => {
   console.log("Approvals component rendered");
-  const user = useSelector((state) => state?.user?.user);
+ // const user = useSelector((state) => state?.auth?.user);
+  const user = useSelector(selectAuth);
+  console.log("user",user);
   const [jobPostings, setJobPostings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -70,7 +72,7 @@ const Approvals = () => {
 
   // Fetch requisitions and positions based on user's role
   const fetchJobPostings = async () => {
-    if (!user || !user.role) {
+    if (!user || !user.roleId) {
       setError("User role not found. Cannot fetch data.");
       setLoading(false);
       return;
@@ -80,7 +82,7 @@ const Approvals = () => {
     setError(null);
     try {
       // ✅ get job postings
-      const responseData = await apiService.getApprovalstatus(user.userid);
+      const responseData = await apiService.getApprovalstatus(user.userId);
       // console.log("Job Postings Response:", responseData);
 
       if (responseData && Array.isArray(responseData.data)) {
@@ -97,7 +99,7 @@ const Approvals = () => {
       }
 
       // ✅ get workflow approvals
-      const approvalsRes = await apiService.getWorkflowApprovals(user.userid);
+      const approvalsRes = await apiService.getWorkflowApprovals(user.userId);
       if (approvalsRes && Array.isArray(approvalsRes.data)) {
         setWorkflowApprovals(approvalsRes.data);
       }
@@ -109,7 +111,7 @@ const Approvals = () => {
   };
 
   useEffect(() => {
-    if (user?.userid) {
+    if (user?.userId) {
       fetchJobPostings();
     }
   }, [user]);

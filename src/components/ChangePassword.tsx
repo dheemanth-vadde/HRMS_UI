@@ -96,7 +96,7 @@ const ChangePassword = () => {
             
             try{
             const response = await api.post(FORGOT_PASSWORD_ENDPOINTS.POST_RESET,{
-                username:user.username,
+                username:user.employeeId,
                 oldPassword,
                 newPassword  
             })

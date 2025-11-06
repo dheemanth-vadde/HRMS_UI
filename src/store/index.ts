@@ -64,7 +64,7 @@ export const store = configureStore({
 export const persistor = persistStore(store);
 
 // 6️⃣ (Optional) TypeScript types
-// export type RootState = ReturnType<typeof store.getState>;
+ export type RootState = ReturnType<typeof store.getState>;
 // export type AppDispatch = typeof store.dispatch;
 
 export default store;
