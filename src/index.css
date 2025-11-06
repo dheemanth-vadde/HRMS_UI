@@ -2916,6 +2916,10 @@
     opacity: 0;
   }
 
+  .op-0 {
+    opacity: 0;
+  }
+
   .opacity-40 {
     opacity: .4;
   }

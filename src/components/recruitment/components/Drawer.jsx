@@ -141,17 +141,16 @@ function Drawer({
       };
 
       const res = await apiService.postFeedback(payload);
-      // console.log("res",res);
-      if(res.status===200)
-      {
-         const feedbackRes = await apiService.getfeedback(candidate.application_id);
-                  if (feedbackRes?.status === 200) 
-                  {
-                    // console.log("feedbackRes",feedbackRes.data);
-                    
-                     setFeedbacks(feedbackRes);
-                  }
-      }
+      console.log("res",res);
+      // if(res.status===200)
+      // {
+        const feedbackRes = await apiService.getfeedback(candidate.application_id);
+        // if (feedbackRes?.status === 200) 
+        // {
+          // console.log("feedbackRes",feedbackRes.data);
+          setFeedbacks(feedbackRes);
+        // }
+      // }
 
       // Build entry to show in the table
       const entry = {

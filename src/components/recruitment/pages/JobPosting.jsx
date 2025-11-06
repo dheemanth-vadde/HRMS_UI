@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../css/Recruitment.css";
 import { apiService } from "../services/apiService";
-import { faE, faEye, faPencil, faPlus, faSearch, faTrash, faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import { faE, faEye, faPencil, faPlus, faSearch, faTrash, faClockRotateLeft, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import JobCreation from "./JobCreation";
 import { toast } from "react-toastify";
@@ -693,6 +693,10 @@ const JobPosting = () => {
                         />
                       </div>
                     )}
+                    <FontAwesomeIcon
+                      icon={activeKey === index.toString() ? faChevronUp : faChevronDown}
+                      className="ml-2 text-gray-600 transition-transform duration-200"
+                    />
                   </div>
                 </div>
               </div>
@@ -969,8 +973,8 @@ const JobPosting = () => {
               ) : !trailData || trailData.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
 
-                  <h3 className="mt-2 text-sm font-medium text-gray-700">No approval history</h3>
-                  <p className="mt-1 text-sm text-gray-500">This request was auto-approved or doesn't require approval.</p>
+                  <h3 className="mt-2 text-sm font-medium text-gray-700">Direct Approval</h3>
+                  {/* <p className="mt-1 text-sm text-gray-500">This request was auto-approved or doesn't require approval.</p> */}
                 </div>
               ) : (
                 <div className="overflow-hidden border border-gray-200 rounded-lg">
@@ -1014,7 +1018,9 @@ const JobPosting = () => {
 
       {/* Add Requistion Modal */}
       {showReqModal && (
-        <div className="modal-overlay" onClick={resetReqForm}>
+        <div className="modal-overlay"
+          // onClick={resetReqForm}
+        >
           <div className="bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg max-w-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col gap-2 sm:text-left">
 
