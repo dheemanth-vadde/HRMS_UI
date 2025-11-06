@@ -185,7 +185,7 @@ const Approvals = () => {
       requisitionIdList: selectedJobIds,
       status: "approved",
       description: rejectDescription,
-      userId: user.userid,
+      userId: user.userId,
     };
 
     try {
@@ -221,7 +221,7 @@ const Approvals = () => {
       requisitionIdList: selectedJobIds,
       status: "rejected",
       description: rejectDescription,
-      userId: user.userid,
+      userId: user.userId,
     };
 
     try {
