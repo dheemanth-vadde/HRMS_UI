@@ -35,11 +35,11 @@ const Position = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [currentPosition, setCurrentPosition] = useState({
-  masterPositionId: null,
-  positionName: "",
-  positionDescription: "",
-  jobGradeId: "",
-  deptId: ""
+  position_id: null,
+  position_title: "",
+  position_description: "",
+  job_grade_id: "",
+  dept_id: ""
 });
 
   const [errr, setErrr] = useState({});
@@ -73,7 +73,7 @@ const Position = () => {
   }, []);
 
   const openModal = (
-    pos = { id: null, positionName: "", positionDescription: "", jobGradeId: "", deptId: "" },
+    pos = { id: null, position_title: "", position_description: "", job_grade_id: "", dept_id: "" },
     index = null
   ) => {
     setCurrentPosition(pos);
@@ -84,11 +84,11 @@ const Position = () => {
   const resetForm = () => {
     setShowModal(false);
     setCurrentPosition({
-      masterPositionId: null,
-      positionName: "",
-      deptId: "",
-      jobGradeId: "",
-      positionDescription: "",
+      position_id: null,
+      position_title: "",
+      dept_id: "",
+      job_grade_id: "",
+      position_description: "",
     });
     setEditIndex(null);
     setErrr({});
@@ -109,27 +109,28 @@ const Position = () => {
 
   const handleSave = async () => {
     const newErrors = {};
-    if (!currentPosition.positionName?.trim()) newErrors.positionName = "Position name is required";
-    if (!currentPosition.jobGradeId) newErrors.jobGradeId = "Job Grade is required";
-    if (!currentPosition.deptId) newErrors.deptId = "Department is required";
+    if (!currentPosition.position_title?.trim()) newErrors.position_title = "Position name is required";
+    if (!currentPosition.job_grade_id) newErrors.job_grade_id = "Job Grade is required";
+    if (!currentPosition.dept_id) newErrors.dept_id = "Department is required";
     // Check duplicate name
      const isDuplicate = positions.some((pos, index) => {
-  const existingName = (pos?.positionName || "").trim().toLowerCase();
-  const currentName = (currentPosition?.positionName || "").trim().toLowerCase();
+  const existingName = (pos?.position_title || "").trim().toLowerCase();
+  const currentName = (currentPosition?.position_title || "").trim().toLowerCase();
 
   return existingName === currentName && index !== editIndex;
 });
 
 if (isDuplicate) {
-  newErrors.positionName = "Position name already exists";
+  newErrors.position_title = "Position name already exists";
 }
 
     setErrr(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
     try {
-      if (editIndex !== null && currentPosition.masterPositionId) {
-  await apiService.updatePosition(currentPosition.masterPositionId, currentPosition);
+      console.log("Current Position:", currentPosition);
+      if (editIndex !== null && currentPosition.position_id) {
+  await apiService.updatePosition(currentPosition.position_id, currentPosition);
   toast.success("Position updated successfully");
 }
 else {
@@ -146,7 +147,7 @@ else {
   };
 
  const handleDelete = async (index) => {
-  const idToDelete = positions[index]?.masterPositionId;
+  const idToDelete = positions[index]?.position_id;
 
   if (!idToDelete) {
     toast.error("Delete failed: No identifier found");
@@ -178,10 +179,10 @@ else {
       const lowerTerm = searchTerm.toLowerCase();
       filteredItems = filteredItems.filter(
         (pos) =>
-          pos.positionName?.toLowerCase().includes(lowerTerm) ||
-          pos.positionDescription?.toLowerCase().includes(lowerTerm) ||
-          departments.find(d => d.department_id === pos.deptId)?.department_name.toLowerCase().includes(lowerTerm) ||
-          jobGrades.find(g => g.job_grade_id === pos.jobGradeId)?.job_scale.toLowerCase().includes(lowerTerm)
+          pos.position_title?.toLowerCase().includes(lowerTerm) ||
+          pos.position_description?.toLowerCase().includes(lowerTerm) ||
+          departments.find(d => d.department_id === pos.dept_id)?.department_name.toLowerCase().includes(lowerTerm) ||
+          jobGrades.find(g => g.job_grade_id === pos.job_grade_id)?.job_scale.toLowerCase().includes(lowerTerm)
       );
     }
 
@@ -190,11 +191,11 @@ else {
         let aValue, bValue;
         
         if (sortConfig.key === 'department') {
-          aValue = departments.find(d => d.department_id === a.deptId)?.department_name || '';
-          bValue = departments.find(d => d.department_id === b.deptId)?.department_name || '';
+          aValue = departments.find(d => d.department_id === a.dept_id)?.department_name || '';
+          bValue = departments.find(d => d.department_id === b.dept_id)?.department_name || '';
         } else if (sortConfig.key === 'jobGrade') {
-          aValue = jobGrades.find(g => g.job_grade_id === a.jobGradeId)?.job_scale || '';
-          bValue = jobGrades.find(g => g.job_grade_id === b.jobGradeId)?.job_scale || '';
+          aValue = jobGrades.find(g => g.job_grade_id === a.job_grade_id)?.job_scale || '';
+          bValue = jobGrades.find(g => g.job_grade_id === b.job_grade_id)?.job_scale || '';
         } else {
           aValue = a[sortConfig.key] || '';
           bValue = b[sortConfig.key] || '';
@@ -254,10 +255,10 @@ else {
               <tr className="bg-muted/50">
                 <th 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
-                  onClick={() => handleSort("positionName")}
+                  onClick={() => handleSort("position_title")}
                 >
                   Position
-                  <span className="ml-1">{getSortIndicator("positionName")}</span>
+                  <span className="ml-1">{getSortIndicator("position_title")}</span>
                 </th>
                 <th 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
@@ -281,15 +282,15 @@ else {
             <tbody className="bg-white divide-y divide-gray-200">
               {positionsToDisplay.length > 0 ? (
                 positionsToDisplay.map((pos, index) => (
-                  <tr key={pos.masterPositionId || index} className="hover:bg-gray-50">
+                  <tr key={pos.position_id || index} className="hover:bg-gray-50">
                     <td className="px-2 py-4 whitespace-normal">
-                      {pos.positionName}
+                      {pos.position_title}
                     </td>
                     <td className="px-2 py-4 whitespace-normal">
-                      {departments.find(d => d.department_id === pos.deptId)?.department_name || '-'}
+                      {departments.find(d => d.department_id === pos.dept_id)?.department_name || '-'}
                     </td>
                     <td className="px-2 py-4 whitespace-normal">
-                      {jobGrades.find(g => g.job_grade_id === pos.jobGradeId)?.job_scale || '-'}
+                      {jobGrades.find(g => g.job_grade_id === pos.job_grade_id)?.job_scale || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
@@ -334,31 +335,31 @@ else {
           <div className="grid gap-4 py-4">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="positionName" className="text-sm font-medium">
+                <Label htmlFor="position_title" className="text-sm font-medium">
                   Position Title <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="positionName"
+                  id="position_title"
                   type="text"
                   placeholder="Enter position title"
-                  value={currentPosition.positionName}
-                  onChange={(e) => setCurrentPosition({ ...currentPosition, positionName: e.target.value })}
-                  className={errr.positionName ? "border-red-500" : ""}
+                  value={currentPosition.position_title}
+                  onChange={(e) => setCurrentPosition({ ...currentPosition, position_title: e.target.value })}
+                  className={errr.position_title ? "border-red-500" : ""}
                 />
-                {errr.positionName && (
-                  <p className="mt-1 text-sm text-red-600">{errr.positionName}</p>
+                {errr.position_title && (
+                  <p className="mt-1 text-sm text-red-600">{errr.position_title}</p>
                 )}
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="deptId" className="text-sm font-medium">
+                <Label htmlFor="dept_id" className="text-sm font-medium">
                   Department <span className="text-red-500">*</span>
                 </Label>
                 <Select
-                  value={currentPosition.deptId}
-                  onValueChange={(value) => setCurrentPosition({ ...currentPosition, deptId: value })}
+                  value={currentPosition.dept_id}
+                  onValueChange={(value) => setCurrentPosition({ ...currentPosition, dept_id: value })}
                 >
-                  <SelectTrigger className={errr.deptId ? "border-red-500" : ""}>
+                  <SelectTrigger className={errr.dept_id ? "border-red-500" : ""}>
                     <SelectValue placeholder="Select Department" />
                   </SelectTrigger>
                   <SelectContent>
@@ -369,20 +370,20 @@ else {
                     ))}
                   </SelectContent>
                 </Select>
-                {errr.deptId && (
-                  <p className="mt-1 text-sm text-red-600">{errr.deptId}</p>
+                {errr.dept_id && (
+                  <p className="mt-1 text-sm text-red-600">{errr.dept_id}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="jobGradeId" className="text-sm font-medium">
+                <Label htmlFor="job_grade_id" className="text-sm font-medium">
                   Job Grade <span className="text-red-500">*</span>
                 </Label>
                 <Select
-                  value={currentPosition.jobGradeId}
-                  onValueChange={(value) => setCurrentPosition({ ...currentPosition, jobGradeId: value })}
+                  value={currentPosition.job_grade_id}
+                  onValueChange={(value) => setCurrentPosition({ ...currentPosition, job_grade_id: value })}
                 >
-                  <SelectTrigger className={errr.jobGradeId ? "border-red-500" : ""}>
+                  <SelectTrigger className={errr.job_grade_id ? "border-red-500" : ""}>
                     <SelectValue placeholder="Select Job Grade" />
                   </SelectTrigger>
                   <SelectContent>
@@ -393,20 +394,20 @@ else {
                     ))}
                   </SelectContent>
                 </Select>
-                {errr.jobGradeId && (
-                  <p className="mt-1 text-sm text-red-600">{errr.jobGradeId}</p>
+                {errr.job_grade_id && (
+                  <p className="mt-1 text-sm text-red-600">{errr.job_grade_id}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="positionDescription" className="text-sm font-medium">
+                <Label htmlFor="position_description" className="text-sm font-medium">
                   Description
                 </Label>
                 <Textarea
-                  id="positionDescription"
+                  id="position_description"
                   placeholder="Enter description"
-                  value={currentPosition.positionDescription}
-                  onChange={(e) => setCurrentPosition({ ...currentPosition, positionDescription: e.target.value })}
+                  value={currentPosition.position_description}
+                  onChange={(e) => setCurrentPosition({ ...currentPosition, position_description: e.target.value })}
                   className="min-h-[100px]"
                 />
               </div>

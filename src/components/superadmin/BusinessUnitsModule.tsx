@@ -200,33 +200,53 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
   }, [cities, states, countries]);
 
   useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const response = await api.get(CITY_ENDPOINTS.GET_CITY);
-        setCities(response.data.data || []);
-      } catch (err) {
-        console.error("Failed to fetch cities", err);
-        toast.error("Failed to load cities");
-      }
-    };
-    const fetchStates = async () => {
+  const fetchCities = async () => {
+  try {
+    const response = await api.get(CITY_ENDPOINTS.GET_CITY);
+    const citiesData = (response.data?.data || []).map((c: any) => ({
+      id: String(c.city_id),
+      city: c.city_name || "",
+      stateId: String(c.state_id),
+      countryId: String(c.country_id),
+      isActive: c.isActive,
+    }));
+    setCities(citiesData);
+  } catch (err) {
+    console.error("Failed to fetch cities", err);
+    toast.error("Failed to load cities");
+  }
+};
+   const fetchStates = async () => {
       try {
         const response = await api.get(STATE_ENDPOINTS.GET_STATE);
-        setStates(response.data.data || []);
+        const statesData = (response.data?.data || []).map((s: any) => ({
+          id: String(s.state_id),
+          state: s.state_name || "",
+          countryId: String(s.country_id),
+          code: s.stateCode || "",
+          isActive: s.isActive,
+        }));
+        setStates(statesData);
       } catch (err) {
         console.error("Failed to fetch states", err);
         toast.error("Failed to load states");
       }
     };
     const fetchCountries = async () => {
-      try {
-        const response = await api.get(COUNTRY_ENDPOINTS.GET_COUNTRY);
-        setCountries(response.data.data || []);
-      } catch (err) {
-        console.error("Failed to fetch countries", err);
-        toast.error("Failed to load countries");
-      }
-    };
+  try {
+    const response = await api.get(COUNTRY_ENDPOINTS.GET_COUNTRY);
+    const countriesData = (response.data?.data || []).map((c: any) => ({
+      id: String(c.country_id),
+      country: c.country_name || "",
+      code: c.countryCode || "",
+      isActive: c.isActive,
+    }));
+    setCountries(countriesData);
+  } catch (err) {
+    console.error("Failed to fetch countries", err);
+    toast.error("Failed to load countries");
+  }
+};
 
 
     const fetchEmployeeTypes = async () => {
@@ -1023,8 +1043,10 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                     </SelectTrigger>
                     <SelectContent>
                     <SelectItem value="__select_placeholder__">Select an option</SelectItem>
-                    {countries.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.country}</SelectItem>
+                   {countries.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.country}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                   </Select>
@@ -1062,8 +1084,10 @@ export function BusinessUnitsModule({ viewOnly = false }: BusinessUnitsModulePro
                     <SelectContent>
                     <SelectItem value="__select_placeholder__">Select an option</SelectItem>
                     {filteredStates.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>{s.state}</SelectItem>
-                    ))}
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.state}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                   </Select>
                   {errors.stateId && <p className="text-destructive text-sm mt-1">{errors.stateId}</p>}

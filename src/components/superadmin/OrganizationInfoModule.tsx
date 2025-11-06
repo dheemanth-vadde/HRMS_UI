@@ -100,64 +100,85 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
   }, [orgData.country, orgData.state]);
 
   const fetchCountries = async () => {
-    try {
-      const response = await api.get(COUNTRY_ENDPOINTS.GET_COUNTRY);
-      setCountries(response.data?.data || []);
-    } catch (error) {
-      console.error("Error fetching countries:", error);
-    }
-  };
+  try {
+    const response = await api.get(COUNTRY_ENDPOINTS.GET_COUNTRY);
+    const countriesData = (response.data?.data || []).map((c: any) => ({
+      id: c.country_id,
+      name: c.country_name,
+      code: c.countryCode || "",
+      isActive: c.isActive,
+    }));
+    setCountries(countriesData);
+  } catch (error) {
+    console.error("Error fetching countries:", error);
+  }
+};
+ // ✅ Fetch States
+const fetchStates = async (countryId: string) => {
+  if (!countryId) {
+    setStates([]);
+    return;
+  }
 
-  const fetchStates = async (countryId: string) => {
-    if (!countryId) {
-      setStates([]); // clear states if no country selected
-      return;
-    }
+  try {
+    const response = await api.get(STATE_ENDPOINTS.GET_STATE);
+    const statesData = (response.data?.data || []).map((s: any) => ({
+      id: s.state_id,
+      name: s.state_name,
+      code: s.stateCode || "",
+      country_id: s.country_id,
+      isActive: s.isActive,
+    }));
 
-    try {
-      const response = await api.get(`${STATE_ENDPOINTS.GET_STATE}`);
-      const allStates = response.data?.data || [];
+    const filteredStates = statesData.filter(
+      (s: any) => s.country_id === countryId
+    );
 
-      // Filter states based on selected country
-      const filteredStates = allStates.filter((state: any) => state.countryId === countryId);
-      setStates(filteredStates);
-    } catch (error) {
-      console.error("Error fetching states:", error);
-    }
-  };
+    setStates(filteredStates);
+  } catch (error) {
+    console.error("Error fetching states:", error);
+  }
+};
 
   const fetchCities = async (stateId: string) => {
-    if (!stateId) {
-      setCities([]); // clear states if no country selected
-      return;
-    }
+  if (!stateId) {
+    setCities([]);
+    return;
+  }
 
-    try {
-      const response = await api.get(`${CITY_ENDPOINTS.GET_CITY}`);
-      const allCities = response.data?.data || [];
+  try {
+    const response = await api.get(CITY_ENDPOINTS.GET_CITY);
+    const citiesData = (response.data?.data || []).map((c: any) => ({
+      id: c.city_id,
+      name: c.city_name,
+      state_id: c.state_id,
+      country_id: c.country_id,
+      isActive: c.isActive,
+    }));
 
-      // Filter states based on selected country
-      const filteredCities = allCities.filter((city: any) => city.stateId === stateId);
-      setCities(filteredCities);
-    } catch (error) {
-      console.error("Error fetching states:", error);
-    }
-  };
+    const filteredCities = citiesData.filter(
+      (c: any) => c.state_id === stateId
+    );
 
+    setCities(filteredCities);
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+  }
+};
   const getCountryName = (id: string) => {
-    const country = countries.find((c) => c.id === id);
-    return country ? country.country || country.name : "-";
-  };
+  const country = countries.find((c) => c.id === id);
+  return country ? country.name : "-";
+};
 
-  const getStateName = (id: string) => {
-    const state = states.find((s) => s.id === id);
-    return state ? state.state || state.name : "-";
-  };
+const getStateName = (id: string) => {
+  const state = states.find((s) => s.id === id);
+  return state ? state.name : "-";
+};
 
-  const getCityName = (id: string) => {
-    const city = cities.find((s) => s.id === id);
-    return city ? city.city || city.name : "-";
-  };
+const getCityName = (id: string) => {
+  const city = cities.find((c) => c.id === id);
+  return city ? city.name : "-";
+};
 
   const fetchOrganizationData = async () => {
     try {
@@ -636,85 +657,74 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Country</Label>
+                    <Label className="text-sm text-muted-foreground">Country</Label>
 
-                  {isEditing && !viewOnly ? (
-                    <>
-                      <Select
-                        value={orgData.country || ""}
-                        onValueChange={(selectedCountry: string) => {
-                          const value = selectedCountry === "__select_placeholder__" ? "" : selectedCountry;
-                          setOrgData({ ...orgData, country: value, state: "", city: "" });
-                          if (value) {
-                            fetchStates(value);
-                          }
-                          if (errors.country) {
-                            setErrors(prev => ({ ...prev, country: "" }));
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="w-full border rounded-md p-2 text-sm">
-                          <SelectValue placeholder="Select Country" />
-                        </SelectTrigger>
+                    <Select
+                      value={orgData.country || ""}
+                      onValueChange={(value: string) => {
+                        setOrgData({ ...orgData, country: value, state: "", city: "" });
+                        fetchStates(value);
+                        if (errors.country) {
+                          setErrors(prev => ({ ...prev, country: "" }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-full border rounded-md p-2 text-sm">
+                        <SelectValue placeholder="Select Country" />
+                      </SelectTrigger>
 
-                        <SelectContent>
-                          <SelectItem value="__select_placeholder__">Select an option</SelectItem>
-                          {countries.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                              {c.country}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <SelectContent>
+                        <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+                        {countries.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                      {errors.country && (
-                        <p className="text-sm text-red-600">{errors.country}</p>
-                      )}
-                    </>
-                  ) : (
-                    <p className="font-medium">{getCountryName(orgData.country)}</p>
-                  )}
-                </div>
+                    {errors.country && (
+                      <p className="text-sm text-red-600">{errors.country}</p>
+                    )}
+                  </div>
+
 
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">State</Label>
+                    <Label className="text-sm text-muted-foreground">State</Label>
 
-                  {isEditing && !viewOnly ? (
-                    <>
-                      <Select
-                        value={orgData.state || ""}
-                        onValueChange={(selectedState: string) => {
-                          const value = selectedState === "__select_placeholder__" ? "" : selectedState;
-                          setOrgData({ ...orgData, state: value, city: "" });
-                          if (errors.state) {
-                            setErrors(prev => ({ ...prev, state: "" }));
-                          }
-                        }}
-                        disabled={!orgData.country}
-                      >
-                        <SelectTrigger className="w-full border rounded-md p-2 text-sm">
-                          <SelectValue placeholder={!orgData.country ? "Select country first" : "Select State"} />
-                        </SelectTrigger>
+                    <Select
+                      value={orgData.state || ""}
+                      onValueChange={(value: string) => {
+                        setOrgData({ ...orgData, state: value, city: "" });
+                        fetchCities(value);
+                        if (errors.state) {
+                          setErrors(prev => ({ ...prev, state: "" }));
+                        }
+                      }}
+                      disabled={!orgData.country}
+                    >
+                      <SelectTrigger className="w-full border rounded-md p-2 text-sm">
+                        <SelectValue
+                          placeholder={!orgData.country ? "Select Country first" : "Select State"}
+                        />
+                      </SelectTrigger>
 
-                        <SelectContent>
-                          <SelectItem value="__select_placeholder__">Select an option</SelectItem>
-                          {states.map((s) => (
-                            <SelectItem key={s.id} value={s.id}>
-                              {s.state}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <SelectContent>
+                        <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+                        {states.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                      {errors.state && (
-                        <p className="text-sm text-red-600">{errors.state}</p>
-                      )}
-                    </>
-                  ) : (
-                    <p className="font-medium">{getStateName(orgData.state)}</p>
-                  )}
-                </div>
+                    {errors.state && (
+                      <p className="text-sm text-red-600">{errors.state}</p>
+                    )}
+                  </div>
+
 
 
                 {/* <div className="space-y-2">
@@ -736,41 +746,37 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">City</Label>
 
-                  {isEditing && !viewOnly ? (
-                    <>
-                      <Select
-                        value={orgData.city || ""}
-                        onValueChange={(selectedCity: string) => {
-                          const value = selectedCity === "__select_placeholder__" ? "" : selectedCity;
-                          setOrgData({ ...orgData, city: value });
-                          if (errors.city) {
-                            setErrors(prev => ({ ...prev, city: "" }));
-                          }
-                        }}
-                        disabled={!orgData.state}
-                      >
-                        <SelectTrigger className="w-full border rounded-md p-2 text-sm">
-                          <SelectValue placeholder={!orgData.state ? "Select state first" : "Select City"} />
-                        </SelectTrigger>
+                  <Select
+                    value={orgData.city || ""}
+                    onValueChange={(value: string) => {
+                      setOrgData({ ...orgData, city: value });
+                      if (errors.city) {
+                        setErrors(prev => ({ ...prev, city: "" }));
+                      }
+                    }}
+                    disabled={!orgData.state}
+                  >
+                    <SelectTrigger className="w-full border rounded-md p-2 text-sm">
+                      <SelectValue
+                        placeholder={!orgData.state ? "Select State first" : "Select City"}
+                      />
+                    </SelectTrigger>
 
-                        <SelectContent>
-                          <SelectItem value="__select_placeholder__">Select an option</SelectItem>
-                          {cities.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                              {c.city}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <SelectContent>
+                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+                      {cities.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                      {errors.city && (
-                        <p className="text-sm text-red-600">{errors.city}</p>
-                      )}
-                    </>
-                  ) : (
-                    <p className="font-medium">{getCityName(orgData.city)}</p>
+                  {errors.city && (
+                    <p className="text-sm text-red-600">{errors.city}</p>
                   )}
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     {/* <MapPin className="size-4" /> */}

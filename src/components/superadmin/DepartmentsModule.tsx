@@ -70,7 +70,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
   const [searchQuery, setSearchQuery] = useState("");
        const { hasPermission } = usePermissions();
   const [newDept, setNewDept] = useState({
-    deptName: "",
+    department_name: "",
     deptCode: "",
     startedOn: "",
     deptHead: "",
@@ -86,7 +86,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
   const resetNewDept = () => {
     setNewDept({
-      deptName: "",
+      department_name: "",
       deptCode: "",
       startedOn: "",
       deptHead: "",
@@ -101,8 +101,8 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       try {
         const { data } = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS).then(res => res.data);
         const mappedData = data.map((dept: any) => ({
-          id: dept.id,
-          deptName: dept.deptName || "",
+          id: dept.department_id,
+          department_name: dept.department_name || "",
           deptCode: dept.deptCode || "",
           startedOn: dept.startDate || "",
           deptHead: dept.deptHead || "",  // store employee ID
@@ -163,7 +163,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
   const validateDeptForm = (dept: typeof newDept, idToExclude?: string) => {
     const errors: { [key: string]: string | null } = {};
     const requiredFields: (keyof typeof newDept)[] = [
-      "deptName",
+      "department_name",
       "deptCode",
       "deptHead",
       "startedOn",
@@ -207,7 +207,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       }
 
       // --- Unique validation ---
-      if (["deptName", "deptCode"].includes(field)) {
+      if (["department_name", "deptCode"].includes(field)) {
         error = getValidationError("unique", value, "This field already exists", {
           list: departments.filter((d) => d.id !== idToExclude),
           propertyName: field,
@@ -238,7 +238,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
     try {
       const payload = {
-        deptName: newDept.deptName,
+        department_name: newDept.department_name,
         deptCode: newDept.deptCode,
         startDate: newDept.startedOn,
         deptHead: newDept.deptHead,
@@ -252,7 +252,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       // Map the API response just like your fetchDepartments
       const mappedDept = {
         id: addedDept.id,
-        deptName: addedDept.deptName || "",
+        department_name: addedDept.department_name || "",
         deptCode: addedDept.deptCode || "",
         startedOn: addedDept.startDate ? new Date(addedDept.startDate).toISOString().split("T")[0] : "",
         deptHead: addedDept.deptHead || "",
@@ -272,13 +272,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
   };
 
   const handleEdit = (dept: any) => {
+    console.log("Editing department:", dept);
     setEditingDept({
       ...dept,
       id: String(dept.id), // <-- force to string
       deptHead: dept.deptHead || "",
       timezoneId: dept.timezoneId || "",
-      businessUnit: dept.unitId || "",
-      deptName: dept.deptName || "",
+      businessUnit: dept.businessUnit || "",
+      department_name: dept.department_name || "",
       deptCode: dept.deptCode || "",
       startedOn: dept.startedOn || "",
     });
@@ -294,7 +295,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       // Prepare correct payload
       const payload = {
         id: editingDept.id,
-        deptName: editingDept.deptName,
+        department_name: editingDept.department_name,
         deptCode: editingDept.deptCode,
         startDate: editingDept.startedOn,
         deptHead: editingDept.deptHead,
@@ -321,7 +322,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
           d.id === editingDept.id
             ? {
               ...d,
-              deptName: updatedDept.deptName,
+              department_name: updatedDept.department_name,
               deptCode: updatedDept.deptCode,
               startedOn: updatedDept.startDate
                 ? new Date(updatedDept.startDate).toISOString().split("T")[0]
@@ -377,12 +378,12 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
     }
   };
   const filteredDepartments = departments.filter(dept =>
-    (dept.deptName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (dept.department_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
     (dept.deptCode || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
     (dept.startedOn || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
     getDeptHeadName(dept.deptHead).toLowerCase().includes(searchQuery.toLowerCase()) ||
     (timezones.find(t => t.id === dept.timezoneId)?.timezone || "-").toLowerCase().includes(searchQuery.toLowerCase()) ||
-    getBusinessUnitName(dept.businessUnit).toLowerCase().includes(searchQuery.toLowerCase())
+    getBusinessUnitName(dept.unitId || "")
   );
 
   const totalPages = Math.ceil(filteredDepartments.length / pageSize);
@@ -448,7 +449,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                     .filter(dept => dept.id) // render only rows with valid IDs
                     .map((dept) => (
                       <TableRow key={dept.id}>
-                        <TableCell>{dept.deptName}</TableCell>
+                        <TableCell>{dept.department_name}</TableCell>
                         <TableCell>{dept.deptCode}</TableCell>
                         <TableCell>{dept.startedOn}</TableCell>
                         <TableCell>{getDeptHeadName(dept.deptHead)}</TableCell>
@@ -598,15 +599,15 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <Label>Department Name *</Label>
                   <Input
                     placeholder="e.g., Customer Service"
-                    value={newDept.deptName}
+                    value={newDept.department_name}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setNewDept({ ...newDept, deptName: value });
-                      if (formErrors.deptName) {
-                        setFormErrors((prev) => ({ ...prev, deptName: null }));
+                      setNewDept({ ...newDept, department_name: value });
+                      if (formErrors.department_name) {
+                        setFormErrors((prev) => ({ ...prev, department_name: null }));
                       }
                     }} />
-                  {formErrors.deptName && <p className="text-sm text-destructive">{formErrors.deptName}</p>}
+                  {formErrors.department_name && <p className="text-sm text-destructive">{formErrors.department_name}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Department Code *</Label>
@@ -803,14 +804,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                 <div className="space-y-2">
                   <Label>Department Name *</Label>
                   <Input
-                    value={editingDept.deptName}
+                    value={editingDept.department_name}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setEditingDept({ ...editingDept, deptName: value });
-                      if (formErrors.deptName) setFormErrors(prev => ({ ...prev, deptName: null }));
+                      setEditingDept({ ...editingDept, department_name: value });
+                      if (formErrors.department_name) setFormErrors(prev => ({ ...prev, department_name: null }));
                     }}
                   />
-                  {formErrors.deptName && <p className="text-destructive text-sm">{formErrors.deptName}</p>}
+                  {formErrors.department_name && <p className="text-destructive text-sm">{formErrors.department_name}</p>}
                 </div>
 
                 {/* Department Code */}
