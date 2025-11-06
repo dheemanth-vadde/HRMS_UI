@@ -31,6 +31,8 @@ const EllipsisIcon = () => (
 );
 const JobPosting = () => {
   const nav = useNavigate();
+  const auth = useSelector((state) => state.auth);
+  const managerLevels = auth?.managerLevels || 0;
   const [jobBoards, setJobBoards] = useState({
     linkedin: false,
     careerPage: false,
@@ -81,7 +83,7 @@ const JobPosting = () => {
   // console.log("user",user)
   //setNoOfApprovals(user?.manager_depth);
   const manager_dept = user?.manager_depth;
-  const [noOfApprovals, setNoOfApprovals] = useState(manager_dept);
+  const [noOfApprovals, setNoOfApprovals] = useState(0);
   const formatDateTime = (value) => {
     if (!value) return "-";
     const d = new Date(value);
@@ -852,27 +854,13 @@ const JobPosting = () => {
                 <select
                   className="approval-count-select"
                   value={noOfApprovals}
-                  onChange={(e) => {
-                    const val = e.target.value === "default" ? manager_dept : parseInt(e.target.value);
-                    setNoOfApprovals(val);
-                  }}
+                  onChange={(e) => setNoOfApprovals(parseInt(e.target.value))}
                 >
-                  {/* Default option */}
-                  {/* <option value="default">Default</option> */}
-                  {/* <option value={manager_dept}> {manager_dept}</option> */}
-                  {/* Dynamic options from 1 to manager_dept */}
-                  {Array.from({ length: manager_dept }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1}
+                  {Array.from({ length: managerLevels + 1 }, (_, i) => (
+                    <option key={i} value={i}>
+                      {i}
                     </option>
                   ))}
-                  {/* {Array.from({ length: manager_dept }, (_, i) => i + 1)
-                  .filter((num) => num !== manager_dept) // 👈 skip duplicate
-                  .map((num) => (
-                    <option key={num} value={num}>
-                      {num}
-                    </option>
-                  ))} */}
                 </select>
               </>
             )}

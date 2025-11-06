@@ -139,7 +139,13 @@ export const routes: AppRoute[] = [
         elementPath: "recruitment/candidate-assign",
         icon: User,
         hidden: true
-      }
+      },
+      {
+        path: "/recruitment/approvals",
+        name: "Approvals",
+        elementPath: "recruitment/approvals",
+        icon: Briefcase,
+      },
     ]
   },
 

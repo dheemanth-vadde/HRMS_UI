@@ -910,7 +910,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
   return (
     <Container fluid className="">
       <Row className="">
-        <Col xs={12} md={10} lg={8}>
+        <Col xs={12} md={12} lg={12}>
           {editPositionId == null && (
             <div>
             <div className="d-flex justify-content-between align-items-center mb-3 mx-2 buttons_div">

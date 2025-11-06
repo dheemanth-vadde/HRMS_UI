@@ -136,7 +136,7 @@ export function SiteConfigurationModule() {
         setLoading(true);
         if(siteConfigFormData.bussinessUint === "") return;
         const response = await api.get(SITE_CONFIG_ENDPOINTS.GET_SITE_CONFIG_BY_BU_ID(siteConfigFormData.bussinessUint));
-        const {siteConfigurationDto,passwordPolicyDto} = response?.data?.data || {};
+        const {siteConfigurationDTO,passwordPolicyDTO} = response?.data?.data || {};
 
         
         console.log("site-config-data",response)
@@ -144,16 +144,16 @@ export function SiteConfigurationModule() {
        // Map API response to form state, fallback to defaults if missing
 
         setSiteConfigFormData({
-          id:siteConfigurationDto?.id || "",
-          dateFormat: siteConfigurationDto?.dateFormat || "DD/MM/YYYY",
-          timeFormat: siteConfigurationDto?.timeFormat === "HH12:MI:SS" ? "12-Hour" : "24-Hour",
-          timezone: siteConfigurationDto?.timezoneId || timezones[0].id, 
-          currency: siteConfigurationDto?.currencyId || currencies[0].id, 
-          bussinessUint:siteConfigurationDto?.unitId || siteConfigFormData.bussinessUint,
-          minLength: passwordPolicyDto?.minLength || 8,
-          requireUppercase: passwordPolicyDto?.requireUppercase ?? true,
-          requireNumber: passwordPolicyDto?.requireNumber ?? true,
-          requireSpecial: passwordPolicyDto?.requireSpecial ?? true,
+          id:siteConfigurationDTO?.id || "",
+          dateFormat: siteConfigurationDTO?.dateFormat || "DD/MM/YYYY",
+          timeFormat: siteConfigurationDTO?.timeFormat === "HH12:MI:SS" ? "12-Hour" : "24-Hour",
+          timezone: siteConfigurationDTO?.timezoneId || timezones[0].id, 
+          currency: siteConfigurationDTO?.currencyId || currencies[0].id, 
+          bussinessUint:siteConfigurationDTO?.unitId || siteConfigFormData.bussinessUint,
+          minLength: passwordPolicyDTO?.minLength || 8,
+          requireUppercase: passwordPolicyDTO?.requireUppercase ?? true,
+          requireNumber: passwordPolicyDTO?.requireNumber ?? true,
+          requireSpecial: passwordPolicyDTO?.requireSpecial ?? true,
            
         });
         
@@ -290,14 +290,14 @@ export function SiteConfigurationModule() {
     
     const editedSiteConfig = {
       //siteConfigurationDto
-      siteConfigurationDto:{
+      siteConfigurationDTO:{
         timezoneId:siteConfigFormData.timezone,
         currencyId:siteConfigFormData.currency,
         dateFormat:siteConfigFormData.dateFormat,
         timeFormat:siteConfigFormData.timeFormat === "12-Hour" ? "HH12:MI:SS" : "HH24:MI:SS"
       },
       //passwordPolicyDto
-      passwordPolicyDto:{
+      passwordPolicyDTO:{
         minLength:siteConfigFormData.minLength,
         requireUppercase:siteConfigFormData.requireUppercase,
         requireSpecial:siteConfigFormData.requireSpecial,
@@ -309,18 +309,18 @@ export function SiteConfigurationModule() {
       const response = await api.put(SITE_CONFIG_ENDPOINTS.PUT_SITE_CONFIG_BY_BU_ID(siteConfigFormData.bussinessUint),editedSiteConfig);
       const updatedConfig = response?.data?.data;
       console.log("Site configuration updated:",updatedConfig);
-      const{siteConfigurationDto,passwordPolicyDto} = updatedConfig;
+      const{siteConfigurationDTO,passwordPolicyDTO} = updatedConfig;
       setSiteConfigFormData({
-        id:siteConfigurationDto.id,
-        dateFormat: siteConfigurationDto.dateFormat,
-        timeFormat: siteConfigurationDto.timeFormat === "HH12:MI:SS" ? "12-Hour" : "24-Hour",
-        timezone: siteConfigurationDto.timezoneId, 
-        currency: siteConfigurationDto.currencyId,
-        bussinessUint:siteConfigurationDto.unitId,
-        minLength: passwordPolicyDto.minLength,
-        requireUppercase: passwordPolicyDto.requireUppercase,
-        requireNumber: passwordPolicyDto.requireNumber,
-        requireSpecial: passwordPolicyDto.requireSpecial})   
+        id:siteConfigurationDTO.id,
+        dateFormat: siteConfigurationDTO.dateFormat,
+        timeFormat: siteConfigurationDTO.timeFormat === "HH12:MI:SS" ? "12-Hour" : "24-Hour",
+        timezone: siteConfigurationDTO.timezoneId, 
+        currency: siteConfigurationDTO.currencyId,
+        bussinessUint:siteConfigurationDTO.unitId,
+        minLength: passwordPolicyDTO.minLength,
+        requireUppercase: passwordPolicyDTO.requireUppercase,
+        requireNumber: passwordPolicyDTO.requireNumber,
+        requireSpecial: passwordPolicyDTO.requireSpecial})   
     }catch(error){
       console.log("Error saving site configuration:",error);
     }finally{

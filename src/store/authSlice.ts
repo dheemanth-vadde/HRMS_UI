@@ -10,6 +10,7 @@ interface AuthState {
   refreshToken: string | null;
   rolePermissions: Record<string, any>; // <-- add this;
   roleId: string | null;
+  managerLevels: number | null;
 }
 
 const initialState: AuthState = {
@@ -19,7 +20,8 @@ const initialState: AuthState = {
   userRole: null,
   refreshToken: null,
   rolePermissions: {},
-  roleId:null
+  roleId:null,
+  managerLevels: null
 };
 
 export const authSlice = createSlice({
@@ -34,7 +36,8 @@ export const authSlice = createSlice({
         refreshToken: string;
         role: string;
         rolePermissions: Record<string, any>;
-        roleId:string
+        roleId:string;
+        managerLevels?: number[];
       }>
     ) => {
       state.isAuthenticated = true;
@@ -44,6 +47,7 @@ export const authSlice = createSlice({
       state.userRole = action.payload.role;
       state.rolePermissions = action.payload.rolePermissions;
       state.roleId=action.payload.roleId;
+      state.managerLevels = action.payload.managerLevels || null;
     },
     updateTokens: (
       state,

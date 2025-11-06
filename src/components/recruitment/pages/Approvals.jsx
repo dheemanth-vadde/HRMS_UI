@@ -22,6 +22,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 
 const Approvals = () => {
+  console.log("Approvals component rendered");
   const user = useSelector((state) => state?.user?.user);
   const [jobPostings, setJobPostings] = useState([]);
   const [loading, setLoading] = useState(true);

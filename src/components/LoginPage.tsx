@@ -32,14 +32,15 @@ export function LoginPage() {
       console.log("✅ Login successful:", response.data);
 
 
-        dispatch(loginSuccess({
-      username: userName,
-      token: token,
-      refreshToken: refreshToken,
-      role: role,
-      rolePermissions: {} ,
-      roleId:roleId
-    }));
+      dispatch(loginSuccess({
+        username: userName,
+        token: token,
+        refreshToken: refreshToken,
+        role: role,
+        rolePermissions: {} ,
+        roleId:roleId,
+        managerLevels: response.data.managerLevels,
+      }));
 
     // Step 3: Fetch permissions dynamically using roleId
       const permissionsResponse = await api.get(

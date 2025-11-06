@@ -49,16 +49,16 @@ const ChangePassword = () => {
         const fetchPasswordPolicy = async () => {
           try{
             const response = await api.get(SITE_CONFIG_ENDPOINTS.GET_SITE_CONFIG_BY_BU_ID(businessUnitId));
-            const {passwordPolicyDto} = response?.data?.data || {} ;
-            console.log("password policy data :",passwordPolicyDto);
-            if(!passwordPolicyDto) return; //to defaults
+            const {passwordPolicyDTO} = response?.data?.data || {} ;
+            console.log("password policy data :",passwordPolicyDTO);
+            if(!passwordPolicyDTO) return; //to defaults
 
             setPasswordPolicy((prev)=>{
               return {...prev,
-                minLength:passwordPolicyDto.minLength,
-                requireUppercase:passwordPolicyDto.requireUppercase,
-                requireNumber:passwordPolicyDto.requireNumber,
-                requireSpecial:passwordPolicyDto.requireSpecial
+                minLength:passwordPolicyDTO.minLength,
+                requireUppercase:passwordPolicyDTO.requireUppercase,
+                requireNumber:passwordPolicyDTO.requireNumber,
+                requireSpecial:passwordPolicyDTO.requireSpecial
               }
             })
               

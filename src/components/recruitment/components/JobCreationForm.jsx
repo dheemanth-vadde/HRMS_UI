@@ -150,7 +150,7 @@ const JobCreationForm = ({
                 });
 
                 handleInputChange({
-                  target: { name: "grade_id", value: String(selectedPosition.jobGradeId ?? "") },
+                  target: { name: "grade_id", value: String(selectedPosition.job_grade_id ?? "") },
                 });
 
                 handleInputChange({
@@ -163,7 +163,7 @@ const JobCreationForm = ({
                   handleInputChange({ target: { name: "max_salary", value: "" } });
                 }
                 handleInputChange({
-                  target: { name: "dept_id", value: selectedPosition.deptId ?? "" },
+                  target: { name: "dept_id", value: selectedPosition.dept_id ?? "" },
                 });
               }
             }}

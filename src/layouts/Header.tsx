@@ -24,29 +24,26 @@ const Header: React.FC = () => {
  const [userRole, setUserRole] = useState<UserRole>(null);
    const [activeModule, setActiveModule] = useState<ActiveModule>("dashboard");
     const getUserName = () => {
-    switch (userRole) {
-      case "employee":
-        return "Sanjay Kumar";
-      case "manager":
-        return "Pradeep Singh";
-      case "superadmin":
-        return "Super Admin";
-      default:
-        return "Admin User";
-    }
-  };
-    const getUserRole = () => {
-    switch (userRole) {
-      case "employee":
-        return "Officer - Emp ID: PNB12345";
-      case "manager":
-        return "Senior Manager";
-      case "superadmin":
-        return "System Administrator";
-      default:
-        return "HR Administrator";
-    }
-  };
+  // Always prefer the username from Redux
+  return auth?.username || "User";
+};
+
+const getUserRole = () => {
+  switch (auth.userRole?.toUpperCase()) {
+    case "EMPLOYEE":
+      return "Employee";
+    case "MANAGER":
+      return "Manager";
+    case "SUPER ADMIN":
+      return "Super Admin";
+    case "HR":
+      return "HR Administrator";
+    default:
+      return auth.userRole || "User";
+  }
+};
+
+
   const handleLogout = async () => {
   try {
     if (auth.token) {

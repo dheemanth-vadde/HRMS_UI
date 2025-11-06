@@ -43,6 +43,7 @@ export const lazyImportMap: Record<string, React.LazyExoticComponent<any>> = {
   "recruitment/candidate-shortlist": React.lazy(() => import("../components/recruitment/components/CandidateCard")),
   "recruitment/interviews": React.lazy(() => import("../components/recruitment/pages/Calendar")),
   "recruitment/bulk-upload": React.lazy(() => import("../components/recruitment/pages/BulkUploadBatch")),
+  "recruitment/approvals": React.lazy(() => import("../components/recruitment/pages/Approvals")),
   "recruitment/job-creation": React.lazy(() => import("../components/recruitment/pages/JobCreation")),
   "recruitment/candidate-assign": React.lazy(() => import("../components/recruitment/pages/Bulkcandidateassign")),
   "recruitment/master/skill": React.lazy(() => import("../components/recruitment/pages/Skill")),
