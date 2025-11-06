@@ -3,7 +3,7 @@ import { Modal, Button, Form, Spinner, Alert, Badge } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import apiService from "../services/apiService";
 
-const API_BASE = "https://bobbe.sentrifugo.com";
+const API_BASE = "https://hrmsbe.sentrifugo.com";
 const INTERVIEWERS_API = `${API_BASE}/api/getdetails/users/all`; // filter role='Interviewer'
 //const INTERVIEWERS_API = `http://localhost:5000/api/getdetails/users/all`; // filter role='Interviewer'
 

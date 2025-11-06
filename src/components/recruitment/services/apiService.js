@@ -108,7 +108,7 @@ const nodeApi = axios.create({
   withCredentials: true,
 });
 const parseResumeApi = axios.create({
-baseURL: "https://bobbe.sentrifugo.com/api",
+baseURL: "https://hrmsbe.sentrifugo.com/api",
   headers: { "Content-Type": "multipart/form-data" },
 });
 

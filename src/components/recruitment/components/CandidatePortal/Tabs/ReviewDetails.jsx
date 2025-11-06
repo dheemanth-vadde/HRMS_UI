@@ -185,7 +185,7 @@ const ReviewDetails = ({ initialData = {}, onSubmit ,resumePublicUrl, selectedPo
       formData.append('docFile', file);
       formData.append('candidateId', candidateId);
 
-      const uploadResponse = await fetch('https://bobbe.sentrifugo.com/api/uploaddoc/uploaddoc', {
+      const uploadResponse = await fetch('https://hrmsbe.sentrifugo.com/api/uploaddoc/uploaddoc', {
         method: 'POST',
         body: formData,
       });
