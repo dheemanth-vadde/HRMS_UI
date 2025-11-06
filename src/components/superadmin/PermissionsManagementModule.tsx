@@ -73,164 +73,7 @@ const [selectedGroup, setSelectedGroup] = useState("");
 const [hasExistingPrivileges, setHasExistingPrivileges] = useState(false);
   const [screens, setScreens] = useState<Screen[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
-  //   // Dashboard
-  //   {
-  //     id: "dashboard",
-  //     name: "Dashboard",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: true },
-  //   },
-    
-  //   // Organization Management
-  //   {
-  //     id: "organization-info",
-  //     name: "Organization Info",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "business-units",
-  //     name: "Business Units",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "departments",
-  //     name: "Departments",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "announcements",
-  //     name: "Announcements",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Employee Management
-  //   {
-  //     id: "my-profile",
-  //     name: "My Profile",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "employees",
-  //     name: "Employees",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "master-data",
-  //     name: "Master Data",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Attendance Management
-  //   {
-  //     id: "my-attendance",
-  //     name: "My Attendance",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "team-attendance",
-  //     name: "Team Attendance",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Leave Management
-  //   {
-  //     id: "my-leave",
-  //     name: "My Leave",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "team-leave",
-  //     name: "Team Leave",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Performance Management
-  //   {
-  //     id: "performance",
-  //     name: "Performance",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Payroll
-  //   {
-  //     id: "payroll",
-  //     name: "Payroll",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // HR Policies
-  //   {
-  //     id: "hr-policies",
-  //     name: "HR Policies",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Recruitment
-  //   {
-  //     id: "recruitment",
-  //     name: "Recruitment",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Expenses Management
-  //   {
-  //     id: "receipts",
-  //     name: "Receipts",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "trips",
-  //     name: "Trips",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "advances",
-  //     name: "Advances",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "my-expenses",
-  //     name: "My Expenses",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Grievances
-  //   {
-  //     id: "grievances",
-  //     name: "Grievances",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Exit Process
-  //   {
-  //     id: "exit-process",
-  //     name: "Exit Process",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Reports & Analytics
-  //   {
-  //     id: "reports",
-  //     name: "Reports",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-    
-  //   // Access Control (Super Admin)
-  //   {
-  //     id: "access-control",
-  //     name: "Roles & Privileges",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "permissions",
-  //     name: "Permissions",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  //   {
-  //     id: "site-configuration",
-  //     name: "Site Configuration",
-  //     permissions: { all: false, view: true, create: false, edit: false, delete: false },
-  //   },
-  // ]);
+ 
   
   // Fetch menus on component mount
   useEffect(() => {
@@ -287,7 +130,11 @@ useEffect(() => {
 
   fetchGroups();
 }, []); // No dependencies needed here
-
+useEffect(() => {
+  if (selectedRole && selectedGroup) {
+    fetchPrivileges(selectedRole, selectedGroup);
+  }
+}, [selectedRole, selectedGroup]);
 const fetchPrivileges = async (roleId: string, groupId: string) => {
   try {
     setIsLoading(true);
