@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '../../ui/label'
 import Select from 'react-select'
 import apiService from '../services/apiService'
+import '../css/Skill.css'
 import {
   Table,
   TableBody,
@@ -295,16 +296,16 @@ const InterviewPanel = () => {
               ) : panelsToDisplay.length > 0 ? (
                 panelsToDisplay.map((panel, index) => (
                   <TableRow key={panel.panel_id || index} className="hover:bg-gray-50">
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {panel.panel_name}
                     </TableCell>
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {panel.interviewer_ids
                         .map(id => interviewers.find(i => i.interviewer_id === id)?.full_name)
                         .filter(Boolean)
                         .join(", ") || '-'}
                     </TableCell>
-                    <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <TableCell className="px-6 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         {hasPermission('/recruitment/master/interview-panel', 'edit') === true && (
                           <Button
@@ -466,7 +467,7 @@ const InterviewPanel = () => {
             </Button>
             {editIndex === null && hasPermission('/recruitment/master/interview-panel', 'create') && (
               <Button 
-                onClick={handleSave}
+                onClick={handleSavePanel}
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
               >
                 Save
@@ -476,7 +477,7 @@ const InterviewPanel = () => {
             {/* Edit interview-panel (edit mode) */}
             {editIndex !== null && hasPermission('/recruitment/master/interview-panel', 'edit') && (
               <Button 
-                onClick={handleSave}
+                onClick={handleSavePanel}
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
               >
                 Update Panel

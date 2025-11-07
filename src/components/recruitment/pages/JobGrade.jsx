@@ -333,19 +333,19 @@ const JobGrade = () => {
               {jobsToDisplay.length > 0 ? (
                 jobsToDisplay.map((job, index) => (
                   <TableRow key={job.job_grade_id || index} className="hover:bg-gray-50">
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {job.job_scale || '-'}
                     </TableCell>
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {job.min_salary ? `₹${parseFloat(job.min_salary).toLocaleString()}` : '-'}
                     </TableCell>
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {job.max_salary ? `₹${parseFloat(job.max_salary).toLocaleString()}` : '-'}
                     </TableCell>
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {job.job_grade_desc || '-'}
                     </TableCell>
-                    <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <TableCell className="px-6 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         {hasPermission('/recruitment/master/job-grade', 'edit') === true && (
                           <Button

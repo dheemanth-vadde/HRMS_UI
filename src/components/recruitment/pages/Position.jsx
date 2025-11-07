@@ -296,16 +296,16 @@ else {
               {positionsToDisplay.length > 0 ? (
                 positionsToDisplay.map((pos, index) => (
                   <TableRow key={pos.position_id || index} className="hover:bg-gray-50">
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {pos.position_title}
                     </TableCell>
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2whitespace-normal">
                       {departments.find(d => d.department_id === pos.dept_id)?.department_name || '-'}
                     </TableCell>
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {jobGrades.find(g => g.job_grade_id === pos.job_grade_id)?.job_scale || '-'}
                     </TableCell>
-                    <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <TableCell className="px-6 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         {hasPermission('/recruitment/master/position', 'edit') === true && (
                           <Button

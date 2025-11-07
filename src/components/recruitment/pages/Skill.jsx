@@ -277,13 +277,13 @@ const Skill = () => {
               {jobsToDisplay.length > 0 ? (
                 jobsToDisplay.map((job, index) => (
                   <TableRow key={job.skill_id || index} className="hover:bg-gray-50">
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {job.skill_name}
                     </TableCell>
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {job.skill_desc || '-'}
                     </TableCell>
-                    <TableCell className="px-6 py-4 whitespace-nowrap  text-sm font-medium">
+                    <TableCell className="px-6 whitespace-nowrap  text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         {hasPermission('/recruitment/master/skill', 'edit') === true && (
                           <Button

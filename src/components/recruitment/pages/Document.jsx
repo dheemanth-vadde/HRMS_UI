@@ -254,13 +254,13 @@ const Document = () => {
               {docsToDisplay.length > 0 ? (
                 docsToDisplay.map((doc, index) => (
                   <TableRow key={doc.document_id || index} className="hover:bg-gray-50">
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2 whitespace-normal">
                       {doc.document_name}
                     </TableCell>
-                    <TableCell className="px-2 py-4 whitespace-normal">
+                    <TableCell className="px-2whitespace-normal">
                       {doc.document_desc || '-'}
                     </TableCell>
-                    <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <TableCell className="px-6 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         {hasPermission('/recruitment/master/document', 'edit') === true && (
                           <Button
