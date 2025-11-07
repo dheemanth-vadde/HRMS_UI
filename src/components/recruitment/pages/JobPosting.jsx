@@ -652,6 +652,7 @@ const { hasPermission } = usePermissions();
 
                     {job?.requisition_status === "New" ? (
                       <>
+                       {hasPermission('/recruitment/job-creation', 'create') === true && (
                         <FontAwesomeIcon
                           icon={faPlus}
                           className="icon-action iconhover"
@@ -664,6 +665,7 @@ const { hasPermission } = usePermissions();
                           }}
                           title="Add Position"
                         />
+                          )}
                         {hasPermission('/recruitment/job-postings', 'edit') === true && (
                             <FontAwesomeIcon
                               icon={faPencil}
@@ -734,7 +736,12 @@ const { hasPermission } = usePermissions();
                               Grade{getSortIndicator("description")}
                             </th>
                             <th className="font-semibold text-base mb-1">Vacancies</th>
-                            <th className="font-semibold text-base mb-1 text-right">Actions</th>
+                            {(hasPermission('/recruitment/job-creation', 'edit') === true ||
+                              hasPermission('/recruitment/job-creation', 'view') === true) && (
+                              <th className="font-semibold text-base mb-1 text-right">
+                                Actions
+                              </th>
+                            )}  
                           </tr>
                         </thead>
                         <tbody>
@@ -897,12 +904,14 @@ const { hasPermission } = usePermissions();
           >
             Cancel
           </button>
+          {hasPermission('/recruitment/job-postings', 'create') === true && (
           <button
             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
             onClick={handleSavePostings}
           >
             Submit
           </button>
+          )}
         </div>
       )}
 
