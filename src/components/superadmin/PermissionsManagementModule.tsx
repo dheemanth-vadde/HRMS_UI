@@ -640,7 +640,7 @@ useEffect(() => {
                     <>
                       {/* Group Header Row */}
                       <tr key={group} className="bg-accent/20 border-b border-border">
-                        <td colSpan={6} className="px-6 py-3 font-semibold text-primary uppercase text-sm">
+                        <td colSpan={6} className="px-6 py-3 font-semibold group_color uppercase text-sm">
                           {group}
                         </td>
                       </tr>

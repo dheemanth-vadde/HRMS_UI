@@ -11,6 +11,7 @@ import DownloadReqPdfButton from "../components/DownloadReqPdfButton";
 import { faDownload } from "@fortawesome/free-solid-svg-icons"; // ensure this import exists
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAuth } from '../../../store/authSlice';
+import { usePermissions } from "../../../utils/permissionUtils";
 import {
   Dialog,
   DialogContent,
@@ -71,7 +72,7 @@ const JobPosting = () => {
   const [trailLoading, setTrailLoading] = useState(false);
   const [trailData, setTrailData] = useState([]); // [{ username, useremail, status }]
   const [trailError, setTrailError] = useState("");
-
+const { hasPermission } = usePermissions();
 
   // --------- JOB REQUISITION STATES ---------------
 
@@ -545,13 +546,18 @@ const JobPosting = () => {
             <option value="Published">Published</option>
             <option value="Rejected">Rejected</option>
           </select>
-          <button
-            onClick={() => addRequisitionModal()}
-            className="btn-add-purple"
-          >
-            <FontAwesomeIcon icon={faPlus} style={{ marginRight: '8px', fontSize: '14px' }} />
-            Add Requisition
-          </button>
+         {hasPermission('/recruitment/job-postings', 'create') === true && (
+            <button
+              onClick={() => addRequisitionModal()}
+              className="btn-add-purple"
+            >
+              <FontAwesomeIcon
+                icon={faPlus}
+                style={{ marginRight: '8px', fontSize: '14px' }}
+              />
+              Add Requisition
+            </button>
+          )}
         </div>
       </div>
       {loading ? (
@@ -658,24 +664,29 @@ const JobPosting = () => {
                           }}
                           title="Add Position"
                         />
-                        <FontAwesomeIcon
-                          icon={faPencil}
-                          className="icon-action iconhover"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            addRequisitionModal(job, index, "edit");
-                          }}
-                          title="Edit Requisition"
-                        />
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          className="icon-action iconhover"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteReq(job, index);
-                          }}
-                          title="Delete Requisition"
-                        />
+                        {hasPermission('/recruitment/job-postings', 'edit') === true && (
+                            <FontAwesomeIcon
+                              icon={faPencil}
+                              className="icon-action iconhover"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addRequisitionModal(job, index, "edit");
+                              }}
+                              title="Edit Requisition"
+                            />
+                          )}
+
+                          {hasPermission('/recruitment/job-postings', 'delete') === true && (
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              className="icon-action iconhover"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteReq(job, index);
+                              }}
+                              title="Delete Requisition"
+                            />
+                          )}
                         <DownloadReqPdfButton
                           requisition_id={job.requisition_id}
                           requisition={job}
@@ -686,6 +697,7 @@ const JobPosting = () => {
 
                     ) : (
                       <div className={!job.canEdit && !job.canDelete ? 'view-only-action' : ''}>
+                        {hasPermission('/recruitment/job-postings', 'view') === true && (
                         <FontAwesomeIcon
                           icon={faEye}
                           className="icon-action iconhover viewicon"
@@ -695,6 +707,7 @@ const JobPosting = () => {
                           }}
                           title="View Requisition"
                         />
+                        )}
                       </div>
                     )}
                     <FontAwesomeIcon
@@ -745,33 +758,38 @@ const JobPosting = () => {
                                 <td className="text-right">
                                   <div className="table-actions">
                                     {job.requisition_status === 'New' ? (
-                                      <button
-                                        className="action-btn"
-                                        onClick={() => {
-                                          setEditRequisitionId(row.requisition_id);
-                                          console.log(row);
-                                          setEditPositionId(row.position_id);
-                                          setShowModal(true);
-                                          setReadOnly(false);
-                                        }}
-                                        title="Edit Position"
-                                      >
-                                        <FontAwesomeIcon icon={faPencil} className="action-icon" />
-                                      </button>
-                                    ) : (
-                                      <button
-                                        className="action-btn"
-                                        onClick={() => {
-                                          setEditRequisitionId(row.requisition_id);
-                                          setEditPositionId(row.position_id);
-                                          setShowModal(true);
-                                          setReadOnly(true);
-                                        }}
-                                        title="View Position"
-                                      >
-                                        <FontAwesomeIcon icon={faEye} className="action-icon" />
-                                      </button>
-                                    )}
+                                        // ✅ EDIT button - only visible if user has edit permission
+                                        hasPermission('/recruitment/job-creation', 'edit') === true && (
+                                          <button
+                                            className="action-btn"
+                                            onClick={() => {
+                                              setEditRequisitionId(row.requisition_id);
+                                              setEditPositionId(row.position_id);
+                                              setShowModal(true);
+                                              setReadOnly(false);
+                                            }}
+                                            title="Edit Position"
+                                          >
+                                            <FontAwesomeIcon icon={faPencil} className="action-icon" />
+                                          </button>
+                                        )
+                                      ) : (
+                                        hasPermission('/recruitment/job-creation', 'view') === true && (
+                                          <button
+                                            className="action-btn"
+                                            onClick={() => {
+                                              setEditRequisitionId(row.requisition_id);
+                                              setEditPositionId(row.position_id);
+                                              setShowModal(true);
+                                              setReadOnly(true);
+                                            }}
+                                            title="View Position"
+                                          >
+                                            <FontAwesomeIcon icon={faEye} className="action-icon" />
+                                          </button>
+                                        )
+                                      )}
+
                                   </div>
                                 </td>
                               </tr>
