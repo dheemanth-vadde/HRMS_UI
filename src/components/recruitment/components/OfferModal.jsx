@@ -4,7 +4,7 @@ import { Modal, Button, Form, Spinner, Alert } from 'react-bootstrap';
 import OfferLetter from './OfferLetter';
 
 // const TEMPLATES_API = `http://localhost:5000/api/offer-templates`;
-const TEMPLATES_API = `http://localhost:5000/api/offer-templates`;
+const TEMPLATES_API = `https://hrmsbe.sentrifugo.com/api/offer-templates`;
 
 // Helper: local YYYY-MM-DD (avoid timezone off-by-one)
 function localISODate(date = new Date()) {
