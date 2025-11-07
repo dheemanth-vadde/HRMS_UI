@@ -20,8 +20,7 @@ export function usePermittedRoutes() {
   const staticAlwaysAllowedPaths = [
     "/changepassword",
     "/forgotpassword",
-    "/recruitment/job-creation",
-    "/recruitment/candidate-assign",
+   
   ];
 
   // 🧩 If there are no role permissions yet, return only static routes

@@ -126,20 +126,7 @@ export const routes: AppRoute[] = [
         elementPath: "recruitment/bulk-upload",
         icon: Users
       },
-      {
-        path: "/recruitment/job-creation",
-        name: "Job Creation",
-        elementPath: "recruitment/job-creation",
-        icon: Briefcase,
-        hidden: true
-      },
-      {
-        path: "/recruitment/candidate-assign",
-        name: "Candidate Assign",
-        elementPath: "recruitment/candidate-assign",
-        icon: User,
-        hidden: true
-      },
+      
       {
         path: "/recruitment/approvals",
         name: "Approvals",
@@ -206,24 +193,7 @@ export const routes: AppRoute[] = [
         name: "Interview Panel",
         elementPath: "recruitment/master/interview-panel",
         icon: Briefcase
-      },
-      
-      
-      
-      {
-        path: "/recruitment/job-creation",
-        name: "Job Creation",
-        elementPath: "recruitment/job-creation",
-        icon: Briefcase,
-        hidden: true
-      },
-      {
-        path: "/recruitment/candidate-assign",
-        name: "Candidate Assign",
-        elementPath: "recruitment/candidate-assign",
-        icon: User,
-        hidden: true
-      },
+      }
     ]
   },
 
@@ -354,7 +324,21 @@ export const routes: AppRoute[] = [
     name: "Change Password",
     elementPath: "change-password",
     icon: Settings
-  }
+  },
+  {
+        path: "/recruitment/job-creation",
+        name: "Job Creation",
+        elementPath: "recruitment/job-creation",
+        icon: Briefcase,
+        hidden: true
+      },
+      {
+        path: "/recruitment/candidate-assign",
+        name: "Candidate Assign",
+        elementPath: "recruitment/candidate-assign",
+        icon: User,
+        hidden: true
+      },
 
 ];
 
