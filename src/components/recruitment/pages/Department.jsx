@@ -286,7 +286,7 @@ const Department = () => {
       <Dialog open={showModal} onOpenChange={(open) => !open && resetForm()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold text-[#FF7043]">
+            <DialogTitle className="text-lg font-semibold text-[#746def]">
               {editIndex !== null ? "Edit Department" : "Add Department"}
             </DialogTitle>
             <DialogDescription>

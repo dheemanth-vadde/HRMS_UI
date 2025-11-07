@@ -54,8 +54,8 @@ interface BusinessUnit {
 }
 
 interface Department {
-  id: string;
-  deptName: string; // Assuming 'deptName' is the field for department name
+  department_id: string;
+  department_name: string; // Assuming 'deptName' is the field for department name
 }
 
 interface AnnouncementFormData {
@@ -221,8 +221,9 @@ const { hasPermission } = usePermissions();
         // Fetch Departments
         const deptsResponse = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS); // Placeholder URL based on context
         setDepartments(deptsResponse.data.data.map((d: any) => ({
-          id: d.id,
-          deptName: d.deptName || "Department " + d.id.substring(0, 4), // Placeholder for missing deptName
+          department_id: d.department_id,
+          department_name: d.department_name || "Department " + d.department_id.substring(0, 4), // Placeholder for missing deptName
+          unitId: d.unitId
         })));
 
       } catch (err) {
@@ -289,7 +290,7 @@ const { hasPermission } = usePermissions();
 
   // Utility function to get name from ID
   const getUnitName = (unitId: string) => businessUnits.find(u => u.id === unitId)?.unitName;
-  const getDeptName = (deptId: string) => departments.find(d => d.id === deptId)?.deptName;
+  const getDeptName = (deptId: string) => departments.find(d => d.department_id === deptId)?.department_name;
 
   // Shared logic for toggling selection in a multi-select array
   const handleMultiSelectChange = (
@@ -432,7 +433,7 @@ const { hasPermission } = usePermissions();
 
     setEditingAnnouncement((prev: any) => {
       const validDeptIds = prev.deptId.filter((did: string) =>
-        departments.some((d: any) => d.id === did && prev.unitId.includes(d.unitId))
+        departments.some((d: any) => d.department_id === did && prev.unitId.includes(d.unitId))
       );
 
       if (validDeptIds.length !== prev.deptId.length) {
@@ -485,8 +486,8 @@ const { hasPermission } = usePermissions();
         return unitName ? unitName.toLowerCase().includes(searchQuery.toLowerCase()) : false;
       }) ||
       a.deptId.some((id: string) => {
-        const deptName = getDeptName(id);
-        return deptName ? deptName.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+        const department_name = getDeptName(id);
+        return department_name ? department_name.toLowerCase().includes(searchQuery.toLowerCase()) : false;
       }) ||
       new Date(a.startDate).toLocaleDateString("en-IN", {
         year: "numeric",
@@ -738,7 +739,7 @@ const { hasPermission } = usePermissions();
                 <div className="space-y-2">
                   <Label>Departments</Label>
                   <MultiSelectDropdown
-                    items={filteredDepartments.map((d: any) => ({ id: d.id, label: d.deptName, unitId: d.unitId }))}
+                    items={filteredDepartments.map((d: any) => ({ id: d.department_id, label: d.department_name, unitId: d.unitId }))}
                     selectedIds={newAnnouncement.deptId}
                     onChange={(ids) => {
                       setNewAnnouncement((prev) => ({ ...prev, deptId: ids }));
@@ -944,7 +945,7 @@ const { hasPermission } = usePermissions();
               <div className="space-y-2">
                 <Label>Department(s) *</Label>
                 <MultiSelectDropdown
-                  items={filteredDepartmentsEdit.map((d: any) => ({ id: d.id, label: d.deptName, unitId: d.unitId }))}
+                  items={filteredDepartmentsEdit.map((d: any) => ({ id: d.department_id, label: d.department_name, unitId: d.unitId }))}
                   selectedIds={editingAnnouncement.deptId}
                   onChange={(ids) => {
                     setEditingAnnouncement((prev: any) => ({ ...prev, deptId: ids }));

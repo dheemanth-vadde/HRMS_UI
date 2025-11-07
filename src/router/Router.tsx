@@ -11,6 +11,7 @@ import { AuthGuard } from "../auth/AuthGuard";
  
 import { usePermittedRoutes } from "../config/permittedRoutes"
 import ChangePassword from "../components/ChangePassword";
+import { ProfileModule } from "../components/employee/ProfileModule";
 
 const Router: React.FC = () => {
   const routes = usePermittedRoutes();
@@ -106,6 +107,7 @@ const Router: React.FC = () => {
             })}
             <Route index element={<Navigate to="/login" replace />} />
             <Route path="/change-password" element={<ChangePassword/>} />
+            <Route path="/profile" element={<ProfileModule/>} />
             <Route path="*" element={<div style={{ padding: 24 }}>Page not found</div>} />
           </Route>
         </Routes>

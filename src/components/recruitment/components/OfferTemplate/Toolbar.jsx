@@ -140,7 +140,7 @@ export default function Toolbar({ templates, selectedId, setSelectedId }) {
   return (
     <div>
       {/* Heading */}
-      <h5 style={{ fontSize: '16px', color: '#162b75', marginBottom: '20px' }}>Offer Letter Templates</h5>
+      <h5 style={{ fontSize: '16px', color: '#000', marginBottom: '20px' }}>Offer Letter Templates</h5>
       <div className="d-flex gap-2 flex-wrap mb-3">
 
 

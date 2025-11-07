@@ -7,7 +7,7 @@
 }
 
 /* Small helper classes that are easier to keep in CSS than inline JSX */
-.postingfont { font-size: 16px; color: #162b75; font-weight: 00; }
+.postingfont { font-size: 16px; color: #000; font-weight: 00; }
 .fontcard { font-size: 14px; }
 .boldnes { font-size: 14px; color: #333; line-height: 1.6; font-weight: 400; }
 .header { font-weight: 600; font-size: 13px; color: #414141; }
@@ -34,7 +34,7 @@
 .me-3 { margin-right: 0.75rem; }
 .mb-0 { margin-bottom: 0; }
 .text-muted { color: #6c757d; }
-.text-dark { color: #162b75; }
+.text-dark { color: #000; }
 .text-info { color: #17a2b8; }
 .text-orange { color: #746def; }
 .required-asterisk { cursor: pointer; }
@@ -43,7 +43,7 @@
 .modal_container .modal-dialog .modal-content { width: 95vw; }
 
 /* keep icon hover color */
-.iconhover { color: #746def !important; }
+.iconhover { color: #6b7280 !important; }
 
 /* keep checkbtnspost label sizing */
 .checkbtnspost label { font-size: 14px; color: #000; }

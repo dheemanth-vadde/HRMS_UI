@@ -1,5 +1,5 @@
 .foncandidate {
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";}
+  font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";}
 
 .review_columns {
     border: none;
@@ -29,7 +29,7 @@
 .colored_line_red {
     padding: 3px;
     border-radius: 20px;
-    background-color: #FF4F46;
+    background-color: #746def;
 }
 
 .colored_line_yellow {
@@ -53,9 +53,9 @@
 }
 
 .color_grey {
-     color: #162b75 !important;
-    font-size: 14px !important;
-    font-weight:500;
+     color: #000 !important;
+    font-size: 16px !important;
+    font-weight:600;
 }
 
 .color_light_grey {
@@ -85,11 +85,13 @@
 }
 
 .candidate_text {
-    color: #162b75 !important;
-     font-size:13px !important;
+    color: #000 !important;
+     font-size:14px !important;
     letter-spacing: 0.5px;
     margin-bottom: 5px;
     font-weight: 500 !important;
+    text-transform: uppercase;;
+
 }
 
 .rating_container {
@@ -206,7 +208,7 @@
 
 .top-bar .select-drop {
 	font-size: 14px !important;
-	width: 410px !important;
+	width: 382px !important;
 	background-color: #fff !important;
 	color: #414141 !important;
 	border: none !important;
@@ -370,9 +372,13 @@ p.status_offered{
     overflow-y:auto;
     overflow-x: hidden;
 }
+ .overflow-x {
+    overflow-x: hidden !important;
+  }
 .modal-title{
     font-size:16px !important;
-    color:#FF4F46
+    color:#746def;
+    font-weight:600;
 }
 .searchinput {
   position: relative;
@@ -386,7 +392,7 @@ p.status_offered{
   font-size:12px;
 }
 .modal-body label{
-color: #162b75 !important;
+color: #000 !important;
   font-size:14px !important;
   font-weight:500 !important;
 }
@@ -399,7 +405,7 @@ color: #000 !important;
     max-width:1000px !important
 }
 .filename{
-    color: #162b75 !important;
+    color: #000 !important;
   font-size:14px !important;
   font-weight:500 !important;
 }

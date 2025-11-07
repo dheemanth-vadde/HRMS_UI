@@ -50,7 +50,7 @@ const Header = () => {
               aria-label="Search"
             />
             <InputGroup.Text className='bg-light'>
-              <FontAwesomeIcon icon={faSearch} style={{ color: '#FF7043' }} />
+              <FontAwesomeIcon icon={faSearch} style={{ color: '#746def' }} />
             </InputGroup.Text>
           </InputGroup>
         </div> */}

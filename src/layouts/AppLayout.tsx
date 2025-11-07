@@ -11,7 +11,7 @@ const AppLayout: React.FC = () => {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-auto p-6 bg-gray-50">
+        <main className="flex-1 overflow-auto overflow-x p-6 bg-gray-50">
           <Outlet />
           <Toaster></Toaster>
         </main>

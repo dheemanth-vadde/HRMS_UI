@@ -9,18 +9,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../ui/table";
 import "../css/Skill.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPencil,
   faTrash,
-  faSearch
+  faSearch,
+  faEye
 } from "@fortawesome/free-solid-svg-icons";
 import { Label } from "../../ui/label";
 // import { toast } from 'react-toastify';
 // import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "sonner";
 import apiService from "../services/apiService";
+import { Edit, Eye, Trash2 } from "lucide-react";
+import { usePermissions } from "../../../utils/permissionUtils";
 
 
 const Skill = () => {
@@ -36,6 +47,7 @@ const Skill = () => {
   const [errr, setErrr] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const { hasPermission } = usePermissions();
 
   useEffect(() => {
     fetchSkill();
@@ -222,21 +234,23 @@ const Skill = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button 
-            onClick={() => openModal()} 
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3 btn-add-purple"
-          >
-            + Add Skill
-          </button>
+          {hasPermission('/recruitment/master/skill', 'create') === true && (
+            <button 
+              onClick={() => openModal()} 
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3 btn-add-purple"
+            >
+              + Add Skill
+            </button>
+          )}
         </div>
       </div>
 
       <div className="border border-[#e5e7eb] rounded-md">
         <div className="rounded-md">
-          <table className="w-full caption-bottom text-sm">
-            <thead>
-              <tr className="bg-muted/50">
-                <th 
+          <Table className="w-full caption-bottom text-sm">
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
                   onClick={() => handleSort("skill_name")}
                 >
@@ -244,8 +258,8 @@ const Skill = () => {
                     Skill
                     <span className="ml-1">{getSortIndicator("skill_name")}</span>
                   
-                </th>
-                <th 
+                </TableHead>
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
                   onClick={() => handleSort("skill_desc")}
                 >
@@ -253,47 +267,65 @@ const Skill = () => {
                     Description
                     <span className="ml-1">{getSortIndicator("skill_desc")}</span>
                  
-                </th>
-                <th className="text-foreground h-10 px-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
+                </TableHead>
+                <TableHead className="text-right  text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
                   Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="bg-white divide-y divide-gray-200">
               {jobsToDisplay.length > 0 ? (
                 jobsToDisplay.map((job, index) => (
-                  <tr key={job.skill_id || index} className="hover:bg-gray-50">
-                    <td className="px-2 py-4 whitespace-normal">
+                  <TableRow key={job.skill_id || index} className="hover:bg-gray-50">
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {job.skill_name}
-                    </td>
-                    <td className="px-2 py-4 whitespace-normal">
+                    </TableCell>
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {job.skill_desc || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap  text-sm font-medium">
-                      <button
-                        onClick={() => openModal(job, index)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        <FontAwesomeIcon icon={faPencil} className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(index)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 whitespace-nowrap  text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        {hasPermission('/recruitment/master/skill', 'edit') === true && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openModal(job, index)}
+                          >
+                            <Edit className="size-4 text-gray-500" />
+                          </Button>
+                        )}
+                        {(hasPermission('/recruitment/master/skill', 'view') === true)
+                          && (hasPermission('/recruitment/master/skill', 'edit') !== true) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openModal(job, index)}
+                          >
+                            <Eye className="size-4 text-gray-500" />
+                          </Button>
+                        )}
+                        {hasPermission('/recruitment/master/skill', 'delete') === true && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(index)}
+                          >
+                            <Trash2 className="size-4 text-gray-500" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ))
               ) : (
-                <tr>
-                  <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+                <TableRow>
+                  <TableCell colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
                     No skills found matching your criteria.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -301,7 +333,7 @@ const Skill = () => {
       <Dialog open={showModal} onOpenChange={(open) => !open && resetForm()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold text-[#FF7043]">
+            <DialogTitle className="text-lg font-semibold text-[#746def]">
               {editIndex !== null ? "Edit Skill" : "Add Skill"}
             </DialogTitle>
             <DialogDescription>
@@ -354,22 +386,36 @@ const Skill = () => {
               </div>
             </div>
           </div>
-          
-          <DialogFooter className="flex justify-end gap-2">
-            <Button 
-              variant="outline" 
-              onClick={resetForm}
-              className="border-gray-300"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSave}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
-            >
-              {editIndex !== null ? "Update Skill" : "Save"}
-            </Button>
-          </DialogFooter>
+
+            <DialogFooter className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={resetForm}
+                className="border-gray-300"
+              >
+                Cancel
+              </Button>
+              
+              {editIndex === null && hasPermission('/recruitment/master/skill', 'create') && (
+                <Button 
+                  onClick={handleSave}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
+                >
+                  Save
+                </Button>
+              )}
+
+              {/* Edit Skill (edit mode) */}
+              {editIndex !== null && hasPermission('/recruitment/master/skill', 'edit') && (
+                <Button 
+                  onClick={handleSave}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
+                >
+                  Update Skill
+                </Button>
+              )}
+            </DialogFooter>
+
         </DialogContent>
       </Dialog>
     </div>

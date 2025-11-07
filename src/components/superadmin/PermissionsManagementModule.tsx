@@ -521,8 +521,8 @@ useEffect(() => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full border-input-border">
-                    <Zap className="size-4 mr-2" />
-                    Quick
+                    
+                     Actions&nbsp;&#x25BC;
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
@@ -553,7 +553,22 @@ useEffect(() => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            {/* Action Buttons */}
+      <div className="lg:col-span-1 flex items-end gap-4">
+        {/* <Button
+          variant="outline"
+          className="border-input-border"
+        >
+          <X className="size-4 mr-2" />
+          Cancel
+        </Button> */}
+        <Button   onClick={handleSaveChanges} className="bg-gradient-to-r from-primary to-[#2171b5] hover:from-[#2171b5] hover:to-[#1a5a8a] text-white shadow-lg hover:shadow-xl transition-all">
+          <Check className="size-4 mr-2" />
+          Save Changes
+        </Button>
+      </div>
           </div>
+          
         </CardContent>
       </Card>
 
@@ -615,7 +630,7 @@ useEffect(() => {
                           <Checkbox
                             checked={screen.permissions.all}
                             onCheckedChange={() => togglePermission(screen.id, "all")}
-                            className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
                         </div>
                       </td>
@@ -624,7 +639,7 @@ useEffect(() => {
                           <Checkbox
                             checked={screen.permissions.view}
                             onCheckedChange={() => togglePermission(screen.id, "view")}
-                            className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
                         </div>
                       </td>
@@ -633,7 +648,7 @@ useEffect(() => {
                           <Checkbox
                             checked={screen.permissions.create}
                             onCheckedChange={() => togglePermission(screen.id, "create")}
-                            className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
                         </div>
                       </td>
@@ -642,7 +657,7 @@ useEffect(() => {
                           <Checkbox
                             checked={screen.permissions.edit}
                             onCheckedChange={() => togglePermission(screen.id, "edit")}
-                            className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
                         </div>
                       </td>
@@ -651,7 +666,7 @@ useEffect(() => {
                           <Checkbox
                             checked={screen.permissions.delete}
                             onCheckedChange={() => togglePermission(screen.id, "delete")}
-                            className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            className="size-5  circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
                         </div>
                       </td>
@@ -722,20 +737,7 @@ useEffect(() => {
         </div>
       </Card>
 
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-4">
-        {/* <Button
-          variant="outline"
-          className="border-input-border"
-        >
-          <X className="size-4 mr-2" />
-          Cancel
-        </Button> */}
-        <Button   onClick={handleSaveChanges} className="bg-gradient-to-r from-primary to-[#2171b5] hover:from-[#2171b5] hover:to-[#1a5a8a] text-white shadow-lg hover:shadow-xl transition-all">
-          <Check className="size-4 mr-2" />
-          Save Changes
-        </Button>
-      </div>
+      
     </div>
   );
 }

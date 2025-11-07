@@ -43,7 +43,7 @@ function TemplateBase({ template, candidate, s, c, b, variant }) {
       {/* Subject */}
       {c.subject ? (
   <div
-    style={{ textAlign: "center", margin: "6px 0 10px 0", color: '#162b75', fontWeight: '500' }}
+    style={{ textAlign: "center", margin: "6px 0 10px 0", color: '#000', fontWeight: '500' }}
     dangerouslySetInnerHTML={{ __html: c.subject }}
   />
 ) : null}
@@ -55,7 +55,7 @@ function TemplateBase({ template, candidate, s, c, b, variant }) {
           <div style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>{candidate.full_name || "Candidate Name"}</div>
           <div style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>{candidate.address || "Address Line"}</div>
           <p style={{ marginTop: 8 }}>
-            Dear <b style={{color: '#162b75', fontWeight : '500', fontSize:'14px'}}>{candidate.full_name || "Candidate Name"}</b>,
+            Dear <b style={{color: '#000', fontWeight : '500', fontSize:'14px'}}>{candidate.full_name || "Candidate Name"}</b>,
           </p>
         </div>
       )}
@@ -67,15 +67,15 @@ function TemplateBase({ template, candidate, s, c, b, variant }) {
       {s.jobDetails !== false && (
         variant === 2 ? (
           <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", rowGap: 6, columnGap: 12,  marginTop:'15px'}}>
-            <div><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Job Title:</b></div><div style={{color: '#162b75',fontWeight : '500', fontSize:'14px'}}>{"{{job.position}}"}</div>
-            <div><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Location:</b></div><div style={{color: '#162b75',fontWeight : '500', fontSize:'14px'}}>{"{{job.location_name}}"}</div>
-            <div><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Gross Salary:</b></div ><div style={{color: '#162b75',fontWeight : '500', fontSize:'14px'}}>{"{{job.salary}}"}</div>
+            <div><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Job Title:</b></div><div style={{color: '#000',fontWeight : '500', fontSize:'14px'}}>{"{{job.position}}"}</div>
+            <div><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Location:</b></div><div style={{color: '#000',fontWeight : '500', fontSize:'14px'}}>{"{{job.location_name}}"}</div>
+            <div><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Gross Salary:</b></div ><div style={{color: '#000',fontWeight : '500', fontSize:'14px'}}>{"{{job.salary}}"}</div>
           </div>
         ) : (
           <div style={{ marginTop:'15px' }}>
-            <p style={{ margin: 0, color: '#162b75',fontWeight : '500', fontSize:'14px'}}><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Job Title:</b> {"{{job.position}}"}</p>
-            <p style={{ margin: 0 , color: '#162b75',fontWeight : '500', fontSize:'14px'}}><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Location:</b> {"{{job.location_name}}"}</p>
-            <p style={{ margin: 0 , color: '#162b75',fontWeight : '500', fontSize:'14px'}}><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Gross Salary:</b> {"{{job.salary}}"}</p>
+            <p style={{ margin: 0, color: '#000',fontWeight : '500', fontSize:'14px'}}><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Job Title:</b> {"{{job.position}}"}</p>
+            <p style={{ margin: 0 , color: '#000',fontWeight : '500', fontSize:'14px'}}><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Location:</b> {"{{job.location_name}}"}</p>
+            <p style={{ margin: 0 , color: '#000',fontWeight : '500', fontSize:'14px'}}><b style={{color: '#000',fontWeight : '400', fontSize:'14px'}}>Gross Salary:</b> {"{{job.salary}}"}</p>
           </div>
         )
       )}

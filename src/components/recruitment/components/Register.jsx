@@ -150,10 +150,10 @@ const Register = () => {
   return (
     <div className="login-container register_container d-flex flex-column py-3 px-5">
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <h5 style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#FF7043', marginBottom: '0px' }}>Users</h5>
+        <h5 style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#746def', marginBottom: '0px' }}>Users</h5>
         <Button 
           onClick={() => setShowModal(true)}
-          style={{ backgroundColor: '#FF7043', borderColor: '#FF7043', color: '#fff' }}
+          style={{ backgroundColor: '#746def', borderColor: '#746def', color: '#fff' }}
         >
           + Add
         </Button>
@@ -162,7 +162,7 @@ const Register = () => {
       {/* 🔎 Search Bar */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <InputGroup className="w-50 fonreg searchinput">
-          <InputGroup.Text style={{ backgroundColor: '#FF7043' }}>
+          <InputGroup.Text style={{ backgroundColor: '#746def' }}>
             <FontAwesomeIcon icon={faSearch} style={{ color: '#fff' }} />
           </InputGroup.Text>
           <Form.Control

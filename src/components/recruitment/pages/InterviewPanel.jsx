@@ -1,4 +1,4 @@
-import { faPencil, faTrash, faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faPencil, faTrash, faSearch, faEye } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useEffect, useState } from 'react'
 import { Col, Form, Row, Spinner } from 'react-bootstrap'
@@ -7,6 +7,16 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '../../ui/label'
 import Select from 'react-select'
 import apiService from '../services/apiService'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../ui/table";
+import { Edit, Eye, Trash2 } from 'lucide-react'
+import { usePermissions } from '../../../utils/permissionUtils'
 
 const InterviewPanel = () => {
   const [showModal, setShowModal] = useState(false);
@@ -26,6 +36,7 @@ const InterviewPanel = () => {
   const [loadingInterviewers, setLoadingInterviewers] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const { hasPermission } = usePermissions();
 
   const panelMembers = [
     { value: "Akhil Kumar", label: "Akhil Kumar" },
@@ -239,83 +250,103 @@ const InterviewPanel = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button 
-            onClick={() => setShowModal(true)} 
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3 btn-add-purple"
-          >
-            + Add Panel
-          </button>
+          {hasPermission('/recruitment/master/interview-panel', 'create') === true && (
+            <button 
+              onClick={() => setShowModal(true)} 
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3 btn-add-purple"
+            >
+              + Add Panel
+            </button>
+          )}
         </div>
       </div>
 
       <div className="border border-[#e5e7eb] rounded-md">
         <div className="rounded-md">
-          <table className="w-full caption-bottom text-sm">
-            <thead>
-              <tr className="bg-muted/50">
-                <th 
+          <Table className="w-full caption-bottom text-sm">
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
                   onClick={() => handleSort("panel_name")}
                 >
                   Panel Name
                   <span className="ml-1">{getSortIndicator("panel_name")}</span>
-                </th>
-                <th 
+                </TableHead>
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
                   onClick={() => handleSort("interviewer_ids")}
                 >
                   Panel Members
                   <span className="ml-1">{getSortIndicator("interviewer_ids")}</span>
-                </th>
-                <th className="text-foreground h-10 px-6 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 text-right">
+                </TableHead>
+                <TableHead className="text-right  text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
                   Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="bg-white divide-y divide-gray-200">
               {loading ? (
-                <tr>
-                  <td colSpan="3" className="px-6 py-4 text-center">
+                <TableRow>
+                  <TableCell colSpan="3" className="px-6 py-4 text-center">
                     <Spinner animation="border" size="sm" /> Loading...
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : panelsToDisplay.length > 0 ? (
                 panelsToDisplay.map((panel, index) => (
-                  <tr key={panel.panel_id || index} className="hover:bg-gray-50">
-                    <td className="px-2 py-4 whitespace-normal">
+                  <TableRow key={panel.panel_id || index} className="hover:bg-gray-50">
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {panel.panel_name}
-                    </td>
-                    <td className="px-2 py-4 whitespace-normal">
+                    </TableCell>
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {panel.interviewer_ids
                         .map(id => interviewers.find(i => i.interviewer_id === id)?.full_name)
                         .filter(Boolean)
                         .join(", ") || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => handleEdit(panel, index)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        <FontAwesomeIcon icon={faPencil} className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(panel.panel_id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        {hasPermission('/recruitment/master/interview-panel', 'edit') === true && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openModal(job, index)}
+                          >
+                            <Edit className="size-4 text-gray-500" />
+                          </Button>
+                        )}
+                        {(hasPermission('/recruitment/master/interview-panel', 'view') === true)
+                          && (hasPermission('/recruitment/master/interview-panel', 'edit') !== true) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openModal(job, index)}
+                          >
+                            <Eye className="size-4 text-gray-500" />
+                          </Button>
+                        )}
+                        {hasPermission('/recruitment/master/interview-panel', 'delete') === true && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(index)}
+                          >
+                            <Trash2 className="size-4 text-gray-500" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ))
               ) : (
-                <tr>
-                  <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+                <TableRow>
+                  <TableCell colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
                     {searchTerm ? 'No panels match your search criteria.' : 'No panels found.'}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -323,7 +354,7 @@ const InterviewPanel = () => {
       <Dialog open={showModal} onOpenChange={(open) => !open && resetForm()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold text-[#FF7043]">
+            <DialogTitle className="text-lg font-semibold text-[#746def]">
               {editIndex !== null ? "Edit Interview Panel" : "Add Interview Panel"}
             </DialogTitle>
             <DialogDescription>
@@ -433,12 +464,24 @@ const InterviewPanel = () => {
             >
               Cancel
             </Button>
-            <Button 
-              onClick={handleSavePanel}
-              className="bg-[#4F46E5] hover:bg-[#4338CA] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:ring-offset-2 transition-colors"
-            >
-              {editIndex !== null ? "Update Panel" : "Save"}
-            </Button>
+            {editIndex === null && hasPermission('/recruitment/master/interview-panel', 'create') && (
+              <Button 
+                onClick={handleSave}
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
+              >
+                Save
+              </Button>
+            )}
+
+            {/* Edit interview-panel (edit mode) */}
+            {editIndex !== null && hasPermission('/recruitment/master/interview-panel', 'edit') && (
+              <Button 
+                onClick={handleSave}
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
+              >
+                Update Panel
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

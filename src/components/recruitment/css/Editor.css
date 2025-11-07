@@ -120,7 +120,7 @@
 }
 .section_toggle h6{
   margin-top:15px;
-  color:#162b75;
+  color:#000;
 font-size: 14px;
    font-weight: 500;
 }
@@ -136,15 +136,15 @@ font-size: 14px;
   display: flex;
 }
 .form-check-input:checked {
-  background-color: #162b75 !important;
-  border-color: #162b75 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
 }
 .fields_data{
   width: 100%;
   float: left;
 }
 .offer .card-body label{
-  color:#162b75;
+  color:#000;
 font-size: 14px;
    font-weight: 600;
 }
@@ -155,27 +155,27 @@ font-size: 14px;
    margin-right: 10px;
 }
 .change_btn{
-  background: #162b75 !important;
+  background: #000 !important;
   color: #fff;
   font-size: 14px;
-  border: 1px solid #162b75 !important;
+  border: 1px solid #000 !important;
 }
 .change_btn:hover{
-border-color: #162b75;
-background:#162b75;
+border-color: #000;
+background:#000;
 color:#fff;}
 
 .save-template-btn {
-  background-color: #162b75 !important;
+  background-color: #000 !important;
   color: #fff !important;
 }
 .save-template-btn:hover {
-  background-color: #162b75 !important;
+  background-color: #000 !important;
   color: #fff !important;
 }
 
 .intro-editor .ql-editor strong {
- color:#162b75;
+ color:#000;
   background:rgba(22, 43, 117, .12);
   font-weight:600;
   padding:0 4px;

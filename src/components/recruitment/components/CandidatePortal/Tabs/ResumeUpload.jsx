@@ -217,14 +217,14 @@ const ResumeUpload = ({ resumeFile, setResumeFile, setParsedData, setResumePubli
           {resumePublicUrl ? (
             <>
               <span style={{fontSize:'14px'}}>Click here to upload your resume or{' '}</span>
-              <span style={{ color: '#ff7043', cursor: 'pointer' }}>
+              <span style={{ color: '#746def', cursor: 'pointer' }}>
                 <b>Browse to Upload</b>
               </span>
             </>
           ) : (
             <>
               <span style={{fontSize:'14px'}}>Click here to upload your resume or{' '}</span>
-              <span style={{ color: '#ff7043', cursor: 'pointer' }}>
+              <span style={{ color: '#746def', cursor: 'pointer' }}>
                <b>Browse to Upload</b>
               </span>
             </>
@@ -244,7 +244,7 @@ const ResumeUpload = ({ resumeFile, setResumeFile, setParsedData, setResumePubli
         <button
           className="btn btn-primary"
           style={{
-            backgroundColor: '#ff7043',
+            backgroundColor: '#746def',
             color: '#fff',
             border: 'none',
             padding: '8px 24px',

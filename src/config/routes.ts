@@ -13,9 +13,11 @@ import {
   UserCircle,
   Megaphone,
   Shield,
+  ShieldCheck,
   Info,
   Layers,
-  User,
+  UserCog,
+  User
 } from "lucide-react";
 
 export type AppRoute = {
@@ -72,14 +74,14 @@ export const routes: AppRoute[] = [
   {
     path: "/superadmin/access-control",
     name: "Access Management",
-    icon: Shield,
+    icon: ShieldCheck,
     elementPath: "superadmin/access",
     children: [
       {
         path: "/superadmin/access-control/roles",
         name: "Roles",
         elementPath: "superadmin/roles",
-        icon: Shield
+        icon: UserCog
       },
       // {
       //   path: "/superadmin/access-control/users",
@@ -91,7 +93,7 @@ export const routes: AppRoute[] = [
         path: "/superadmin/access-control/permissions",
         name: "Permissions",
         elementPath: "superadmin/permissions",
-        icon: Shield
+        icon: ShieldCheck
       }
     ]
   },
@@ -126,20 +128,7 @@ export const routes: AppRoute[] = [
         elementPath: "recruitment/bulk-upload",
         icon: Users
       },
-      {
-        path: "/recruitment/job-creation",
-        name: "Job Creation",
-        elementPath: "recruitment/job-creation",
-        icon: Briefcase,
-        hidden: true
-      },
-      {
-        path: "/recruitment/candidate-assign",
-        name: "Candidate Assign",
-        elementPath: "recruitment/candidate-assign",
-        icon: User,
-        hidden: true
-      },
+      
       {
         path: "/recruitment/approvals",
         name: "Approvals",
@@ -206,24 +195,7 @@ export const routes: AppRoute[] = [
         name: "Interview Panel",
         elementPath: "recruitment/master/interview-panel",
         icon: Briefcase
-      },
-      
-      
-      
-      {
-        path: "/recruitment/job-creation",
-        name: "Job Creation",
-        elementPath: "recruitment/job-creation",
-        icon: Briefcase,
-        hidden: true
-      },
-      {
-        path: "/recruitment/candidate-assign",
-        name: "Candidate Assign",
-        elementPath: "recruitment/candidate-assign",
-        icon: User,
-        hidden: true
-      },
+      }
     ]
   },
 
@@ -354,7 +326,27 @@ export const routes: AppRoute[] = [
     name: "Change Password",
     elementPath: "change-password",
     icon: Settings
-  }
-
+  },
+  {
+    path: "/profile",
+    name: "Profile",
+    elementPath: "profile",
+    icon: Settings,
+    hidden: true
+  },
+  {
+    path: "/recruitment/job-creation",
+    name: "Job Creation",
+    elementPath: "recruitment/job-creation",
+    icon: Briefcase,
+    hidden: true
+  },
+  {
+    path: "/recruitment/candidate-assign",
+    name: "Candidate Assign",
+    elementPath: "recruitment/candidate-assign",
+    icon: User,
+    hidden: true
+  },
 ];
 

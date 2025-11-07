@@ -146,14 +146,14 @@
   
 /* styelkes added by veeresh */
 .create_new_btn{
-  background: #FF7043 !important;
+  background: #746def !important;
   color: #fff;
   font-size: 14px;
-  border: 1px solid #FF7043;
+  border: 1px solid #746def;
 }
 .create_new_btn:hover{
-  background:#FF7043 !important;
-  border: 1px solid #FF7043;
+  background:#746def !important;
+  border: 1px solid #746def;
   color:#fff;
 }
 .relax_change_btn{
@@ -164,15 +164,15 @@
   font-weight:normal;
 }
 .relax_change_btn:hover{
-  background:#162b75 !important;
-  border: 1px solid #162b75;
+  background:#000 !important;
+  border: 1px solid #000;
   color:#fff;
 }
 .relaxation-container .active{
-  background: #162b75 !important;
+  background: #000 !important;
   color: #fff;
   font-size: 14px;
-  border: 1px solid #162b75;
+  border: 1px solid #000;
   
 }
 .relaxation_table{
@@ -186,7 +186,7 @@ font-size: 14px;
 }
 .special_category_title{
 font-size: 14px;
-  color:#162b75
+  color:#000
 }
 .table th.name, .table th.mode, .table th.flatnumber{
   width: 15%;
@@ -196,8 +196,8 @@ font-size: 14px;
   border: none;
 }
 .save_btn{
-  background:#FF7043 !important;
-  border: 1px solid #FF7043 !important;
+  background:#746def !important;
+  border: 1px solid #746def !important;
   color:#fff;
   
 font-size: 14px;
@@ -209,7 +209,7 @@ font-size: 14px;
 .blinking-text {
   animation: blinker 2s linear infinite; /* Apply the animation */
 font-size: 14px;
-  color:#FF7043 !important;
+  color:#746def !important;
 }
 
 @keyframes blinker {
@@ -242,15 +242,15 @@ font-size: 14px;
   padding:8px;
 }
 .faPlusCircle{
-  color:#162b75 !important;
+  color:#000 !important;
   font-size:16px;
 }
 .fa-circle-minus{
-  color:#FF7043 !important;
+  color:#746def !important;
   font-size:16px;
 }
 .relaxationName{
-   color:#162b75 !important;
+   color:#000 !important;
    font-weight:500 !important
 }
 .no-spin::-webkit-inner-spin-button,

@@ -38,7 +38,7 @@ const styles = {
     fontFamily: "Noto Sans",
     fontWeight: 600,
     fontSize: 16,
-    color: "#FF7043",
+    color: "#746def",
     margin: 0,
   },
   statPill: { padding: "6px 10px", borderRadius: 10, fontSize: 12 },
@@ -324,22 +324,27 @@ const disableUploads = !!batch && (batch.items?.length || 0) > 0;
   const step3 = syncDone ? "completed" : syncActive ? "active" : "waiting";
 
   /* CTA logic */
-  let ctaLabel = "Browse Files to Upload";
-  let ctaDisabled = !filesSelected;
-  let ctaHandler = onPickClick;
-  if (filesSelected && !uploadDone) {
-    ctaLabel = "Start Upload";
-    ctaDisabled = false;
-    ctaHandler = onUpload;
-  } else if (uploadDone) {
-    ctaLabel = syncActive
-      ? "Processing…"
-      : isCoolingDown
-      ? `Sync (${cooldownLeft}s)`
-      : "Sync";
-    ctaDisabled = syncActive || isCoolingDown;
-    ctaHandler = onSyncAll;
-  }
+  /* CTA logic */
+let ctaLabel = null;
+let ctaDisabled = true;
+let ctaHandler = null;
+
+// Step 2: show "Start Upload"
+if (filesSelected && !uploadDone) {
+  ctaLabel = "Start Upload";
+  ctaDisabled = false;
+  ctaHandler = onUpload;
+}
+// Step 3: show "Sync"
+else if (uploadDone) {
+  ctaLabel = syncActive
+    ? "Processing…"
+    : isCoolingDown
+    ? `Sync (${cooldownLeft}s)`
+    : "Sync";
+  ctaDisabled = syncActive || isCoolingDown;
+  ctaHandler = onSyncAll;
+}
 
   /* ---------- table derivations ---------- */
   const normalizedQuery = q.trim().toLowerCase();
@@ -514,11 +519,13 @@ const disableUploads = !!batch && (batch.items?.length || 0) > 0;
                   <div className="text-muted small">PDF, DOC, DOCX files supported</div>
                 </div>
 
-                <div className="mt-3 d-flex justify-content-center">
-                  <Button className="bulkstepper-cta actionbtn" disabled={ctaDisabled} onClick={ctaHandler}>
-                    {ctaLabel}
-                  </Button>
-                </div>
+                {ctaLabel && (
+                  <div className="mt-3 d-flex justify-content-center">
+                    <Button className="bulkstepper-cta actionbtn" disabled={ctaDisabled} onClick={ctaHandler}>
+                      {ctaLabel}
+                    </Button>
+                  </div>
+                )}
                 {step3 === "completed" && !processing && (
                   <div className="mt-2 d-flex justify-content-center">
                     <Button variant="outline-secondary" size="sm" onClick={onStartOver}>
@@ -673,7 +680,7 @@ const disableUploads = !!batch && (batch.items?.length || 0) > 0;
                                     style={{ width: 28, height: 28, borderRadius: "50%" }}
                                     onClick={() => onDeleteRow(r.resume_id)}
                                   >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-danger">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="iconhover">
                                       <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
                                       <path d="M10 11v7M14 11v7" />

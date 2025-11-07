@@ -1235,6 +1235,10 @@
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 
+  .grid-columns-one {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
   .grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1252,6 +1256,10 @@
   }
 
   .grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .grid-columns-four {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
@@ -1430,7 +1438,7 @@
   }
 
   .overflow-x-hidden {
-    overflow-x: hidden;
+    overflow-x: hidden !important;
   }
 
   .overflow-y-auto {
@@ -1519,8 +1527,8 @@
   }
 
   .border-b {
-    border-bottom-style: var(--tw-border-style);
-    border-bottom-width: 1px;
+    border-bottom-style: var(--tw-border-style) !important;
+    border-bottom-width: 1px !important;
   }
 
   .border-l {
@@ -5107,6 +5115,7 @@ html {
 
 .announcement_card {
   background:none !important;
+  border:none;
 }
 
 .error_text {
@@ -5136,4 +5145,7 @@ html {
 .w-auto {
 	width: auto !important;
 	height: 60px;
+}
+.circleborder{
+border: 1px solid #333 !important;
 }

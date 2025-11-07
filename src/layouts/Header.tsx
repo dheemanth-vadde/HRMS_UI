@@ -69,14 +69,14 @@ const getUserRole = () => {
    <header className="h-16 bg-white dark:bg-card border-b border-border flex items-center justify-between px-6 shadow-md backdrop-blur-sm animate-slide-in-right">
           {/* Left Section */}
           <div className="flex items-center gap-4">
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className="hover:bg-accent transition-zynix hover:text-primary"
             >
               <Menu className="size-5" />
-            </Button>
+            </Button> */}
           </div>
 
           {/* Right Section */}
@@ -115,14 +115,14 @@ const getUserRole = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
                   <UserCircle className="mr-2 size-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                   <Settings className="mr-2 size-4" />
                   <span>Settings</span>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuItem onClick={() => navigate("/change-password")}>
                   <Settings className="mr-2 size-4" />
                   <span>Change Password</span>

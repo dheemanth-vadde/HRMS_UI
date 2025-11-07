@@ -491,7 +491,7 @@ const InterviewModal = ({
   return (
     <Modal show={show} onHide={handleClose} centered className="fontinter">
       <Modal.Header closeButton>
-        <Modal.Title style={{ fontSize: "18px", color: "#162b75", fontWeight: "bold" }}>
+        <Modal.Title style={{ fontSize: "18px", color: "#000", fontWeight: "bold" }}>
           {isReschedule ? "Reschedule Interview" : "Schedule Interview"}
         </Modal.Title>
       </Modal.Header>
@@ -711,7 +711,7 @@ const InterviewModal = ({
             (isPanelInterview && !panelId) ||
             (!selectedSlot && !(isReschedule && interviewData.interview_time))
           }
-          style={{ backgroundColor: "#162b75 ", color: "#fff", borderColor: "#162b75" }}
+          style={{ backgroundColor: "#000 ", color: "#fff", borderColor: "#000" }}
         >
           {isReschedule ? "Reschedule Interview" : "Schedule Interview"}
         </Button>

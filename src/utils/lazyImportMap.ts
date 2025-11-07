@@ -63,5 +63,6 @@ export const lazyImportMap: Record<string, React.LazyExoticComponent<any>> = {
   "superadmin/site-config": React.lazy(() => import("../components/superadmin/SiteConfigurationModule").then(m => ({ default: m.SiteConfigurationModule }))),
 
   "change-password": React.lazy(() => import("../components/ChangePassword")),
+  "profile": React.lazy(() => import("../components/employee/ProfileModule").then(m => ({ default: m.ProfileModule }))),
 };
 

@@ -133,7 +133,7 @@ body {
   font-weight: 600 !important;
   /* 600 = semibold */
   font-size: 15px !important;
-  color: #FF7043;
+  color: #746def;
 }
 
 /* Badge styles */
@@ -168,14 +168,14 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #FF7043;
+  background-color: #746def;
   /* Dark orange bullet */
 }
 
 
 /* Orange checkbox styling */
 .recruitment-module .form-check-orange .form-check-input {
-  border-color: #FF7043;
+  border-color: #746def;
   background-color: transparent;
   width: 1.1em;
   height: 1.1em;
@@ -183,8 +183,8 @@ body {
 }
 
 .form-check-orange .form-check-input:checked {
-  background-color: #162b75;
-  border-color: #162b75;
+  background-color: #000;
+  border-color: #000;
 }
 
 /* Reduce font size for job title and other text */
@@ -257,14 +257,14 @@ body {
 
 .btn-secondary:hover {
   color: #fff !important;
-  background-color: #162b75  !important;
-  border-color: #162b75  !important;
+  background-color: #000  !important;
+  border-color: #000  !important;
 }
 
 .btn-secondary {
   background-color: #fff;
-  color: #162b75 ;
-  border-color: #162b75 ;
+  color: #000 ;
+  border-color: #000 ;
 }
 
 .success_class {
@@ -341,7 +341,7 @@ body {
 }
 
 .btn-orange {
-  background-color: #FF7043;
+  background-color: #746def;
   color: #fff;
   padding: 8px 16px;
   border-radius: 4px;
@@ -370,7 +370,7 @@ body {
 }
 
 .search-icon-wrapper {
-  background-color: #FF7043;
+  background-color: #746def;
   padding: 8px 12px;
   display: flex;
   align-items: center;
@@ -386,7 +386,7 @@ body {
 
 .spinner {
   border: 3px solid #f3f3f3;
-  border-top: 3px solid #FF7043;
+  border-top: 3px solid #746def;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -395,7 +395,7 @@ body {
 
 .spinner-small {
   border: 2px solid #f3f3f3;
-  border-top: 2px solid #FF7043;
+  border-top: 2px solid #746def;
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -406,7 +406,7 @@ body {
 
 .spinner-medium {
   border: 2px solid #f3f3f3;
-  border-top: 2px solid #FF7043;
+  border-top: 2px solid #746def;
   border-radius: 50%;
   width: 24px;
   height: 24px;
@@ -573,7 +573,7 @@ body {
 }
 
 .recruitment-module .modal-close-btn:hover {
-  color: #FF7043;
+  color: #746def;
 }
 
 .recruitment-module .modal-footer {
@@ -710,7 +710,7 @@ body {
 
 
 .approval-history-title {
-  color: #FF7043;
+  color: #746def;
   font-weight: 700;
 }
 
@@ -1208,4 +1208,10 @@ button{
 }
 .history_overlay{
   background: rgba(0,0,0,0.4);
+}
+.overflow-y{
+  overflow-y:auto;
+}
+.overflow-x{
+  overflow-x: hidden !important;
 }

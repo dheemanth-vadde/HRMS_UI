@@ -270,7 +270,7 @@ export default function Calendar() {
                 <Col key={key}>
                   <Button
                     variant={isActive ? "primary" : "light"}
-                    className={`w-100 fw-semibold date ${isActive ? "bg-[#2d2d58] border-[#2d2d58] hover:bg-[#3d3d68]" : ""}`}
+                    className={`w-100 fw-semibold  date ${isActive ? "datehighlight datehighlight:hover" : ""}`}
                     onClick={() => onSelectDay(key)}
                     style={{ borderRadius: '9999px' }}
                   >
