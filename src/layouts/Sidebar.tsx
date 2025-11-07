@@ -24,7 +24,7 @@ const NavItem = ({ path, name, icon: Icon, collapsed, isChild }: NavItemProps) =
         "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
         isChild ? "ml-4 py-2" : "",
         isActive
-          ? "text-[#f38883]"
+          ? "active_side_menu_item text-[#f38883]"
           : "text-white/80 hover:bg-white/5 hover:text-white"
       )
     }
@@ -38,17 +38,14 @@ const Sidebar = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const collapsed = useAppSelector(state => state.ui.sidebarCollapsed);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
- const routes = usePermittedRoutes();
+  const [expandedMenus, setExpandedMenus] = useState<string | null>(null);
+  const routes = usePermittedRoutes();
+
   const toggleMenu = (path: string) => {
     if (collapsed) {
       dispatch(toggleSidebar());
     }
-    setExpandedMenus(prev =>
-      prev.includes(path)
-        ? prev.filter(p => p !== path)
-        : [...prev, path]
-    );
+    setExpandedMenus(prev => (prev === path ? null : path));
   };
 
   return (
@@ -74,7 +71,7 @@ const Sidebar = () => {
         <div className="space-y-1">
           {routes.filter(route => !route.hidden).map((route) => {
             if (route.children) {
-              const isExpanded = expandedMenus.includes(route.path);
+              const isExpanded = expandedMenus === route.path;
               const isActive =
                 location.pathname === route.path ||
                 (
@@ -88,7 +85,7 @@ const Sidebar = () => {
                     onClick={() => toggleMenu(route.path)}
                     className={cn(
                       "w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors",
-                      isActive ? "text-[#f38883]" : "text-white/80 hover:bg-white/5 hover:text-white"
+                      isActive ? "active_side_menu_item text-[#f38883]" : "text-white/80 hover:bg-white/5 hover:text-white"
                     )}
                   >
                     <div className="flex items-center gap-3">
