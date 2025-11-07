@@ -38,7 +38,9 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Shield, Plus, Edit, Trash2, Search } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
+
+import { usePermissions } from '../../utils/permissionUtils';
 
 interface Role {
   id: number;
@@ -148,7 +150,7 @@ export function RolesPrivilegesModule() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-
+ const { hasPermission } = usePermissions();
   const [formData, setFormData] = useState({
     roleName: "",
     roleType: "",
@@ -309,7 +311,12 @@ export function RolesPrivilegesModule() {
                   <TableHead className="font-semibold text-base mb-1">Role Type</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Role Description</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Group</TableHead>
-                  <TableHead className="font-semibold text-base mb-1 w-24">Action</TableHead>
+                  {(hasPermission('/superadmin/access-control/roles', 'edit') ||
+                      hasPermission('/superadmin/access-control/roles', 'delete')) && (
+                      <TableHead className="font-semibold text-base mb-1 w-24">
+                        Action
+                      </TableHead>
+                    )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -324,22 +331,28 @@ export function RolesPrivilegesModule() {
                     <TableRow key={role.id} className="hover:bg-muted/30">
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-primary hover:bg-primary/10"
-                            onClick={() => openEditDialog(role)}
-                          >
-                            <Edit className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-destructive hover:bg-destructive/10"
-                            onClick={() => openDeleteDialog(role)}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
+                          {hasPermission('/superadmin/access-control/roles', 'edit') && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-primary hover:bg-primary/10"
+                              onClick={() => openEditDialog(role)}
+                            >
+                              <Edit className="size-4" />
+                            </Button>
+                          )}
+
+                          {hasPermission('/superadmin/access-control/roles', 'delete') && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-destructive hover:bg-destructive/10"
+                              onClick={() => openDeleteDialog(role)}
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          )}
+
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">{role.roleName}</TableCell>
@@ -429,10 +442,12 @@ export function RolesPrivilegesModule() {
             >
               Cancel
             </Button>
-            <Button className="btn-gradient-primary" onClick={handleAddRole}>
-              <Plus className="size-4 mr-2" />
-              Add Role
-            </Button>
+            {hasPermission('/superadmin/access-control/roles', 'create') && (
+                <Button className="btn-gradient-primary" onClick={handleAddRole}>
+                  <Plus className="size-4 mr-2" />
+                  Add Role
+                </Button>
+              )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
