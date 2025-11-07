@@ -85,7 +85,7 @@ const Payments = () => {
 
   return (
     <div className='register_container login-container d-flex flex-column py-3 px-5'>
-        <h5 className='mt-1' style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px !important', color: '#FF7043', marginBottom: '0px' }}>Payments</h5>
+        <h5 className='mt-1' style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px !important', color: '#746def', marginBottom: '0px' }}>Payments</h5>
 
 		<Row className="my-2 gap-3">
         <Col md={3}>

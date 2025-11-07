@@ -891,7 +891,7 @@ const JobPosting = () => {
       <Dialog open={showModal} onOpenChange={(open) => !open && resetForm()}>
         <DialogContent className="max-w-6xl" style={{ maxWidth: '1000px', height: '90vh' }}>
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold text-[#FF7043]">
+            <DialogTitle className="text-lg font-semibold text-[#746def]">
               {readOnly
                 ? "View Job Posting"
                 : editRequisitionId !== null

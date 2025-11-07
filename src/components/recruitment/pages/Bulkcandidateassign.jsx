@@ -302,7 +302,7 @@ export default function BulkCandidateAssign() {
 
                   {/* <Form.Label className="mb-1">Search</Form.Label> */}
                   <InputGroup className="posting-search" size="sm">
-                  <InputGroup.Text style={{ backgroundColor: "#FF7043" }}>
+                  <InputGroup.Text style={{ backgroundColor: "#746def" }}>
                                 <FontAwesomeIcon icon={faSearch} style={{ color: "#fff" }} />
                               </InputGroup.Text>
                     <Form.Control

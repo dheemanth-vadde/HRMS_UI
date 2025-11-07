@@ -262,12 +262,12 @@ const JobRequisition = () => {
 
   return (
     <div className="register_container px-5 my-4 fonsty">
-      <h5 className="pb-3" style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#FF7043', marginBottom: '0px' }}>Requisitions</h5>
+      <h5 className="pb-3" style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#746def', marginBottom: '0px' }}>Requisitions</h5>
 
       {/* Search + Add Button */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <InputGroup className="w-50 fonreg searchinput">
-          <InputGroup.Text style={{ backgroundColor: '#FF7043' }}>
+          <InputGroup.Text style={{ backgroundColor: '#746def' }}>
             <FontAwesomeIcon icon={faSearch} style={{ color: '#fff' }} />
           </InputGroup.Text>
           <Form.Control
@@ -281,7 +281,7 @@ const JobRequisition = () => {
 
         <Button
           onClick={() => openModal()}
-          style={{ backgroundColor: '#FF7043', borderColor: '#FF7043', color: '#fff' }}
+          style={{ backgroundColor: '#746def', borderColor: '#746def', color: '#fff' }}
         >
           + Add
         </Button>
@@ -545,7 +545,7 @@ const JobRequisition = () => {
             <Button
               className="text-white"
               onClick={handleSave}
-              style={{ backgroundColor: "#FF7043", borderColor: "#FF7043" }}
+              style={{ backgroundColor: "#746def", borderColor: "#746def" }}
             >
               {editIndex !== null ? "Update Requisition" : "Save"}
             </Button>

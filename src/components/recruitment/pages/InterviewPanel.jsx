@@ -7,6 +7,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '../../ui/label'
 import Select from 'react-select'
 import apiService from '../services/apiService'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../ui/table";
+import { Edit, Trash2 } from 'lucide-react'
 
 const InterviewPanel = () => {
   const [showModal, setShowModal] = useState(false);
@@ -250,72 +259,76 @@ const InterviewPanel = () => {
 
       <div className="border border-[#e5e7eb] rounded-md">
         <div className="rounded-md">
-          <table className="w-full caption-bottom text-sm">
-            <thead>
-              <tr className="bg-muted/50">
-                <th 
+          <Table className="w-full caption-bottom text-sm">
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
                   onClick={() => handleSort("panel_name")}
                 >
                   Panel Name
                   <span className="ml-1">{getSortIndicator("panel_name")}</span>
-                </th>
-                <th 
+                </TableHead>
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
                   onClick={() => handleSort("interviewer_ids")}
                 >
                   Panel Members
                   <span className="ml-1">{getSortIndicator("interviewer_ids")}</span>
-                </th>
-                <th className="text-foreground h-10 px-6 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 text-right">
+                </TableHead>
+                <TableHead className="text-right  text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
                   Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="bg-white divide-y divide-gray-200">
               {loading ? (
-                <tr>
-                  <td colSpan="3" className="px-6 py-4 text-center">
+                <TableRow>
+                  <TableCell colSpan="3" className="px-6 py-4 text-center">
                     <Spinner animation="border" size="sm" /> Loading...
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : panelsToDisplay.length > 0 ? (
                 panelsToDisplay.map((panel, index) => (
-                  <tr key={panel.panel_id || index} className="hover:bg-gray-50">
-                    <td className="px-2 py-4 whitespace-normal">
+                  <TableRow key={panel.panel_id || index} className="hover:bg-gray-50">
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {panel.panel_name}
-                    </td>
-                    <td className="px-2 py-4 whitespace-normal">
+                    </TableCell>
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {panel.interviewer_ids
                         .map(id => interviewers.find(i => i.interviewer_id === id)?.full_name)
                         .filter(Boolean)
                         .join(", ") || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => handleEdit(panel, index)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        <FontAwesomeIcon icon={faPencil} className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(panel.panel_id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openModal(job, index)}
+                        >
+                          <Edit className="size-4 text-gray-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(index)}
+                        >
+                          <Trash2 className="size-4 text-gray-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ))
               ) : (
-                <tr>
-                  <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+                <TableRow>
+                  <TableCell colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
                     {searchTerm ? 'No panels match your search criteria.' : 'No panels found.'}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -323,7 +336,7 @@ const InterviewPanel = () => {
       <Dialog open={showModal} onOpenChange={(open) => !open && resetForm()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold text-[#FF7043]">
+            <DialogTitle className="text-lg font-semibold text-[#746def]">
               {editIndex !== null ? "Edit Interview Panel" : "Add Interview Panel"}
             </DialogTitle>
             <DialogDescription>

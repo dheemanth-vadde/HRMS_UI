@@ -913,7 +913,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
         <Col xs={12} md={12} lg={12}>
           {editPositionId == null && (
             <div>
-            <div className="d-flex justify-content-between align-items-center mb-3 mx-2 buttons_div">
+            <div className="d-flex justify-content-between align-items-center mb-3 buttons_div">
               <Button
                 variant="outline-secondary"
                 onClick={() => navigate("/recruitment/job-postings")}
@@ -956,8 +956,9 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
              
             </div>
              <div className="">
-                <p className='px-2 h1font' style={{ fontSize: '28px', color: '#2d2d58', marginBottom: '15px', textAlign: 'center' }}>Job Creation</p>
-              </div>
+              <h1 class="text-primary">Job Creation</h1>
+              <p class="text-muted-foreground mt-1">Manage job creations</p>
+             </div>
               </div>
 
           )}
@@ -1054,7 +1055,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
                   className="job-row border-bottom py-1 align-items-center text-muted px-3 mx-1 my-3 mt-3 w-75"
                   style={{
                     backgroundColor: "#fff3e0",
-                    borderLeft: "4px solid #ff7043",
+                    borderLeft: "4px solid #746def",
                     borderRadius: "4px",
                   }}
                 >
@@ -1166,7 +1167,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
         <Modal.Footer className='footspace'>
           <Button
             onClick={handleUploadSubmit}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md h-9 px-4 py-2 has-[>svg]:px-3"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md px-4 has-[>svg]:px-3"
             style={{ backgroundColor: '#2d2d58 ', borderColor: '#2d2d58 ' }}
           >
             Save

@@ -406,7 +406,7 @@ export function AccessControlModule() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-8 text-primary hover:bg-primary/10"
+                            className="size-8 iconhover hover:bg-primary/10"
                             onClick={() => openEditRoleDialog(role)}
                           >
                             <Edit className="size-4" />
@@ -414,10 +414,10 @@ export function AccessControlModule() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-8 text-destructive hover:bg-destructive/10"
+                            className="size-8 iconhover hover:bg-primary/10"
                             onClick={() => openDeleteRoleDialog(role)}
                           >
-                            <Trash2 className="size-4" />
+                            <Trash2 className="size-4 " />
                           </Button>
                         </div>
                       </TableCell>

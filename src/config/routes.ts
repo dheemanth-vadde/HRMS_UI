@@ -13,9 +13,11 @@ import {
   UserCircle,
   Megaphone,
   Shield,
+  ShieldCheck,
   Info,
   Layers,
-  User,
+  UserCog,
+  User
 } from "lucide-react";
 
 export type AppRoute = {
@@ -72,14 +74,14 @@ export const routes: AppRoute[] = [
   {
     path: "/superadmin/access-control",
     name: "Access Management",
-    icon: Shield,
+    icon: ShieldCheck,
     elementPath: "superadmin/access",
     children: [
       {
         path: "/superadmin/access-control/roles",
         name: "Roles",
         elementPath: "superadmin/roles",
-        icon: Shield
+        icon: UserCog
       },
       // {
       //   path: "/superadmin/access-control/users",
@@ -91,7 +93,7 @@ export const routes: AppRoute[] = [
         path: "/superadmin/access-control/permissions",
         name: "Permissions",
         elementPath: "superadmin/permissions",
-        icon: Shield
+        icon: ShieldCheck
       }
     ]
   },

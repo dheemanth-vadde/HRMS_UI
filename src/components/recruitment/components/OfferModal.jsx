@@ -121,7 +121,7 @@ const OfferModal = ({
     <>
       <Modal show={show} onHide={handleClose} centered size="lg" className="fontinter">
         <Modal.Header closeButton>
-          <Modal.Title style={{ fontSize: "18px", color: '#162b75 ' }}>Offers</Modal.Title>
+          <Modal.Title style={{ fontSize: "18px", color: '#000 ' }}>Offers</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -206,7 +206,7 @@ const OfferModal = ({
             variant="primary"
             onClick={handleDownloadClick}
             disabled={isActionDisabled}
-            style={{ backgroundColor: "#162b75 ", borderColor: "#162b75 ", color: "#fff" }}
+            style={{ backgroundColor: "#000 ", borderColor: "#000 ", color: "#fff" }}
           >
             Preview
           </Button>
@@ -215,7 +215,7 @@ const OfferModal = ({
             variant="primary"
             onClick={generateOfferAndSend}
             disabled={isActionDisabled}
-            style={{ backgroundColor: "#162b75 ", borderColor: "#162b75 ", color: "#fff" }}
+            style={{ backgroundColor: "#000 ", borderColor: "#000 ", color: "#fff" }}
           >
             {generatingOffer ? (
               <>

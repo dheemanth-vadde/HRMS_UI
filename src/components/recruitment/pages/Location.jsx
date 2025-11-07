@@ -8,6 +8,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../ui/table";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
@@ -17,6 +25,7 @@ import { faPencil, faTrash, faSearch } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { toast } from "sonner";
 import apiService from "../services/apiService";
+import { Edit, Trash2 } from "lucide-react";
 
 
 const Location = () => {
@@ -227,63 +236,67 @@ const Location = () => {
 
     <div className="border border-[#e5e7eb] rounded-md">
       <div className="rounded-md">
-        <table className="w-full caption-bottom text-sm">
-          <thead>
-            <tr className="bg-muted/50">
-              <th 
+        <Table className="w-full caption-bottom text-sm">
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead 
                 className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
                 onClick={() => handleSort("city_name")}
               >
                 City Name
                 <span className="ml-1">{getSortIndicator("city_name")}</span>
-              </th>
-              <th 
+              </TableHead>
+              <TableHead 
                 className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 cursor-pointer"
                 onClick={() => handleSort("location_name")}
               >
                 Location Name
                 <span className="ml-1">{getSortIndicator("location_name")}</span>
-              </th>
-              <th className="text-foreground h-10 px-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 text-right">
+              </TableHead>
+              <TableHead className="text-right  text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
                 Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="bg-white divide-y divide-gray-200">
             {jobsToDisplay.length > 0 ? (
               jobsToDisplay.map((job, index) => (
-                <tr key={job.location_id || index} className="hover:bg-gray-50">
-                  <td className="px-2 py-4 whitespace-normal">
+                <TableRow key={job.location_id || index} className="hover:bg-gray-50">
+                  <TableCell className="px-2 py-4 whitespace-normal">
                     {job.city_name}
-                  </td>
-                  <td className="px-2 py-4 whitespace-normal">
+                  </TableCell>
+                  <TableCell className="px-2 py-4 whitespace-normal">
                     {job.location_name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => openModal(job, index)}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
-                    >
-                      <FontAwesomeIcon icon={faPencil} className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(index)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
+                  </TableCell>
+                  <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openModal(job, index)}
+                        >
+                          <Edit className="size-4 text-gray-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(index)}
+                        >
+                          <Trash2 className="size-4 text-gray-500" />
+                        </Button>
+                      </div>
+                  </TableCell>
+                </TableRow>
               ))
             ) : (
-              <tr>
-                <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+              <TableRow>
+                <TableCell colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
                   No locations found matching your criteria.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
 
@@ -310,7 +323,7 @@ const Location = () => {
               id="city_id"
               value={currentLoc.city_id}
               onChange={(e) => setCurrentLoc({ ...currentLoc, city_id: e.target.value })}
-              className={`w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF7043] ${
+              className={`w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#746def] ${
                 errr.city_id ? 'border-red-500' : 'border-gray-300'
               }`}
             >

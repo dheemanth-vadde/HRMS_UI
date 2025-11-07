@@ -2,14 +2,14 @@
 
 /* Buttons and progress */
 .bulkupload_btn, .progress-bar{
-  background-color: #162b75;
-  border-color: #162b75;
+  background-color: #000;
+  border-color: #000;
   color: #fff;
   font-size: 14px;
 }
 .bulkupload_btn:hover{
-  background-color: #162b75 !important;
-  border-color: #162b75 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
   color: #fff;
   font-size: 14px;
 }
@@ -18,16 +18,18 @@
 .active>.page-link, .page-link.active {
   z-index: 3;
   color: #fff;
-  background-color: #162b75 !important;
-  border-color: #162b75 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
 }
 
 /* Headings */
 .table_heading{
-  color: #162b75;
+  color: #000;
   font-size: 14px;
 }
-
+.table th{
+  font-size:14px !important;
+}
 /* Secondary button pressed state */
 .btn.btn-secondary.active {
   filter: brightness(0.95);
@@ -48,8 +50,8 @@
 /* --- Compact dropdown toggle (like CandidateCard) --- */
 .select-drop {
   background: #fff !important;
-  border: 1px solid #162b75 !important;
-  color: #162b75 !important;
+  border: 1px solid #000 !important;
+  color: #000 !important;
   border-radius: 8px !important;
   padding: 6px 10px !important;
   height: 34px !important;
@@ -62,8 +64,8 @@
 .select-drop:active,
 .show > .select-drop.dropdown-toggle {
   background: #f5f7ff !important;
-  color: #162b75 !important;
-  border-color: #162b75 !important;
+  color: #000 !important;
+  border-color: #000 !important;
 }
 
 /* tiny utility to ellipsize long labels */
@@ -108,7 +110,7 @@
 .req_item:hover,
 .req_item:focus {
   background: #f0f3ff !important;
-  color: #162b75 !important;
+  color: #000 !important;
 }
 
 /* Keep brand style alignment with your other buttons/heading */
@@ -156,8 +158,8 @@
   transition: all .2s ease;
 }
 .bulkstepper-dot.active{
-  background-color: #162b75;
-  border-color: 1px solid #162b75;
+  background-color: #000;
+  border-color: 1px solid #000;
   color: #fff;
   transform: scale(1.05);
 }
@@ -183,8 +185,8 @@
 
 /* CTA */
 .bulkstepper-cta{
-  background: #162b75;
-  border-color: #162b75;
+  background: #000;
+  border-color: #000;
   color: #fff;
   font-size: 14px;
   font-weight: 500;
@@ -253,7 +255,7 @@
   display: block;
   height: 100%;
   width: 0%;
-  background: #162b75;
+  background: #000;
   transition: width .6s ease-in-out;
   will-change: width;
   border-radius: 999px;
@@ -281,13 +283,13 @@
 .fileupload{
   font-size: 13px;
   font-weight: 500;
-  color:#162b75;
+  color:#000;
 }
 .actionbtn{
   font-size: 14px;
   font-weight: 500;
   color:#fff;
-  background:#162b75;
+  background:#000;
   width:auto;
   padding:12px 25px;
   cursor:pointer;
@@ -299,7 +301,7 @@
 .linkname{
   font-size:14px;
   font-weight:500;
-  color:#162b75;
+  color:#000;
 }
 
 /* === Top text nav (matches screenshot) === */
@@ -378,4 +380,10 @@
     border-radius: var(--bs-dropdown-item-border-radius, 0);
     white-space: break-spaces;
     word-break: break-word;
+}
+.disablebtn{
+  background-color: #cccccc; /* Custom disabled background color */
+  color: #666666; /* Custom disabled text color */
+  cursor: not-allowed; 
+  border:#ccc;
 }

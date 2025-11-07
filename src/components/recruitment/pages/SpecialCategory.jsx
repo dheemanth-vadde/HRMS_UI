@@ -190,7 +190,7 @@ const SpecialCategory = () => {
   return (
     <div className="register_container px-5 py-3">
       <div className="d-flex justify-content-between align-items-center pb-4">
-        <h5 style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#FF7043', marginBottom: '0px' }}>
+        <h5 style={{ fontFamily: 'Noto Sans', fontWeight: 600, fontSize: '16px', color: '#746def', marginBottom: '0px' }}>
           Special Categories
         </h5>
         <Button variant="orange" onClick={() => openModal()}>+ Add</Button>
@@ -310,7 +310,7 @@ const SpecialCategory = () => {
           <Button
             className="text-white"
             onClick={handleSave}
-            style={{ backgroundColor: "#FF7043", borderColor: "#FF7043" }}
+            style={{ backgroundColor: "#746def", borderColor: "#746def" }}
           >
             {editIndex !== null ? "Update" : "Save"}
           </Button>

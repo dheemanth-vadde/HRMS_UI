@@ -54,7 +54,7 @@
     cursor: pointer;
     color: #e65c00;
 }.text-orange {
-  color: #FF7043;
+  color: #746def;
 }
 .skill-form .form-label {
   font-weight: 500;
@@ -65,7 +65,7 @@
 }
 /* Orange header text */
 .text-orange {
-  color: #FF7043;
+  color: #746def;
 }
 /* Label styling */
 .skill-form .form-label {
@@ -75,7 +75,7 @@
   font-size: 0.95rem;
 }
 .table-header-orange th {
-  color: #FF7043;
+  color: #746def;
   font-weight: 600;
   padding: 12px !important;
 }
@@ -91,7 +91,7 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";}
 .skillfon h2{
   font-size: 18px;
-   color: #FF7043;
+   color: #746def;
    font-weight: 600;
 }
 .skills .text-base {
@@ -104,3 +104,6 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
 /* .bg-background .px-4, .bg-background .py-4 {
 	padding: 12px !important;
 } */
+ .pr-35{
+  padding-right: 35px !important;
+}

@@ -54,18 +54,18 @@
 }
 .shortlist h5 {
 	font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";	font-weight: 600;
-	color: #FF7043;
+	color: #746def;
 	font-size: 16px;
 }
 .heightcard h6{
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";    font-weight: 600;
-    color: #FF7043;
+    color: #746def;
     font-size: 16px !important;
 }
 .fonapp h6{
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";    font-weight: 600 !important;  /* 600 = semibold */
     font-size: 16px;
-    color: #FF7043;
+    color: #746def;
 }
 .fonapp{
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";    font-weight: 300 !important;  /* 600 = semibold */
@@ -122,12 +122,12 @@
     color: #414141 !important;
 }
 .dashtabs .nav-link.active{
-    color: #162b75 !important;
+    color: #000 !important;
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";    font-weight: 400 !important;
    
 }
 .interview_list span{
-    color: #162b75 !important;
+    color: #000 !important;
     font-size: 14px;
      font-weight: 400 !important;
 }

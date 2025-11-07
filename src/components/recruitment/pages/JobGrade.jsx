@@ -8,6 +8,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../ui/table";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
@@ -21,6 +29,7 @@ import "../css/JobGrade.css";
 import axios from "axios";
 import { toast } from "sonner";
 import apiService from "../services/apiService";
+import { Edit, Trash2 } from "lucide-react";
 
 
 const JobGrade = () => {
@@ -279,83 +288,87 @@ const JobGrade = () => {
 
       <div className="border border-[#e5e7eb] rounded-md">
         <div className="rounded-md">
-          <table className="w-full caption-bottom text-sm">
-            <thead>
-              <tr className="bg-muted/50">
-                <th 
+          <Table className="w-full caption-bottom text-sm">
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
                   onClick={() => handleSort("job_scale")}
                 >
                   Scale
                   <span className="ml-1">{getSortIndicator("job_scale")}</span>
-                </th>
-                <th 
+                </TableHead>
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
                   onClick={() => handleSort("min_salary")}
                 >
                   Min Salary
                   <span className="ml-1">{getSortIndicator("min_salary")}</span>
-                </th>
-                <th 
+                </TableHead>
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
                   onClick={() => handleSort("max_salary")}
                 >
                   Max Salary
                   <span className="ml-1">{getSortIndicator("max_salary")}</span>
-                </th>
-                <th 
+                </TableHead>
+                <TableHead 
                   className="text-foreground h-10 px-2 text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1"
                   onClick={() => handleSort("job_grade_desc")}
                 >
                   Description
                   <span className="ml-1">{getSortIndicator("job_grade_desc")}</span>
-                </th>
-                <th className="text-foreground h-10 px-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1 text-right">
+                </TableHead>
+                <TableHead className="text-right  text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
                   Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="bg-white divide-y divide-gray-200">
               {jobsToDisplay.length > 0 ? (
                 jobsToDisplay.map((job, index) => (
-                  <tr key={job.job_grade_id || index} className="hover:bg-gray-50">
-                    <td className="px-2 py-4 whitespace-normal">
+                  <TableRow key={job.job_grade_id || index} className="hover:bg-gray-50">
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {job.job_scale || '-'}
-                    </td>
-                    <td className="px-2 py-4 whitespace-normal">
+                    </TableCell>
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {job.min_salary ? `₹${parseFloat(job.min_salary).toLocaleString()}` : '-'}
-                    </td>
-                    <td className="px-2 py-4 whitespace-normal">
+                    </TableCell>
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {job.max_salary ? `₹${parseFloat(job.max_salary).toLocaleString()}` : '-'}
-                    </td>
-                    <td className="px-2 py-4 whitespace-normal">
+                    </TableCell>
+                    <TableCell className="px-2 py-4 whitespace-normal">
                       {job.job_grade_desc || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => openModal(job, index)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        <FontAwesomeIcon icon={faPencil} className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(index)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openModal(job, index)}
+                        >
+                          <Edit className="size-4 text-gray-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(index)}
+                        >
+                          <Trash2 className="size-4 text-gray-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ))
               ) : (
-                <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                <TableRow>
+                  <TableCell colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
                     No job grades found matching your criteria.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -363,7 +376,7 @@ const JobGrade = () => {
       <Dialog open={showModal} onOpenChange={(open) => !open && resetForm()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold text-[#FF7043]">
+            <DialogTitle className="text-lg font-semibold text-[#746def]">
               {editIndex !== null ? "Edit Job Grade" : "Add Job Grade"}
             </DialogTitle>
             <DialogDescription>

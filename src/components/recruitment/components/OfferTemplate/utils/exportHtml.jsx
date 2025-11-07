@@ -19,7 +19,7 @@ const wrapHtmlDoc = (body, title = "Offer Template", metaJSON = "{}") => `<!DOCT
     ul { padding-left: 18px; }
     img.logo { height: 80px; object-fit: contain; }
     .header { display:flex; align-items:center; justify-content:center; margin-bottom: 8px; }
-    #salutation{color:#162b75;}
+    #salutation{color:#000;}
   </style>
 </head>
 <body>

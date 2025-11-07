@@ -120,7 +120,7 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
 }
 
 .approvals_tab .search-input:focus {
-  border-color: #FF7043;
+  border-color: #746def;
   outline: none;
   box-shadow: 0 0 0 2px rgba(255, 112, 67, 0.25);
 }
@@ -181,14 +181,14 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
 
 /* Custom checkbox styles for light orange background and dark orange tick */
 .approvals_tab .form-check-input[type="checkbox"] {
-  background-color: #FFE0B2 !important;   /* Light orange */
-  border: 1.5px solid #FF7043 !important; /* Dark orange border */
+  background-color: #ccc !important;   /* Light orange */
+  border: 1.5px solid #ccc !important; /* Dark orange border */
   box-shadow: none !important;
 }
 
 .approvals_tab .form-check-input[type="checkbox"]:checked {
-  background-color: #FFE0B2 !important;   /* Keep background light orange when checked */
-  border-color: #FF7043 !important;
+  background-color: #ccc !important;   /* Keep background light orange when checked */
+  border-color: #ccc !important;
 }
 
 .approvals_tab .form-check-input[type="checkbox"]:checked {
@@ -207,24 +207,24 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
 
 /* Select status dropdown
 .form-select {
-  border: 1px solid #FF7043 !important;
+  border: 1px solid #746def !important;
 } */
 
 .approvals_tab .form-select:focus {
-  border-color: #FF7043 !important;
+  border-color: #746def !important;
   box-shadow: 0 0 0 0.25rem rgba(255, 112, 67, 0.25) !important;
 }
 
 /* Cancel button */
 .approvals_tab .btn-outline-secondary {
-  color: #FF7043 !important;
-  border-color: #FF7043 !important;
+  color: #746def !important;
+  border-color: #746def !important;
 }
 
 .approvals_tab .btn-outline-secondary:hover {
   color: #fff !important;
-  background-color: #FF7043 !important;
-  border-color: #FF7043 !important;
+  background-color: #746def !important;
+  border-color: #746def !important;
 }
 
 .approvals_tab .job-form .form-label,
@@ -273,7 +273,7 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
 }
 
 .approvals_tab .accordion-button:not(.collapsed) {
-  background-color: #FF7043 !important;
+  background-color: #fff !important;
   /* color: #fff !important; */
 }
 
@@ -293,7 +293,7 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
   margin-bottom: 20px !important;
 }
 .approvals_tab .accordion-button:not(.collapsed) {
-  background-color: rgba(247,225,215, 0.4) !important;
+  background-color: #fff !important;
 }
 .approvals_tab .searchinput {
 	width: 50% !important;
@@ -304,7 +304,7 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
 }
 .approvals_tab .fontcard .text-dark {
     font-weight: 600;
-    color: rgb(255, 112, 67) !important;
+    color: #000 !important;
     font-size: 15px !important;
 }
 .approvals_tab  .header {
@@ -336,5 +336,5 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
 }
 .iconhover{
   cursor: pointer;
-  color: #FF7043 !important;
+  color: #6b7280 !important;
 }

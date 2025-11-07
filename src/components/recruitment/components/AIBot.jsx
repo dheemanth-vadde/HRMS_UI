@@ -130,7 +130,7 @@ const AIBot = () => {
             <p style={{ fontSize: '14px', color: '#757575', marginBottom: '24px' }}>Create your first prompt to get started</p>
             <Button 
               style={{
-                backgroundColor: '#FF7043',
+                backgroundColor: '#746def',
                 border: 'none',
                 borderRadius: '20px',
                 padding: '8px 24px',
@@ -138,7 +138,7 @@ const AIBot = () => {
                 fontWeight: 600
               }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#F4511E'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#FF7043'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#746def'}
             >
               Create Prompt
             </Button>
@@ -169,7 +169,7 @@ const AIBot = () => {
             style={{
               height: '100%',
               minWidth: '24px',
-              color: message.trim() ? '#FF7043' : '#9E9E9E',
+              color: message.trim() ? '#746def' : '#9E9E9E',
               textDecoration: 'none',
               backgroundColor: 'transparent',
               border: 'none',

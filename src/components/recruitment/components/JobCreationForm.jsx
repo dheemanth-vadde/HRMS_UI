@@ -49,7 +49,7 @@ const JobCreationForm = ({
   );
 
   return (
-    <div className="form-section p-4 mx-2 rounded-3" style={{ backgroundColor: '#fff', boxShadow: '0 10px 30px #1a2c7133' }}>
+    <div className="form-section p-4 rounded-3" style={{ backgroundColor: '#fff', boxShadow: '0 10px 30px #1a2c7133' }}>
       {/* <h4 className="text-center mb-4 fonall">
         Job Posting
       </h4> */}
@@ -650,24 +650,25 @@ const JobCreationForm = ({
         {!readOnly
           // <div className="d-flex justify-content-end mt-1 gap-2 col-12" style={{ fontSize: '0.9rem' }}>
           //   {/* <Button variant="outline-secondary" onClick={handleCancel}>Clear</Button> */}
-          //   <Button type="submit" className="text-white" style={{ backgroundColor: '#FF7043', borderColor: '#FF7043' }}>
+          //   <Button type="submit" className="text-white" style={{ backgroundColor: '#746def', borderColor: '#746def' }}>
           // { formData.position_id ? 'Update' : 'Save' }
           //   </Button>
           // </div>
         }
 
         {!readOnly && (
-          <div className="d-flex justify-content-between mt-4">
-            <Button
+          <div className="d-flex justify-content-end">
+            
+
+            <div>
+              <Button
               onClick={handleCancel}
-              className="px-4 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="px-4 mr-15 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               style={{ backgroundColor: '#fff', borderColor: '#000', color: '#000' }}
 
             >
               Cancel
             </Button>
-
-            <div>
               {showNextButton ? (
                 <Button
                   type="submit"

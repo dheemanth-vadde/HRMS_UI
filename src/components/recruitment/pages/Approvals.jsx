@@ -245,7 +245,15 @@ const Approvals = () => {
   };
 
   return (
-    <Container fluid className="p-4 approvals_tab">
+    <Container fluid className="p-4 approvals_tab space-y-6">
+       <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-primary">Approvals</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage Approvals for Job Requisitions
+          </p>
+          </div>
+      </div>
       <div className="d-flex flex-row align-items-end justify-content-between mb-3">
         <div className="d-flex align-items-end gap-5 mb-2 mb-md-0">
           <div className="d-flex flex-row align-items-center">
@@ -270,7 +278,7 @@ const Approvals = () => {
 
         <div className="col-md-6 search-container fonreg">
           <InputGroup className="searchinput">
-            <InputGroup.Text style={{ backgroundColor: "#FF7043" }}>
+            <InputGroup.Text style={{ backgroundColor: "#746def" }}>
               <FontAwesomeIcon icon={faSearch} style={{ color: "#fff" }} />
             </InputGroup.Text>
             <Form.Control
@@ -316,7 +324,7 @@ const Approvals = () => {
                       <div className="fontcard">
                         <div className="text-dark mb-1">Title: {job.requisition_title}</div>
                         <div className="text-muted mb-1 boldnes">
-                          <b>Requisition:</b> {job.requisition_code} (
+                          Requisition: {job.requisition_code} (
                           {approval.action === "Pending" ? "Pending for Approval" : approval.action || job.requisition_status})
                         </div>
                       </div>
@@ -325,7 +333,7 @@ const Approvals = () => {
                     <Col xs={12} md={5} className="d-flex flex-column fontcard">
                       <div className="d-flex">
                         <div className="boldnes">
-                          <b>Postings:</b>{" "}
+                          Postings:{" "}
                           {job.job_postings
                             ? job.job_postings
                                 .split(",")
@@ -337,8 +345,8 @@ const Approvals = () => {
 
                       <div className="d-flex mb-1 mt-1">
                         <div className="me-4 boldnes">
-                          <b>Start Date:</b> {job.registration_start_date} &nbsp;&nbsp;|&nbsp;&nbsp;
-                          <b>End Date:</b> {job.registration_end_date}
+                          Start Date: {job.registration_start_date} &nbsp;&nbsp;|&nbsp;&nbsp;
+                          End Date: {job.registration_end_date}
                         </div>
                       </div>
                     </Col>
@@ -388,7 +396,7 @@ const Approvals = () => {
                                   {job.requisition_status === "New" ? (
                                     <FontAwesomeIcon
                                       icon={faPencil}
-                                      className="text-info me-3 cursor-pointer iconhover"
+                                      className=" me-3 cursor-pointer iconhover"
                                       onClick={() => {
                                         setEditRequisitionId(row.requisition_id);
                                         setEditPositionId(row.position_id);
@@ -399,7 +407,7 @@ const Approvals = () => {
                                   ) : (
                                     <FontAwesomeIcon
                                       icon={faEye}
-                                      className="text-info me-3 cursor-pointer iconhover"
+                                      className=" me-3 cursor-pointer iconhover"
                                       onClick={() => {
                                         setEditRequisitionId(row.requisition_id);
                                         setEditPositionId(row.position_id);

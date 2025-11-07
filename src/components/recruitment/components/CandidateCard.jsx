@@ -915,7 +915,11 @@ const CandidateCard = ({ setTriggerDownload }) => {
 
     return (
         <div className="space-y-6 candfont">
-                    <h1 className="candidateh1 text-primary">Candidate Shortlist</h1>
+            <div>
+                <h1 class="text-primary">Candidate Shortlist</h1>
+                <p class="text-muted-foreground mt-1">Manage Candidates Shortlist</p>
+                </div>
+                  
             <div className="top-bar">
                 <div className="responsive-breadcrumb-container">
 
@@ -981,7 +985,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                     onChange={(e) => setPosSearch(e.target.value)}
                                     className="mb-2"
                                 />
-                                <div style={{ overflowX: 'auto' }}>
+                                <div style={{ overflowX: 'hidden' }}>
                                     {filteredPositions.length > 0 ? (
                                         filteredPositions.map((pos, idx) => (
                                             <Dropdown.Item
@@ -1074,7 +1078,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                 <div className="pb-1">
                                     <div className="d-flex justify-content-between align-items-baseline py-2">
                                         <div className="d-flex align-items-baseline">
-                                            <h5 className="color_grey card-title">Shortlisted Candidates</h5>
+                                            <p className="color_grey card-title">Shortlisted Candidates</p>
                                         </div>
                                         <div className="d-flex align-items-center gap-2">
                                             {selectedPositionId && (
@@ -1120,7 +1124,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                     <Droppable droppableId="candidates">
                                         {(provided) => (
                                             <div
-                                                className="candidates overflow-auto px-2"
+                                                className="candidates  px-2"
                                                 style={{ minHeight: "100px", maxHeight: "60vh" }}
                                                 ref={provided.innerRef}
                                                 {...provided.droppableProps}
@@ -1162,11 +1166,11 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                                                             />
                                                                         </div>
                                                                         <div className="px-1">
-                                                                            <h5 className="candidate_text fw-bold">
+                                                                            <p className="candidate_text fw-bold">
                                                                                 {candidate.full_name}
-                                                                            </h5>
-                                                                            <h6 className="candidate_sub_text">{candidate.address}</h6>
-                                                                            <h6 className="candidate_sub_text">{candidate.phone}</h6>
+                                                                            </p>
+                                                                            <p className="candidate_sub_text">{candidate.address}</p>
+                                                                            <p className="candidate_sub_text">{candidate.phone}</p>
                                                                         </div>
                                                                         {/* <div className="card-status-label">{candidate.rank}</div> */}
                                                                     </div>
@@ -1187,7 +1191,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                             <div className="card-body" style={{ maxHeight: "auto", backgroundColor: '#fff', borderRadius: '15px', overflowY: 'hidden', boxShadow: '0 10px 30px #1a2c7133' }}>
                                 <div>
                                     <div className="d-flex justify-content-between align-items-baseline py-2">
-                                        <h5 className="color_grey card-title">Screening/Schedule</h5>
+                                        <p className="color_grey card-title">Screening/Schedule</p>
                                         {isDescending.interviewed !== null ? (
                                             <i className="bi bi-sort-down sort_icon" onClick={toggleInterviewedSortOrder}></i>
                                         ) : (
@@ -1212,7 +1216,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                     <div className="colored_line_red my-2"></div>
                                     <Droppable droppableId="interviewed">
                                         {(provided) => (
-                                            <div className="candidates overflow-auto px-2" style={{ minHeight: '100px', maxHeight: '60vh' }} ref={provided.innerRef} {...provided.droppableProps}>
+                                            <div className="candidates  px-2" style={{ minHeight: '100px', maxHeight: '60vh' }} ref={provided.innerRef} {...provided.droppableProps}>
                                                 {interviewed
                                                     .filter((candidate) => candidate.full_name.toLowerCase().includes(search.toLowerCase()))
                                                     .map((candidate, index) => {
@@ -1239,9 +1243,9 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                                                                     alt={candidate.full_name} />
                                                                             </div>
                                                                             <div className="px-1 fonreg address">
-                                                                                <h5 className="candidate_text fw-bold">{candidate.full_name}</h5>
-                                                                                <h6 className="candidate_sub_text">{candidate.address}</h6>
-                                                                                <h6 className="candidate_sub_text">{candidate.phone}</h6>
+                                                                                <p className="candidate_text fw-bold">{candidate.full_name}</p>
+                                                                                <p className="candidate_sub_text">{candidate.address}</p>
+                                                                                <p className="candidate_sub_text">{candidate.phone}</p>
                                                                             </div>
                                                                             <div className="d-flex flex-column statusdiv">
                                                                                 {/* <p className="status_reschedule text-muted fs-14 fw-semibold">{candidate.application_status}</p> */}
@@ -1312,7 +1316,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                             <div className="card-body" style={{ maxHeight: "auto", backgroundColor: '#fff', borderRadius: '15px', overflowY: 'hidden', boxShadow: '0 10px 30px #1a2c7133' }}>
                                 <div>
                                     <div className="d-flex justify-content-between align-items-baseline py-2">
-                                        <h5 className="color_grey card-title">Offers</h5>
+                                        <p className="color_grey card-title">Offers</p>
                                         {isDescending.offered !== null ? (
                                             <i className="bi bi-sort-down sort_icon" onClick={toggleOfferedSortOrder}></i>
                                         ) : (
@@ -1336,7 +1340,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                     <div className="colored_line_yellow my-2"></div>
                                     <Droppable droppableId="offered">
                                         {(provided) => (
-                                            <div className="candidates overflow-auto px-2" style={{ minHeight: '100px', maxHeight: '60vh' }} ref={provided.innerRef} {...provided.droppableProps}>
+                                            <div className="candidates  px-2" style={{ minHeight: '100px', maxHeight: '60vh' }} ref={provided.innerRef} {...provided.droppableProps}>
                                                 {offered
                                                     .filter((candidate) => candidate.full_name.toLowerCase().includes(search.toLowerCase()))
                                                     .map((candidate, index) => (
@@ -1351,9 +1355,9 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                                                             />
                                                                         </div>
                                                                         <div className="px-1 address">
-                                                                            <h5 className="candidate_text fw-bold">{candidate.full_name}</h5>
-                                                                            <h6 className="candidate_sub_text">{candidate.address}</h6>
-                                                                            <h6 className="candidate_sub_text">{candidate.phone}</h6>
+                                                                            <p className="candidate_text fw-bold">{candidate.full_name}</p>
+                                                                            <p className="candidate_sub_text">{candidate.address}</p>
+                                                                            <p className="candidate_sub_text">{candidate.phone}</p>
                                                                         </div>
                                                                         <div class="statusdiv">
                                                                             <p className="selectednext status_offered">{candidate.application_status}</p>

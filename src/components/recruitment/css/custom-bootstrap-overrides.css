@@ -1,10 +1,10 @@
 /* Custom Bootstrap variable overrides */
 :root {
-  --bs-warning-rgb: 255, 112, 67; /* This is the RGB equivalent of #ff7043 */
+  --bs-warning-rgb: 255, 112, 67; /* This is the RGB equivalent of #746def */
 }
 
 .bg-warning {
-  background: linear-gradient(90deg, #ff7043 0%, #ff5722 100%) !important;
+  background: linear-gradient(90deg, #746def 0%, #ff5722 100%) !important;
 }
 .logobob img{
 	width: 50px;

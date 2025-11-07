@@ -56,7 +56,7 @@
 .fontbold{
     font-weight: 600 !important;
     font-size: 14px;
-    color: #162b75 !important;
+    color: #000 !important;
 }
 .fontregular{
   font-size: 14px;
@@ -66,7 +66,13 @@
 font-size: 14px;
 }
 .datesbg {
-	background: #f9bebebd !important;
+	background: #ebe9fa !important;
+}
+.datehighlight:hover{
+  background: #746def !important;
+}
+.datehighlight{
+  background: #746def !important;
 }
 .col button:hover{
   background:#fff !important;

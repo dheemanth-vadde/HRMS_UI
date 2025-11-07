@@ -22,7 +22,7 @@ background:#fff;
 .fonall{
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";    font-weight: 600 !important;  /* 600 = semibold */
     font-size: 15px !important;
-   color: #FF7043;
+   color: #746def;
 }
 
 .footspace{
@@ -53,7 +53,7 @@ color: #000 !important;
   font-weight:400 !important
 }
 .job-form .fontss{
-    color: #162b75 !important;
+    color: #000 !important;
   font-size:13px !important;
   font-weight:500 !important;
 }
