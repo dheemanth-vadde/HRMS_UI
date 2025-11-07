@@ -73,7 +73,29 @@ const [selectedGroup, setSelectedGroup] = useState("");
 const [hasExistingPrivileges, setHasExistingPrivileges] = useState(false);
   const [screens, setScreens] = useState<Screen[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
- 
+  
+// Add this utility function anywhere above return()
+const groupScreensByCategory = (screens: Screen[]) => {
+  const groups: Record<string, Screen[]> = {};
+
+  screens.forEach((screen) => {
+    let group = "Others";
+
+    if (screen.url.startsWith("/superadmin/organization")) group = "Organization";
+    else if (screen.url.startsWith("/recruitment/master")) group = "Master";
+    else if (screen.url.startsWith("/recruitment")) group = "Recruitment";
+    else if (screen.url.startsWith("/superadmin/access-control")) group = "Access Management";
+    else if (screen.url.startsWith("/settings")) group = "Site Configuration";
+    else if (screen.url.startsWith("/employees")) group = "Employees";
+    else if (screen.url.startsWith("/dashboard")) group = "Dashboard";
+
+    if (!groups[group]) groups[group] = [];
+    groups[group].push(screen);
+  });
+
+  return Object.entries(groups).map(([group, items]) => ({ group, items }));
+};
+
   
   // Fetch menus on component mount
   useEffect(() => {
@@ -135,6 +157,7 @@ useEffect(() => {
     fetchPrivileges(selectedRole, selectedGroup);
   }
 }, [selectedRole, selectedGroup]);
+
 const fetchPrivileges = async (roleId: string, groupId: string) => {
   try {
     setIsLoading(true);
@@ -613,67 +636,78 @@ useEffect(() => {
                 </tr>
               </thead>
               <tbody>
-                {filteredScreens.map((screen, index) => {
-                  return (
-                    <tr
-                      key={screen.id}
-                      className={cn(
-                        "transition-colors hover:bg-accent/30 border-b border-border last:border-0",
-                        index % 2 === 0 ? "bg-white dark:bg-card" : "bg-accent/10 dark:bg-accent/5"
-                      )}
-                    >
-                      <td className="px-6 py-4">
-                        <span className="font-medium text-foreground">{screen.name}</span>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <div className="flex justify-center">
-                          <Checkbox
-                            checked={screen.permissions.all}
-                            onCheckedChange={() => togglePermission(screen.id, "all")}
-                            className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <div className="flex justify-center">
-                          <Checkbox
-                            checked={screen.permissions.view}
-                            onCheckedChange={() => togglePermission(screen.id, "view")}
-                            className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <div className="flex justify-center">
-                          <Checkbox
-                            checked={screen.permissions.create}
-                            onCheckedChange={() => togglePermission(screen.id, "create")}
-                            className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <div className="flex justify-center">
-                          <Checkbox
-                            checked={screen.permissions.edit}
-                            onCheckedChange={() => togglePermission(screen.id, "edit")}
-                            className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <div className="flex justify-center">
-                          <Checkbox
-                            checked={screen.permissions.delete}
-                            onCheckedChange={() => togglePermission(screen.id, "delete")}
-                            className="size-5  circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
+                  {groupScreensByCategory(filteredScreens).map(({ group, items }) => (
+                    <>
+                      {/* Group Header Row */}
+                      <tr key={group} className="bg-accent/20 border-b border-border">
+                        <td colSpan={6} className="px-6 py-3 font-semibold text-primary uppercase text-sm">
+                          {group}
+                        </td>
+                      </tr>
+
+                      {/* Individual Screens under this group */}
+                      {items.map((screen, index) => (
+                        <tr
+                          key={screen.id}
+                          className={cn(
+                            "transition-colors hover:bg-accent/30 border-b border-border last:border-0",
+                            index % 2 === 0 ? "bg-white dark:bg-card" : "bg-accent/10 dark:bg-accent/5"
+                          )}
+                        >
+                          <td className="px-6 py-4">
+                            <span className="font-medium text-foreground">{screen.name}</span>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="flex justify-center">
+                              <Checkbox
+                                checked={screen.permissions.all}
+                                onCheckedChange={() => togglePermission(screen.id, "all")}
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                              />
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="flex justify-center">
+                              <Checkbox
+                                checked={screen.permissions.view}
+                                onCheckedChange={() => togglePermission(screen.id, "view")}
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                              />
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="flex justify-center">
+                              <Checkbox
+                                checked={screen.permissions.create}
+                                onCheckedChange={() => togglePermission(screen.id, "create")}
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                              />
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="flex justify-center">
+                              <Checkbox
+                                checked={screen.permissions.edit}
+                                onCheckedChange={() => togglePermission(screen.id, "edit")}
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                              />
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="flex justify-center">
+                              <Checkbox
+                                checked={screen.permissions.delete}
+                                onCheckedChange={() => togglePermission(screen.id, "delete")}
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  ))}
+                </tbody>
+
             </table>
           </div>
 
@@ -693,7 +727,7 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.all}
                           onCheckedChange={() => togglePermission(screen.id, "all")}
-                          className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
                       </div>
                       <div className="flex items-center justify-between p-2 rounded-md bg-accent/20">
@@ -701,7 +735,8 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.view}
                           onCheckedChange={() => togglePermission(screen.id, "view")}
-                          className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                           className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+
                         />
                       </div>
                       <div className="flex items-center justify-between p-2 rounded-md bg-accent/20">
@@ -709,7 +744,8 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.create}
                           onCheckedChange={() => togglePermission(screen.id, "create")}
-                          className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+
                         />
                       </div>
                       <div className="flex items-center justify-between p-2 rounded-md bg-accent/20">
@@ -717,7 +753,8 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.edit}
                           onCheckedChange={() => togglePermission(screen.id, "edit")}
-                          className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+
                         />
                       </div>
                       <div className="flex items-center justify-between p-2 rounded-md bg-accent/20 col-span-2">
@@ -725,7 +762,8 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.delete}
                           onCheckedChange={() => togglePermission(screen.id, "delete")}
-                          className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+
                         />
                       </div>
                     </div>
