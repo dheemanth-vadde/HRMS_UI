@@ -32,6 +32,7 @@ import { cn } from "../ui/utils";
 import api from "../../services/interceptors";
 import PERMISSIONS_ENDPOINTS from "../../services/permissionsEndPoints";
 import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
+import { usePermissions } from '../../utils/permissionUtils';
 interface Role {
   id: string;
   roleName: string;
@@ -73,7 +74,7 @@ const [selectedGroup, setSelectedGroup] = useState("");
 const [hasExistingPrivileges, setHasExistingPrivileges] = useState(false);
   const [screens, setScreens] = useState<Screen[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
-  
+   const { hasPermission } = usePermissions();
 // Add this utility function anywhere above return()
 const groupScreensByCategory = (screens: Screen[]) => {
   const groups: Record<string, Screen[]> = {};
@@ -585,10 +586,16 @@ useEffect(() => {
           <X className="size-4 mr-2" />
           Cancel
         </Button> */}
-        <Button   onClick={handleSaveChanges} className="bg-gradient-to-r from-primary to-[#2171b5] hover:from-[#2171b5] hover:to-[#1a5a8a] text-white shadow-lg hover:shadow-xl transition-all">
-          <Check className="size-4 mr-2" />
-          Save Changes
-        </Button>
+       {(hasPermission('/superadmin/access-control/permissions', 'create') ||
+            hasPermission('/superadmin/access-control/permissions', 'edit')) && (
+            <Button
+              onClick={handleSaveChanges}
+              className="bg-gradient-to-r from-primary to-[#2171b5] hover:from-[#2171b5] hover:to-[#1a5a8a] text-white shadow-lg hover:shadow-xl transition-all"
+            >
+              <Check className="size-4 mr-2" />
+              Save Changes
+            </Button>
+          )}
       </div>
           </div>
           

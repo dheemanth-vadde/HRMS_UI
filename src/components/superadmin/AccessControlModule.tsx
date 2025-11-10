@@ -55,6 +55,7 @@ import api from "../../services/interceptors";
 import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
 import GROUP_ENDPOINTS from "../../services/groupEndpoints";
 
+import { usePermissions } from '../../utils/permissionUtils';
 
 
 interface Role {
@@ -78,7 +79,7 @@ export function AccessControlModule() {
   const [isEditRoleDialogOpen, setIsEditRoleDialogOpen] = useState(false);
   const [isDeleteRoleDialogOpen, setIsDeleteRoleDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-
+ const { hasPermission } = usePermissions();
   const [roleFormData, setRoleFormData] = useState({
     roleName: "",
     // roleType: "",
@@ -357,6 +358,7 @@ export function AccessControlModule() {
               className="pl-10"
             />
           </div>
+           {hasPermission('/superadmin/access-control/roles', 'create') && (
           <Button
             className="gap-2 btn-add-purple"
             onClick={() => setIsAddRoleDialogOpen(true)}
@@ -364,6 +366,7 @@ export function AccessControlModule() {
             <Plus className="size-4" />
             Add Role
           </Button>
+          )}
         </div>
       </div>
 
@@ -379,7 +382,12 @@ export function AccessControlModule() {
                   {/* <TableHead className="font-semibold text-base mb-1">Role Type</TableHead> */}
                   <TableHead className="font-semibold text-base mb-1">Role Description</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Group</TableHead>
-                  <TableHead className="font-semibold text-base mb-1 w-24">Action</TableHead>
+                 {(hasPermission('/superadmin/access-control/roles', 'edit') ||
+                      hasPermission('/superadmin/access-control/roles', 'delete')) && (
+                      <TableHead className="font-semibold text-base mb-1 w-24">
+                        Action
+                      </TableHead>
+                    )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -403,6 +411,7 @@ export function AccessControlModule() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
+                          {hasPermission('/superadmin/access-control/roles', 'edit') && (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -411,6 +420,8 @@ export function AccessControlModule() {
                           >
                             <Edit className="size-4" />
                           </Button>
+                          )}
+                          {hasPermission('/superadmin/access-control/roles', 'delete') && (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -419,6 +430,7 @@ export function AccessControlModule() {
                           >
                             <Trash2 className="size-4 " />
                           </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -544,10 +556,12 @@ export function AccessControlModule() {
             <Button variant="outline" onClick={() => { setIsAddRoleDialogOpen(false); resetRoleForm(); }}>
               Cancel
             </Button>
+            {hasPermission('/superadmin/access-control/roles', 'create') && (
             <Button onClick={handleAddRole}>
               <Plus className="size-4 mr-2" />
               Add Role
             </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
