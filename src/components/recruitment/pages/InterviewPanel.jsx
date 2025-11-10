@@ -229,7 +229,7 @@ const InterviewPanel = () => {
   const panelsToDisplay = filteredAndSortedPanels();
 
   return (
-    <div className="space-y-6 py-3 px-5">
+    <div className="space-y-6 py-3 skills">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold">Interview Panels</h1>
@@ -245,7 +245,7 @@ const InterviewPanel = () => {
             />
             <input
               type="text"
-              placeholder="Search by panel name, description, or member"
+              placeholder="Search"
               className="w-full pl-9 h-9 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -281,7 +281,7 @@ const InterviewPanel = () => {
                   Panel Members
                   <span className="ml-1">{getSortIndicator("interviewer_ids")}</span>
                 </TableHead>
-                <TableHead className="text-right  text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
+                <TableHead className="text-right flex justify-end gap-2 items-center  text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
                   Actions
                 </TableHead>
               </TableRow>

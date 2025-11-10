@@ -202,7 +202,7 @@ const Location = () => {
   // if (error) return <div className="alert alert-danger mt-5">{error}</div>;
 
  return (
-  <div className="space-y-6 py-3">
+  <div className="space-y-6 py-3 loc">
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-lg font-semibold">Locations</h1>
@@ -218,7 +218,7 @@ const Location = () => {
           />
           <input
             type="text"
-            placeholder="Search by location or city"
+            placeholder="Search"
             className="w-full pl-9 h-9 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             value={searchTerm}
             onChange={(e) => {
@@ -257,7 +257,7 @@ const Location = () => {
                 Location Name
                 <span className="ml-1">{getSortIndicator("location_name")}</span>
               </TableHead>
-              <TableHead className="text-right  text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
+              <TableHead className="text-right flex justify-end gap-2 items-center text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
                 Actions
               </TableHead>
             </TableRow>

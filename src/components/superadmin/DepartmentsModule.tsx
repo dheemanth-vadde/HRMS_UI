@@ -433,14 +433,14 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
                   <TableHead className="font-semibold text-base mb-1">Department Head</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Time Zone</TableHead>
                   <TableHead className="font-semibold text-base mb-1">Business Unit</TableHead>
-                    {!viewOnly && (
+                  <TableHead className="font-semibold text-base mb-1">  {!viewOnly && (
                       (hasPermission('/superadmin/organization/departments', 'edit') === true ||
                       hasPermission('/superadmin/organization/departments', 'delete') === true) && (
                         <TableHead className="font-semibold text-base mb-1">
                           Actions
                         </TableHead>
                       )
-                    )}
+                    )}</TableHead> 
                 </TableRow>
               </TableHeader>
               <TableBody>

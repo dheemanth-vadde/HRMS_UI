@@ -94,6 +94,9 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
    color: #746def;
    font-weight: 600;
 }
- .pr-35{
-  padding-right: 35px !important;
+ .loc .pr-35{
+  padding-right: 40px !important;
+}
+.loc .p-2 {
+	padding-right: 25px !important;
 }

@@ -94,9 +94,7 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
    color: #746def;
    font-weight: 600;
 }
-.skills .text-base {
-	font-size: 16px !important;
-}
+
 .bg-background .btn-primary {
 	background-color: #2d2d58 !important;
   border-color: #2d2d58;
@@ -104,6 +102,9 @@ font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe U
 /* .bg-background .px-4, .bg-background .py-4 {
 	padding: 12px !important;
 } */
- .pr-35{
-  padding-right: 35px !important;
+ .skills .pr-35{
+  padding-right: 40px !important;
+}
+.skills .p-2 {
+	padding-right: 25px !important;
 }

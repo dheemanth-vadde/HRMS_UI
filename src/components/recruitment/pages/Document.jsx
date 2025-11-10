@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "../../ui/table";
 import { Label } from "../../ui/label";
-import "../css/Department.css"; // reuse same CSS or create Documents.css
+import "../css/Document.css"; // reuse same CSS or create Documents.css
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPencil,
@@ -193,7 +193,7 @@ const Document = () => {
   // if (error) return <div className="alert alert-danger mt-5">{error}</div>;
 
   return (
-    <div className="space-y-6 py-3">
+    <div className="space-y-6 py-3 doccss">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold">Documents</h1>
@@ -209,7 +209,7 @@ const Document = () => {
             />
             <input
               type="text"
-              placeholder="Search by document name or description"
+              placeholder="Search"
               className="w-full pl-9 h-9 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -245,7 +245,7 @@ const Document = () => {
                   Description
                   <span className="ml-1">{getSortIndicator("document_desc")}</span>
                 </TableHead>
-                <TableHead className="text-right  text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
+                <TableHead className="text-right flex justify-end gap-2 items-center text-foreground h-10  pr-35 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-semibold text-base mb-1">
                   Actions
                 </TableHead>
               </TableRow>
