@@ -353,7 +353,7 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
       toast.success("Employee added successfully!");
     } catch (error: any) {
       console.error("Error creating employee:", error);
-      // toast.error(error?.response?.data?.message || "Failed to add employee.");
+      toast.error("Failed to add employee.");
     } finally {
       setLoading(false);
     }
@@ -436,7 +436,7 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
         toast.success("Employee deleted successfully!");
       } catch (error) {
         console.error("Error deleting employee:", error);
-        // toast.error("Failed to delete employee. Please try again.");
+        toast.error("Failed to delete employee. Please try again.");
       } finally {
         setDeleteConfirmOpen(false);
         setEmployeeToDelete(null);

@@ -8,6 +8,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+// import { PNBLogo } from "../../PNBLogo";
+import SagarsoftLogo from "figma:asset/6937755954383c35f9d73d62ece6430f61843b75.png";
 
 const fmt = (d) => (d ? dayjs(d).format("DD.MM.YYYY") : undefined);
 const ORANGE = "#FF6F00";
@@ -124,10 +126,10 @@ export default function DownloadReqPdfButton(props) {
     table: {
       width: "100%",
       borderCollapse: "collapse",
-      tableLayout: "fixed",
-      fontSize: "10.5pt",
+      fontSize: "10pt",
       boxSizing: "border-box",
-      maxWidth: "100%",
+      wordBreak: "break-word",
+      overflowWrap: "break-word",
     },
     thead: { display: "table-header-group" },
     tfoot: { display: "table-footer-group" },
@@ -145,27 +147,28 @@ export default function DownloadReqPdfButton(props) {
       border: "0.3mm solid #ddd",
       padding: "2.5mm 2mm",
       verticalAlign: "top",
-      whiteSpace: "pre-wrap", // keep Title flexible; short cols override to nowrap inline
       wordBreak: "break-word",
+      whiteSpace: "normal", // changed from pre-wrap to normal
+      overflowWrap: "anywhere",
       boxSizing: "border-box",
     },
     zebra: { background: "#fafafa" },
     w: {
-      sno: { width: "8mm" },
-      code: { width: "18mm" },
-      emp: { width: "16mm" },
-      grade: { width: "12mm" },
-      vac: { width: "12mm", textAlign: "right" },
-      age: { width: "16mm" },
-      exp: { width: "18mm" },
-      salary: { width: "20mm" },
+      sno: { width: "3%" },
+      code: { width: "8%" },
+      emp: { width: "8%" },
+      grade: { width: "5%" },
+      vac: { width: "3%" },
+      age: { width: "8%" },
+      exp: { width: "8%" },
+      salary: { width: "10%" },
       // Title has no fixed width -> it will get the remaining space
     },
   };
 
   // Header values
-  const orgName = "Bank of Baroda";
-  const logoUrl = "/assets/bob-logo.png";
+  const orgName = "Sagarsoft";
+  // const logoUrl = "../../assets/6937755954383c35f9d73d62ece6430f61843b75.png";
 
   const req = requisitionFromParent || requisition;
   const advtCode =
@@ -203,10 +206,10 @@ export default function DownloadReqPdfButton(props) {
           <div ref={printRef} style={page.a4}>
             <section style={page.boxFirst}>
               <header style={st.header}>
-                {logoUrl ? (
+                {SagarsoftLogo ? (
                   <img
                     style={st.logo}
-                    src={logoUrl}
+                    src={SagarsoftLogo}
                     alt="Logo"
                     crossOrigin="anonymous"
                   />
@@ -440,7 +443,7 @@ const st = {
     alignItems: "flex-start",
     marginBottom: "6mm",
   },
-  logo: { width: "42mm", height: "14mm", objectFit: "contain" },
+  logo: { width: "22mm", height: "15mm", objectFit: "contain" },
   logoPh: {
     display: "grid",
     placeItems: "center",

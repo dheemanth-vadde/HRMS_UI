@@ -100,7 +100,7 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
         const response = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS);
         const deptData = response?.data?.data || [];
         // map to { id, name } for Select usage
-        const mappedDepartments = deptData.map((d: any) => ({ id: d.id, name: d.deptName }));
+        const mappedDepartments = deptData.map((d: any) => ({ id: d.department_id, name: d.department_name }));
         setDepartments(mappedDepartments);
       } catch (err) {
         console.error("Error fetching departments:", err);
@@ -159,23 +159,27 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
   }, []);
 
   const getDepartmentName = (deptId: any) => {
+    if (!deptId) return "-";
     const dept = departments.find((d) => d.id === deptId);
-    return dept ? dept.name : deptId || "-";
+    return dept?.name || "-";
   };
 
   const getDesignationName = (designationId: any) => {
+    if (!designationId) return "-";
     const designation = designations.find((d) => d.id === designationId);
-    return designation ? designation.name : designationId || "-";
+    return designation?.name || "-";
   };
 
   const getRolesName = (roleId: any) => {
+    if (!roleId) return "-";
     const role = roles.find((d) => d.id === roleId);
-    return role ? role.name : roleId || "-";
+    return role?.name || "-";
   };
 
   const getBuinessUnitName = (unitId: any) => {
+    if (!unitId) return "-";
     const bu = businessUnits.find((b) => b.id === unitId);
-    return bu ? bu.name : unitId || "-";
+    return bu?.name || "-";
   };
 
   if (loading) {
@@ -193,7 +197,6 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
       </div>
     );
   }
-  console.log("Rendering details for employee:", employeeDetails);
 
   const renderOfficialTab = () => (
     <div className="grid grid-cols-2 gap-x-12 gap-y-4">

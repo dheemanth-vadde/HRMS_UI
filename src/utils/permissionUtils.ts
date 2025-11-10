@@ -9,7 +9,7 @@ export const usePermissions = () => {
   const hasPermission = (path: string, action: string): boolean => {
     if (!rolePermissions || typeof rolePermissions !== 'object') return false;
     const permission = rolePermissions[path];
-    console.log("permission",action, permission[action])
+    // console.log("permission",action, permission[action])
     if (!permission) return false;
     return  permission[action];
   };
