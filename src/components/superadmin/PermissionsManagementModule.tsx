@@ -350,38 +350,63 @@ useEffect(() => {
   }
 };
   const togglePermission = (screenId: string, permissionType: keyof Screen["permissions"]) => {
-    setScreens((prev) =>
-      prev.map((screen) => {
-        if (screen.id === screenId) {
-          const newPermissions = { ...screen.permissions };
+  setScreens((prev) =>
+    prev.map((screen) => {
+      if (screen.id === screenId) {
+        const newPermissions = { ...screen.permissions };
+        
+        if (permissionType === "all") {
+          const newValue = !newPermissions.all;
+          newPermissions.all = newValue;
+          newPermissions.view = newValue;
+          newPermissions.create = newValue;
+          newPermissions.edit = newValue;
+          newPermissions.delete = newValue;
+        } else if (permissionType === "view") {
+          const newViewValue = !newPermissions.view;
+          newPermissions.view = newViewValue;
           
-          if (permissionType === "all") {
-            const newAllValue = !screen.permissions.all;
-            return {
-              ...screen,
-              permissions: {
-                all: newAllValue,
-                view: newAllValue,
-                create: newAllValue,
-                edit: newAllValue,
-                delete: newAllValue,
-              },
-            };
-          } else {
-            newPermissions[permissionType] = !screen.permissions[permissionType];
-            // Update "all" based on other permissions
-            newPermissions.all =
+          // If view is being disabled, also disable all other permissions
+          if (!newViewValue) {
+            newPermissions.create = false;
+            newPermissions.edit = false;
+            newPermissions.delete = false;
+            newPermissions.all = false;
+          }
+        } else {
+          // For create, edit, delete - only allow toggling if view is true
+          if (screen.permissions.view) {
+            newPermissions[permissionType] = !newPermissions[permissionType];
+            
+            // If any permission is unchecked, uncheck "all"
+            if (!newPermissions[permissionType]) {
+              newPermissions.all = false;
+            }
+            // If all individual permissions are checked, check "all"
+            else if (
               newPermissions.view &&
               newPermissions.create &&
               newPermissions.edit &&
-              newPermissions.delete;
-            return { ...screen, permissions: newPermissions };
+              newPermissions.delete
+            ) {
+              newPermissions.all = true;
+            }
+          }
+          // If view is not enabled, don't allow toggling other permissions
+          else {
+            return screen;
           }
         }
-        return screen;
-      })
-    );
-  };
+        
+        return {
+          ...screen,
+          permissions: newPermissions,
+        };
+      }
+      return screen;
+    })
+  );
+};
 
   const handleQuickAction = (action: string) => {
     switch (action) {
