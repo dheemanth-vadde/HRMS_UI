@@ -25,7 +25,20 @@ import { usePermissions } from '../../utils/permissionUtils';
 interface OrganizationInfoModuleProps {
   viewOnly?: boolean;
 }
-
+interface OrganizationData {
+  id?: string;
+  organisationName?: string;
+  domain?: string;
+  website?: string;
+  totalEmployees?: number | string;
+  orgStartDate?: string;
+  phoneNumber?: string;
+  countryId?: string;
+  stateId?: string;
+  cityId?: string;
+  address1?: string;
+  orgImage?: string;
+}
 export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoModuleProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [hasOrganization, setHasOrganization] = useState(false);
@@ -33,6 +46,9 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
    const { hasPermission } = usePermissions();
 
+
+// Inside your component, update the state
+const [originalData, setOriginalData] = useState<OrganizationData | null>(null);
   const [orgData, setOrgData] = useState({
     id: "",
     name: "",
@@ -51,7 +67,6 @@ export function OrganizationInfoModule({ viewOnly = false }: OrganizationInfoMod
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
-
   const businessDomains = [
     "Automotive",
     "Construction",
@@ -180,37 +195,55 @@ const getCityName = (id: string) => {
   return city ? city.name : "-";
 };
 
-  const fetchOrganizationData = async () => {
-    try {
-      const response = await api.get(ORGANIZATION_ENDPOINTS.GET_ORGANIZATION);
-      const result = response.data;
-      const org = Array.isArray(result?.data) ? result.data[0] : result.data; // ✅ handle both cases
+ const fetchOrganizationData = async () => {
+  try {
+    const response = await api.get(ORGANIZATION_ENDPOINTS.GET_ORGANIZATION);
+    const result = response.data;
+    const org = Array.isArray(result?.data) ? result.data[0] : result.data;
 
-      if (org) {
-        setOrgData({
-          id: org.id || "",
-          name: org.organisationName || "",
-          domain: org.domain || "",
-          website: org.website || "",
-          employees: org.totalEmployees?.toString() || "",
-          established: org.orgStartDate || "",
-          phone : org.phoneNumber || "",
-          country: org.countryId || "",
-          state: org.stateId || "",
-          city: org.cityId || "",
-          // category: org.orgCode || "",
-          headOffice: org.address1 || "",
-          logo: org.orgImage ? `data:image/png;base64,${org.orgImage}` : "",
-        });
-        setHasOrganization(true); // ✅
-      } else {
-        setHasOrganization(false);
-      }
-    } catch (error) {
-      console.error("Error fetching organization:", error);
+    if (org) {
+      const orgData = {
+        id: org.id || "",
+        name: org.organisationName || "",
+        domain: org.domain || "",
+        website: org.website || "",
+        employees: org.totalEmployees?.toString() || "",
+        established: org.orgStartDate || "",
+        phone: org.phoneNumber || "",
+        country: org.countryId || "",
+        state: org.stateId || "",
+        city: org.cityId || "",
+        headOffice: org.address1 || "",
+        logo: org.orgImage ? `data:image/png;base64,${org.orgImage}` : "",
+      };
+
+      setOrgData(orgData);
+      // Save the raw API response for potential cancellation
+      setOriginalData({
+        ...org,
+        // Ensure we have all the fields we need
+        id: org.id,
+        organisationName: org.organisationName,
+        domain: org.domain,
+        website: org.website,
+        totalEmployees: org.totalEmployees,
+        orgStartDate: org.orgStartDate,
+        phoneNumber: org.phoneNumber,
+        countryId: org.countryId,
+        stateId: org.stateId,
+        cityId: org.cityId,
+        address1: org.address1,
+        orgImage: org.orgImage,
+      });
+      setHasOrganization(true);
+    } else {
       setHasOrganization(false);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching organization:", error);
+    setHasOrganization(false);
+  }
+};
 
   const validateOrgData = () => {
     const newErrors: { [key: string]: string } = {};
@@ -333,30 +366,56 @@ const getCityName = (id: string) => {
   const handleAddOrganization = () => {
     setIsEditing(true);
     setHasOrganization(false);
+   // fetchOrganizationData()
   };
 
-  const handleCancel = () => {
-    if (!hasOrganization) {
-      // If no organization exists, reset all fields
-      setOrgData({
-        id: "",
-        name: "",
-        domain: "",
-        website: "",
-        employees: "",
-        established: "",
-        phone : "",
-        country: "",
-        state: "",
-        city: "",
-        // category: "",
-        headOffice: "",
-        logo: "",
-      });
-      setLogoPreview(null);
-    }
-    setIsEditing(false);
-  };
+ const handleCancel = () => {
+  if (!hasOrganization) {
+    // If no organization exists, clear everything
+    setOrgData({
+      id: "",
+      name: "",
+      domain: "",
+      website: "",
+      employees: "",
+      established: "",
+      phone: "",
+      country: "",
+      state: "",
+      city: "",
+      headOffice: "",
+      logo: "",
+    });
+    setLogoPreview(null);
+  } else if (originalData) {
+    // If we have original data, restore it
+    const restoredData = {
+      id: originalData.id || "",
+      name: originalData.organisationName || "",
+      domain: originalData.domain || "",
+      website: originalData.website || "",
+      employees: originalData.totalEmployees?.toString() || "",
+      established: originalData.orgStartDate || "",
+      phone: originalData.phoneNumber || "",
+      country: originalData.countryId || "",
+      state: originalData.stateId || "",
+      city: originalData.cityId || "",
+      headOffice: originalData.address1 || "",
+      logo: originalData.orgImage ? `data:image/png;base64,${originalData.orgImage}` : ""
+    };
+
+    console.log("Restoring data:", restoredData);
+    setOrgData(restoredData);
+    setLogoPreview(restoredData.logo || null);
+  } else {
+    // If no original data but hasOrganization is true, refetch the data
+    console.log("No original data found, refetching...");
+    fetchOrganizationData();
+  }
+
+  // Always exit edit mode
+  setIsEditing(false);
+};
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -657,75 +716,82 @@ const getCityName = (id: string) => {
                 </div>
 
                 <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">Country</Label>
-
-                    <Select
-                      value={orgData.country || ""}
-                      onValueChange={(value: string) => {
-                        setOrgData({ ...orgData, country: value, state: "", city: "" });
-                        fetchStates(value);
-                        if (errors.country) {
-                          setErrors(prev => ({ ...prev, country: "" }));
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="w-full border rounded-md p-2 text-sm">
-                        <SelectValue placeholder="Select Country" />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        <SelectItem value="__select_placeholder__">Select an option</SelectItem>
-                        {countries.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    {errors.country && (
-                      <p className="text-sm text-red-600">{errors.country}</p>
-                    )}
-                  </div>
-
+                  <Label className="text-sm text-muted-foreground">Country</Label>
+                  {isEditing && !viewOnly ? (
+                    <>
+                      <Select
+                        value={orgData.country || ""}
+                        onValueChange={(value: string) => {
+                          setOrgData({ ...orgData, country: value, state: "", city: "" });
+                          fetchStates(value);
+                          if (errors.country) {
+                            setErrors(prev => ({ ...prev, country: "" }));
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-full border rounded-md p-2 text-sm">
+                          <SelectValue placeholder="Select Country" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+                          {countries.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.country && (
+                        <p className="text-sm text-red-600">{errors.country}</p>
+                      )}
+                    </>
+                  ) : (
+                    <p className="font-medium">
+                      {countries.find(c => c.id === orgData.country)?.name || "-"}
+                    </p>
+                  )}
+                </div>
 
 
                 <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">State</Label>
-
-                    <Select
-                      value={orgData.state || ""}
-                      onValueChange={(value: string) => {
-                        setOrgData({ ...orgData, state: value, city: "" });
-                        fetchCities(value);
-                        if (errors.state) {
-                          setErrors(prev => ({ ...prev, state: "" }));
-                        }
-                      }}
-                      disabled={!orgData.country}
-                    >
-                      <SelectTrigger className="w-full border rounded-md p-2 text-sm">
-                        <SelectValue
-                          placeholder={!orgData.country ? "Select Country first" : "Select State"}
-                        />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        <SelectItem value="__select_placeholder__">Select an option</SelectItem>
-                        {states.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    {errors.state && (
-                      <p className="text-sm text-red-600">{errors.state}</p>
-                    )}
-                  </div>
-
-
+                  <Label className="text-sm text-muted-foreground">State</Label>
+                  {isEditing && !viewOnly ? (
+                    <>
+                      <Select
+                        value={orgData.state || ""}
+                        onValueChange={(value: string) => {
+                          setOrgData({ ...orgData, state: value, city: "" });
+                          fetchCities(value);
+                          if (errors.state) {
+                            setErrors(prev => ({ ...prev, state: "" }));
+                          }
+                        }}
+                        disabled={!orgData.country}
+                      >
+                        <SelectTrigger className="w-full border rounded-md p-2 text-sm">
+                          <SelectValue
+                            placeholder={!orgData.country ? "Select Country first" : "Select State"}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+                          {states.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>
+                              {s.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.state && (
+                        <p className="text-sm text-red-600">{errors.state}</p>
+                      )}
+                    </>
+                  ) : (
+                    <p className="font-medium">
+                      {states.find(s => s.id === orgData.state)?.name || "-"}
+                    </p>
+                  )}
+                </div>
 
                 {/* <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">Organization Code</Label>
@@ -743,40 +809,45 @@ const getCityName = (id: string) => {
                   )}
                 </div> */}
 
-                <div className="space-y-2">
+                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">City</Label>
-
-                  <Select
-                    value={orgData.city || ""}
-                    onValueChange={(value: string) => {
-                      setOrgData({ ...orgData, city: value });
-                      if (errors.city) {
-                        setErrors(prev => ({ ...prev, city: "" }));
-                      }
-                    }}
-                    disabled={!orgData.state}
-                  >
-                    <SelectTrigger className="w-full border rounded-md p-2 text-sm">
-                      <SelectValue
-                        placeholder={!orgData.state ? "Select State first" : "Select City"}
-                      />
-                    </SelectTrigger>
-
-                    <SelectContent>
-                      <SelectItem value="__select_placeholder__">Select an option</SelectItem>
-                      {cities.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {errors.city && (
-                    <p className="text-sm text-red-600">{errors.city}</p>
+                  {isEditing && !viewOnly ? (
+                    <>
+                      <Select
+                        value={orgData.city || ""}
+                        onValueChange={(value: string) => {
+                          setOrgData({ ...orgData, city: value });
+                          if (errors.city) {
+                            setErrors(prev => ({ ...prev, city: "" }));
+                          }
+                        }}
+                        disabled={!orgData.state}
+                      >
+                        <SelectTrigger className="w-full border rounded-md p-2 text-sm">
+                          <SelectValue
+                            placeholder={!orgData.state ? "Select State first" : "Select City"}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__select_placeholder__">Select an option</SelectItem>
+                          {cities.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.city && (
+                        <p className="text-sm text-red-600">{errors.city}</p>
+                      )}
+                    </>
+                  ) : (
+                    <p className="font-medium">
+                      {cities.find(c => c.id === orgData.city)?.name || "-"}
+                    </p>
                   )}
                 </div>
-
+ 
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground flex items-center gap-2">
                     {/* <MapPin className="size-4" /> */}
