@@ -266,7 +266,7 @@ const Document = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => openModal(job, index)}
+                            onClick={() => openModal(doc, index)}
                           >
                             <Edit className="size-4 text-gray-500" />
                           </Button>
@@ -276,7 +276,7 @@ const Document = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => openModal(job, index)}
+                            onClick={() => openModal(doc, index)}
                           >
                             <Eye className="size-4 text-gray-500" />
                           </Button>

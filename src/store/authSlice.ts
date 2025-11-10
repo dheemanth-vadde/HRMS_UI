@@ -13,6 +13,7 @@ interface AuthState {
   managerLevels: number | null;
   employeeId: string | null;
   userId: string | null;
+  profileImg: string | null;
 }
 
 const initialState: AuthState = {
@@ -26,6 +27,7 @@ const initialState: AuthState = {
   managerLevels: null,
   employeeId: null,
   userId: null,
+  profileImg: null,
 };
 
 export const authSlice = createSlice({
@@ -44,6 +46,7 @@ export const authSlice = createSlice({
         managerLevels?: number;
         employeeId?: string;
         userId?: string;
+        profileImg?: string;
       }>
     ) => {
       state.isAuthenticated = true;
@@ -56,6 +59,7 @@ export const authSlice = createSlice({
       state.managerLevels = action.payload.managerLevels || null;
       state.employeeId = action.payload.employeeId || null;
       state.userId = action.payload.userId || null;
+      state.profileImg = action.payload.profileImg || null;
     },
     updateTokens: (
       state,
@@ -82,10 +86,13 @@ export const authSlice = createSlice({
     ) => {
       state.rolePermissions = action.payload;
     },
+    updateProfileImg: (state, action: PayloadAction<string>) => {
+      state.profileImg = action.payload;
+    },
   },
 });
 
-export const { loginSuccess, logout, updateTokens,setPermissions } = authSlice.actions;
+export const { loginSuccess, logout, updateTokens,setPermissions, updateProfileImg } = authSlice.actions;
 
 export const selectAuth = (state: RootState) => state.auth;
 export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;

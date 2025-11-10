@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { ArrowLeft, UserCircle } from "lucide-react";
+import { ArrowLeft, Upload, UserCircle } from "lucide-react";
 import { cn } from "../ui/utils";
 import api from "../../services/interceptors";
 import EMPLOYEE_ENDPOINTS from "../../services/employeeEndpoints";
@@ -10,6 +10,7 @@ import DESIGNATION_ENDPOINTS from "../../services/designationEndpoints";
 import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
 import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
 import { useSelector } from "react-redux";
+import { toast } from "sonner";
 
 interface Employee {
   id: number;
@@ -54,6 +55,10 @@ export function ProfileModule() {
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const [businessUnits, setBusinessUnits] = useState<{ id: string; name: string }[]>([]);
   const employee = useSelector((state: any) => state.auth);
+  const [hovered, setHovered] = useState(false);
+  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
 
   const getInitials = (name: string) => {
     return name
@@ -82,10 +87,11 @@ export function ProfileModule() {
         console.log("Fetching details for employee ID:", employee);
         const response = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEE_BY_ID(employee.userId));
         setEmployeeDetails(response.data.data); // ensure backend returns employee object
+        setProfilePicUrl(response.data.data?.profileImg || null);
         console.log(response.data.data);
       } catch (error) {
         console.error("Error fetching employee details:", error);
-        // toast.error("Failed to load employee details.");
+        toast.error("Failed to load employee details.");
       } finally {
         setLoading(false);
       }
@@ -161,23 +167,62 @@ export function ProfileModule() {
   }, []);
 
   const getDepartmentName = (deptId: any) => {
+    if (!deptId) return "-";
     const dept = departments.find((d) => d.id === deptId);
-    return dept ? dept.name : deptId || "-";
+    return dept?.name || "-";
   };
 
   const getDesignationName = (designationId: any) => {
+    if (!designationId) return "-";
     const designation = designations.find((d) => d.id === designationId);
-    return designation ? designation.name : designationId || "-";
+    return designation?.name || "-";
   };
 
   const getRolesName = (roleId: any) => {
+    if (!roleId) return "-";
     const role = roles.find((d) => d.id === roleId);
-    return role ? role.name : roleId || "-";
+    return role?.name || "-";
   };
 
   const getBuinessUnitName = (unitId: any) => {
+    if (!unitId) return "-";
     const bu = businessUnits.find((b) => b.id === unitId);
-    return bu ? bu.name : unitId || "-";
+    return bu?.name || "-";
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    toast.error("Please select a valid image file.");
+    return;
+  }
+
+  const formData = new FormData();
+    formData.append("profilePic", file);
+    // formData.append("employeeId", employee.userId);
+
+    try {
+      toast.info("Uploading profile picture...");
+      const response = await api.post(
+        EMPLOYEE_ENDPOINTS.PROFILE_PICTURE_UPLOAD(employee.userId),
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      // console.log("Upload response:", response);
+      setProfilePicUrl(response.data.data);
+      toast.success("Profile picture updated successfully!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Error uploading image.");
+    }
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
   };
 
   if (loading) {
@@ -335,8 +380,34 @@ export function ProfileModule() {
         <CardContent className="p-6">
           <div className="flex items-start gap-6">
             {/* Avatar */}
-            <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <UserCircle className="size-12 text-primary" />
+            <div
+              className="relative size-24 rounded-full overflow-hidden group cursor-pointer"
+              onClick={handleAvatarClick}
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
+            >
+              {profilePicUrl ? (
+                <img src={profilePicUrl} alt="Profile" className="object-cover w-full h-full" />
+              ) : (
+                <div className="bg-primary/10 flex items-center justify-center h-full">
+                  <UserCircle className="size-12 text-primary" />
+                </div>
+              )}
+
+              {hovered && (
+                <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white text-xs font-medium transition-all">
+                  <Upload className="size-4 mb-1" />
+                  Click to Upload
+                </div>
+              )}
+
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+              />
             </div>
 
             {/* Employee Info */}

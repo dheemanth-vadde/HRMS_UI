@@ -312,7 +312,7 @@ else {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => openModal(job, index)}
+                            onClick={() => openModal(pos, index)}
                           >
                             <Edit className="size-4 text-gray-500" />
                           </Button>
@@ -322,7 +322,7 @@ else {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => openModal(job, index)}
+                            onClick={() => openModal(pos, index)}
                           >
                             <Eye className="size-4 text-gray-500" />
                           </Button>

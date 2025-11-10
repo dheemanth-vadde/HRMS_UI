@@ -14,6 +14,7 @@ export const EMPLOYEE_ENDPOINTS = {
   BULK_UPLOAD_EMPLOYEES: `${AUTH_URL}/register/bulkUpload`, // FILE UPLOAD
   EXCEL_TEMPLATE_DOWNLOAD: `${AUTH_URL}/register/download-template`,
   GET_MANAGERS: `${BASE_URL}/users/manager`,
+  PROFILE_PICTURE_UPLOAD: (id: any) => `${BASE_URL}/users/profile-pic/${id}`,
   // Add more employee-related endpoints here
 };
 
