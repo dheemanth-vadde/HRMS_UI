@@ -490,7 +490,7 @@ const ReviewDetails = ({ initialData = {}, onSubmit ,resumePublicUrl, selectedPo
             type="submit"
             className="btn btn-primary"
             style={{
-              backgroundColor: 'rgb(255, 112, 67)',
+              backgroundColor: 'rgb(45, 45, 88)',
               color: 'white',
               border: 'none',
               padding: '8px 20px',

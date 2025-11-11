@@ -7,3 +7,7 @@
 .bornav {
     color: black;
 }
+.candidate-modal-form .modal-title {
+  color: rgb(45, 45, 88);
+  font-weight: bold;
+}
