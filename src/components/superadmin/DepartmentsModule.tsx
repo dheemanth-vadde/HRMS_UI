@@ -561,10 +561,10 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
           </DialogHeader>
 
           <Tabs defaultValue="manual" className="w-full">
-            <TabsList className="grid w-full grid-columns-two">
+            {/* <TabsList className="grid w-full grid-columns-two">
               <TabsTrigger value="manual">Manual Entry</TabsTrigger>
               <TabsTrigger value="import">Import File</TabsTrigger>
-            </TabsList>
+            </TabsList> */}
 
             <TabsContent value="manual" className="space-y-4 mtop-4">
               <div className="grid grid-columns-two gp-4">

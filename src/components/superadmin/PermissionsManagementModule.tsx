@@ -89,6 +89,7 @@ const groupScreensByCategory = (screens: Screen[]) => {
     else if (screen.url.startsWith("/settings")) group = "Site Configuration";
     else if (screen.url.startsWith("/employees")) group = "Employees";
     else if (screen.url.startsWith("/dashboard")) group = "Dashboard";
+    else if (screen.url.startsWith("/Appraisal")) group = "Performance Appraisal";
 
     if (!groups[group]) groups[group] = [];
     groups[group].push(screen);
@@ -694,7 +695,7 @@ useEffect(() => {
                               <Checkbox
                                 checked={screen.permissions.all}
                                 onCheckedChange={() => togglePermission(screen.id, "all")}
-                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
                               />
                             </div>
                           </td>
@@ -703,7 +704,7 @@ useEffect(() => {
                               <Checkbox
                                 checked={screen.permissions.view}
                                 onCheckedChange={() => togglePermission(screen.id, "view")}
-                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
                               />
                             </div>
                           </td>
@@ -712,7 +713,7 @@ useEffect(() => {
                               <Checkbox
                                 checked={screen.permissions.create}
                                 onCheckedChange={() => togglePermission(screen.id, "create")}
-                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
                               />
                             </div>
                           </td>
@@ -721,7 +722,7 @@ useEffect(() => {
                               <Checkbox
                                 checked={screen.permissions.edit}
                                 onCheckedChange={() => togglePermission(screen.id, "edit")}
-                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
                               />
                             </div>
                           </td>
@@ -730,7 +731,7 @@ useEffect(() => {
                               <Checkbox
                                 checked={screen.permissions.delete}
                                 onCheckedChange={() => togglePermission(screen.id, "delete")}
-                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                className="size-5 rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
                               />
                             </div>
                           </td>
@@ -759,7 +760,7 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.all}
                           onCheckedChange={() => togglePermission(screen.id, "all")}
-                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
                         />
                       </div>
                       <div className="flex items-center justify-between p-2 rounded-md bg-accent/20">
@@ -767,7 +768,7 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.view}
                           onCheckedChange={() => togglePermission(screen.id, "view")}
-                           className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                           className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
 
                         />
                       </div>
@@ -776,7 +777,7 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.create}
                           onCheckedChange={() => togglePermission(screen.id, "create")}
-                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
 
                         />
                       </div>
@@ -785,7 +786,7 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.edit}
                           onCheckedChange={() => togglePermission(screen.id, "edit")}
-                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
 
                         />
                       </div>
@@ -794,7 +795,7 @@ useEffect(() => {
                         <Checkbox
                           checked={screen.permissions.delete}
                           onCheckedChange={() => togglePermission(screen.id, "delete")}
-                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="size-5 circleborder rounded-md data-[state=checked]:bg-primary data-[state=checked]:border-primary border-color-permissions"
 
                         />
                       </div>

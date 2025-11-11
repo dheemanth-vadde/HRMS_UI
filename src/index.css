@@ -5181,3 +5181,6 @@ border: 1px solid #333 !important;
   background-color: rgba(255, 255, 255, 0.5);
   width: 8px;
 }
+.border-color-permissions{
+border-color: #2d2d56 !important;
+}

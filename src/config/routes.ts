@@ -348,5 +348,20 @@ export const routes: AppRoute[] = [
     icon: User,
     hidden: true
   },
+  {
+    path: "/Appraisal",
+    name: "Performance Appraisal",
+    icon: Building2,
+    elementPath: "Appraisal/Initialise-appraisal",
+    children: [
+      {
+        path: "/Appraisal/Initialise-appraisal",
+        name: "Initialise Appraisal",
+        elementPath: "Appraisal/Initialise-appraisal",
+        icon: Briefcase
+      },
+      
+    ]
+  },
 ];
 

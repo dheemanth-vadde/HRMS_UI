@@ -705,10 +705,10 @@ const { hasPermission } = usePermissions();
           </DialogHeader>
 
           <Tabs defaultValue="manual" className="w-full">
-            <TabsList className="grid w-full grid-columns-two">
+            {/* <TabsList className="grid w-full grid-columns-two">
               <TabsTrigger value="manual">Manual Entry</TabsTrigger>
               <TabsTrigger value="import">Import File</TabsTrigger>
-            </TabsList>
+            </TabsList> */}
 
             <TabsContent value="manual" className="space-y-4 mtop-4">
               <div className="space-y-4">
@@ -722,7 +722,7 @@ const { hasPermission } = usePermissions();
                       setNewAnnouncement((prev) => {
                         const updatedUnits = ids;
                         const updatedDepts = prev.deptId.filter(did =>
-                          departments.some(d => d.id === did && updatedUnits)
+                          departments.some(d => d.department_id === did && updatedUnits)
                         );
                         return { ...prev, unitId: updatedUnits, deptId: updatedDepts };
                       });
