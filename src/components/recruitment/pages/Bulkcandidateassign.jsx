@@ -11,7 +11,7 @@ import {
   Table,
   InputGroup,
 } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import apiService from "../services/apiService";
 import "../css/bulkUpload.css";
 import BulkTiles from "./BulkTiles";

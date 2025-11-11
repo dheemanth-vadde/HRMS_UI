@@ -5,8 +5,8 @@ import { faUpload, faFileAlt, faCheck, faDownload, faInfoCircle } from '@fortawe
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import JobCreationForm from './../components/JobCreationForm';
 import * as XLSX from 'xlsx';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'sonner';
+//import 'react-toastify/dist/ReactToastify.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/apiService';
 import { jobSchema } from './../components/validationSchema';

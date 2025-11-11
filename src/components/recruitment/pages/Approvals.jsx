@@ -17,8 +17,8 @@ import { apiService } from "../services/apiService";
 import { faEye, faPencil, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import JobCreation from "./JobCreation";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
+//import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import { selectAuth } from '../../../store/authSlice';
 const Approvals = () => {

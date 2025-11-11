@@ -12,7 +12,7 @@ import {
   faPencil,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import 'react-toastify/dist/ReactToastify.css';
 import apiService from "../services/apiService";
 

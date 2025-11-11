@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../../../services/apiService';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { useSelector } from "react-redux";
 import '../../../css/review_details.css';
 import Tesseract from 'tesseract.js';

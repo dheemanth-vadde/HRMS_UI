@@ -29,7 +29,7 @@ import {
   Tooltip,
   Spinner, // <-- used
 } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowsRotate,faSearch } from "@fortawesome/free-solid-svg-icons";
 

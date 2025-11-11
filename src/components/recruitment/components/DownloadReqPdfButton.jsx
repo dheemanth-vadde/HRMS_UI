@@ -6,8 +6,8 @@ import * as html2pdf from "html2pdf.js";
 import { apiService } from "../services/apiService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'sonner';
+//import 'react-toastify/dist/ReactToastify.css';
 // import { PNBLogo } from "../../PNBLogo";
 import SagarsoftLogo from "figma:asset/6937755954383c35f9d73d62ece6430f61843b75.png";
 

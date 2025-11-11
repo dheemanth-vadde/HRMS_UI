@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Button } from "react-bootstrap";
 import Relaxation from "../components/Relaxation";
 import "../css/Relaxation.css";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import "react-toastify/dist/ReactToastify.css";
 import { apiService } from "../services/apiService";
 import Swal from "sweetalert2";
