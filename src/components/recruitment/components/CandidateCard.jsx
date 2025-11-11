@@ -1129,7 +1129,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                         {(provided) => (
                                             <div
                                                 className="candidates  px-2"
-                                                style={{ minHeight: "100px", maxHeight: "60vh" }}
+                                                style={{ minHeight: "100px", maxHeight: "60vh", overflowY: "auto" }}
                                                 ref={provided.innerRef}
                                                 {...provided.droppableProps}
                                             >
@@ -1220,7 +1220,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                     <div className="colored_line_red my-2"></div>
                                     <Droppable droppableId="interviewed">
                                         {(provided) => (
-                                            <div className="candidates  px-2" style={{ minHeight: '100px', maxHeight: '60vh' }} ref={provided.innerRef} {...provided.droppableProps}>
+                                            <div className="candidates  px-2" style={{ minHeight: '100px', maxHeight: '60vh', overflowY: "auto"  }} ref={provided.innerRef} {...provided.droppableProps}>
                                                 {interviewed
                                                     .filter((candidate) => candidate.full_name.toLowerCase().includes(search.toLowerCase()))
                                                     .map((candidate, index) => {
@@ -1344,7 +1344,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                                     <div className="colored_line_yellow my-2"></div>
                                     <Droppable droppableId="offered">
                                         {(provided) => (
-                                            <div className="candidates  px-2" style={{ minHeight: '100px', maxHeight: '60vh' }} ref={provided.innerRef} {...provided.droppableProps}>
+                                            <div className="candidates  px-2" style={{ minHeight: '100px', maxHeight: '60vh', overflowY: "auto" }} ref={provided.innerRef} {...provided.droppableProps}>
                                                 {offered
                                                     .filter((candidate) => candidate.full_name.toLowerCase().includes(search.toLowerCase()))
                                                     .map((candidate, index) => (

@@ -268,6 +268,8 @@
     font-size: 14px;
     text-decoration: underline;
     margin-top: 0px;
+    display: flex;
+    justify-content: end;
 }
 .spaceform option {
 	/*  font-size:13px !important; */
@@ -452,7 +454,7 @@ font-size: 14px;
     font-size:16px;
 }
 .candidate_card{
-    min-height: 100px;
+    min-height: 115px;
 }
 .req_dropdown a.req_item{
 display: block;
