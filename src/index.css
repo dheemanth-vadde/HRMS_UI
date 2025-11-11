@@ -5181,8 +5181,7 @@ border: 1px solid #333 !important;
   background-color: rgba(255, 255, 255, 0.5);
   width: 8px;
 }
-.border-color-permissions{
-border-color: #2d2d56 !important;
+
 .textline{
   text-decoration: none;
 }
@@ -5196,4 +5195,7 @@ border-color: #2d2d56 !important;
   border: 1px solid #e9e3e6;
   background: #fff;
   border-radius: 10px;
+}
+.border-color-permissions{
+  border-color: #2d2d56 !important;
 }
