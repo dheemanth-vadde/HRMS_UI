@@ -9,8 +9,9 @@ import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
 import DESIGNATION_ENDPOINTS from "../../services/designationEndpoints";
 import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
 import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
+import { updateProfileImg } from "../../store/authSlice";
 
 interface Employee {
   id: number;
@@ -58,6 +59,7 @@ export function ProfileModule() {
   const [hovered, setHovered] = useState(false);
   const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const dispatch = useDispatch();
 
 
   const getInitials = (name: string) => {
@@ -200,7 +202,7 @@ export function ProfileModule() {
   }
 
   const formData = new FormData();
-    formData.append("profilePic", file);
+    formData.append("profileImg", file);
     // formData.append("employeeId", employee.userId);
 
     try {
@@ -212,8 +214,10 @@ export function ProfileModule() {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      // console.log("Upload response:", response);
-      setProfilePicUrl(response.data.data);
+      // console.log("Upload response:", response.data);
+      const newImageUrl = `${response.data.data}?t=${Date.now()}`;
+      setProfilePicUrl(newImageUrl);
+      dispatch(updateProfileImg(newImageUrl));
       toast.success("Profile picture updated successfully!");
     } catch (error) {
       console.error("Upload error:", error);

@@ -15,6 +15,8 @@ import api from "../services/interceptors";
 import { useDispatch,useSelector } from 'react-redux';
 import { selectAuth } from '../store/authSlice'; 
 import EMPLOYEE_ENDPOINTS from "../services/employeeEndpoints";
+import { updateProfileImg } from "../store/authSlice";
+
 type UserRole = "employee" | "manager" | "hr" | "superadmin" | null;
 type ActiveModule = "dashboard" | "employees" | "hr" | "settings";
 const Header: React.FC = () => {

@@ -135,7 +135,7 @@ function Drawer({
         // candidate_id: candidate.candidate_id,
         // position_id: positionId || candidate.position_id,
         application_id: candidate.application_id,
-        ...(interviewerId != null && { interviewer_id: Number(interviewerId) }),
+        ...(interviewerId != null && { interviewer_id: interviewerId}),
         interviewer_name: interviewerName || interviewerEmail,
         interviewer_email: interviewerEmail,
       };

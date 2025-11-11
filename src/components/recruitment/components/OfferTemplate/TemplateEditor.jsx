@@ -17,7 +17,7 @@ import { buildHtmlForExport } from "./utils/exportHtml";
 import apiService from "../../services/apiService";
 /* ------- token helpers (chips only) ------- */
 const TOKEN_CLASS = "quill-token";
-const TOKEN_RE = /\{\{\s*fields\.(positionTitle|companyName|joiningDate)\s*\}\}/g;
+const TOKEN_RE = /\{\{\s*fields\.(positionTitle|companyName|joiningDate)\s*\}\}/gi;
 
 // wrap plain tokens once; keep existing spans if already wrapped
 function wrapTokensOnce(html = "") {

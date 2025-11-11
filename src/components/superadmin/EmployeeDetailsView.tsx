@@ -9,6 +9,7 @@ import DEPARTMENT_ENDPOINTS from "../../services/departmentEndpoints";
 import DESIGNATION_ENDPOINTS from "../../services/designationEndpoints";
 import ROLES_ENDPOINTS from "../../services/rolesEndpoints";
 import BUSSINESSUNIT_ENDPOINTS from "../../services/businessUnitEndpoints";
+import { ImageWithFallback } from "../figma/ImageWithFallback";
 
 interface Employee {
   id: number;
@@ -52,6 +53,7 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
   const [designations, setDesignations] = useState<{ id: string; name: string }[]>([]);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const [businessUnits, setBusinessUnits] = useState<{ id: string; name: string }[]>([]);
+  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
 
   const getInitials = (name: string) => {
     return name
@@ -80,7 +82,8 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
         console.log("Fetching details for employee ID:", employee);
         const response = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEE_BY_ID(employee.id));
         setEmployeeDetails(response.data.data); // ensure backend returns employee object
-        console.log(response.data.data);
+        setProfilePicUrl(response.data.data?.profileImg || null);
+        // console.log(response.data.data);
       } catch (error) {
         console.error("Error fetching employee details:", error);
         // toast.error("Failed to load employee details.");
@@ -326,7 +329,7 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <button className="hover:text-primary transition-colors">Home</button>
         <span>/</span>
         <button className="hover:text-primary transition-colors">HR</button>
@@ -334,7 +337,7 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
         <button className="hover:text-primary transition-colors">Employees</button>
         <span>/</span>
         <span className="text-foreground">View</span>
-      </div>
+      </div> */}
 
       {/* Back Button */}
       <Button variant="outline" onClick={onBack} className="gap-2" style={{ color: '#454545' }}>
@@ -347,8 +350,18 @@ export function EmployeeDetailsView({ employee, onBack }: EmployeeDetailsViewPro
         <CardContent className="p-6">
           <div className="flex items-start gap-6">
             {/* Avatar */}
-            <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <UserCircle className="size-12 text-primary" />
+            <div className="relative size-20 flex-shrink-0">
+              {profilePicUrl ? (
+                <ImageWithFallback
+                  src={profilePicUrl}
+                  alt={employeeDetails.fullName}
+                  className="size-20 rounded-full object-cover ring-2 ring-offset-2 ring-gray-100"
+                />
+              ) : (
+                <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center">
+                  <UserCircle className="size-12 text-primary" />
+                </div>
+              )}
             </div>
 
             {/* Employee Info */}

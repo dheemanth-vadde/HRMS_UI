@@ -111,7 +111,7 @@ export function SuperAdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-primary">
-            Super Admin Dashboard
+            Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">Organization overview and management</p>
         </div>
