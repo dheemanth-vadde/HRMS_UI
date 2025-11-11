@@ -363,7 +363,6 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
 
   const handleEdit = async (employee: any) => {
     await fetchDepartmentsByUnit(employee.unitId);
-    console.log('departments',departments)
     setEditingEmployee({
       ...employee,
       department: departments.find(d => d.id === employee.deptId)?.name || "",
@@ -377,6 +376,12 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
   };
 
   const handleUpdate = async () => {
+    const isValid = validateAllNewEmployee();
+    if (!isValid) {
+      toast.error("Please fix validation errors before updating.");
+      return; // stop — errors are shown inline
+    }
+
     try {
       setLoading(true);
 
@@ -560,9 +565,17 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
     ];
 
     const newErrors: { [key: string]: string | null } = { ...errors };
-
+console.log("newEmployee", newEmployee);
+console.log("editingEmployee", editingEmployee);
     requiredFields.forEach(field => {
-      const value = (newEmployee as any)[field] ?? "";
+      let value = "";
+      if (newEmployee) {
+        value = (newEmployee as any)[field] ?? "";
+      } 
+      if (editingEmployee) {
+        console.log("editingEmployee", editingEmployee);
+        value = (editingEmployee as any)[field] ?? "";
+      }
       let error: string | null = null;
 
       if (!value || String(value).trim() === "") {
