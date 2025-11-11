@@ -796,7 +796,7 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
                 </div>
               )} */}
               {!viewOnly && (
-                <div className="absolute top-3 right-3 flex items-center gap-2 op-0 group-hover:opacity-100 transition-opacity z-10">
+                <div className="absolute top-3 right-3 grid items-center gap-2 op-0 group-hover:opacity-100 transition-opacity z-10">
                   {/* ✅ Show Edit button only if user has 'edit' permission */}
                   {hasPermission('/employees', 'edit') === true && (
                     <button
