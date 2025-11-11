@@ -251,7 +251,7 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
 
       // Map the API response just like your fetchDepartments
       const mappedDept = {
-        id: addedDept.id,
+       id: addedDept.department_id || addedDept.id,
         department_name: addedDept.department_name || "",
         deptCode: addedDept.deptCode || "",
         startedOn: addedDept.startDate ? new Date(addedDept.startDate).toISOString().split("T")[0] : "",
@@ -264,11 +264,13 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
       setShowAddDialog(false);
       resetNewDept();
       setCurrentPage(1);
+     
       toast.success("Department added successfully!");
     } catch (err) {
       console.error("Failed to add department", err);
       toast.error("Failed to add department");
     }
+    
   };
 
   const handleEdit = (dept: any) => {

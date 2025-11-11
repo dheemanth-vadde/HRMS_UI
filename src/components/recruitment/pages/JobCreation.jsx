@@ -255,8 +255,8 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
             })),
           //positionTitleOptions: (masterDataRes.position_title || []).map(name => ({ id: name, name })),
           positionTitleOptions: (masterDataRes.masterPositionsList || []).map(pos => ({
-            id: pos.masterPositionId,   // numeric ID
-            name: pos.positionName      // display text
+            id: pos.position_id,   // numeric ID
+            name: pos.position_title      // display text
           })),
           departmentOptions: masterDataRes.departments,
           // countryOptions: masterDataRes.countries,
@@ -648,15 +648,22 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
       const maxSalary =
         gradeIdNum === 0 ? asNumberOrZero(item["Max Salary"]) : null;
 
+      const matchedPosition = masterPositions.find(
+        (pos) =>
+          pos.position_title?.trim().toLowerCase() ===
+          (item["Position Title"]?.trim().toLowerCase() || "")
+      );
+
       return {
         requisition_id: item["Requisition ID"] ?? null,
-        //position_title: item["Position Title"] ?? null,
-        position_title: findId(
-          masterData.positionTitleOptions,
-          "name",
-          "id",
-          item["Position Title"]
-        ),
+        position_title: item["Position Title"] ?? null,
+        // position_title: findId(
+        //   masterData.positionTitleOptions,
+        //   "name",
+        //   "id",
+        //   item["Position Title"]
+        // ),
+        position_code: matchedPosition?.position_code ?? null,
         dept_id: findId(masterData.departmentOptions, "department_name", "department_id", item["Department"]),
         country_id: findId(masterData.allCountries, "country_name", "country_id", item["Country"]),
         state_id: findId(masterData.allStates, "state_name", "state_id", item["State"]),
@@ -664,7 +671,10 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
         location_id: findId(masterData.allLocations, "location_name", "location_id", item["Location"]),
         description: item["Description"] ?? null,
         roles_responsibilities: item["Roles & Responsibilities"] ?? null,
-        grade_id: gradeIdNum || null,   // ✅ fixed
+        grade_id:
+          findId(masterData.gradeIdOptions, "name", "id", item["Grade ID"]) ||
+          findId(masterData.allGrades, "job_scale", "job_grade_id", item["Grade ID"]) ||
+          null,
         employment_type: item["Employment Type"] ?? null,
         eligibility_age_min: item["Eligibility Age Min"] ?? null,
         eligibility_age_max: item["Eligibility Age Max"] ?? null,
@@ -676,7 +686,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
         documents_required: item["Documents Required"] ?? null,
         min_credit_score: item["Min Credit Score"] ?? null,
         no_of_vacancies: item["Number of Vacancies"] ?? null,
-        selection_procedure: item["Selection Procedure"] ?? null,
+        selection_procedure: item["Document"] ?? null,
         min_salary: minSalary,
         max_salary: maxSalary,
       };
@@ -834,7 +844,7 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
       // ----------------------------
       // Populate hidden sheet with lists
       // ----------------------------
-      const positionRange = addMapping(masterData.masterPositionsList, "positionName", "masterPositionId");
+      const positionRange = addMapping(masterData.masterPositionsList, "position_title", "position_id");
       const deptRange = addMapping(masterData.departments, "department_name", "department_id");
       const countryRange = addMapping(masterData.countries, "country_name", "country_id");
       const stateRange = addMapping(masterData.states, "state_name", "state_id");

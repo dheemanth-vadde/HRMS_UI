@@ -640,7 +640,7 @@ const getCityName = (id: string) => {
                       {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
                     </>
                   ) : orgData.website ? (
-                    <a href={`https://${orgData.website}`} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">
+                    <a href={`https://${orgData.website}`} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline d-flex textline">
                       {orgData.website}
                     </a>
                   ) : (

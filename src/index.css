@@ -5181,6 +5181,20 @@ border: 1px solid #333 !important;
   background-color: rgba(255, 255, 255, 0.5);
   width: 8px;
 }
+.textline{
+  text-decoration: none;
+}
+.textline:hover{
+  text-decoration: underline;
+}
+.text-size-14{
+  font-size: 14px;
+}
+.popbg{
+  border: 1px solid #e9e3e6;
+  background: #fff;
+  border-radius: 10px;
+}
 .border-color-permissions{
 border-color: #2d2d56 !important;
 }
