@@ -64,3 +64,34 @@ color: #000 !important;
   font-size: 28px !important;
   font-weight: bold;
 }
+.align-items-center {
+  align-items: center !important;
+}
+.justify-content-between {
+  justify-content: space-between !important;
+}
+.d-flex {
+  display: flex !important;
+}
+
+.popover-arrow {
+  display: none !important;
+}
+.popover-header{
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+.text-base{
+  font-size: 14px !important;
+  padding-left: 10px;
+}
+.btn-outline-secondary{
+  border: 1px solid #000 !important;
+}
+.btn-outline-secondary:hover{
+  background-color: #6c757d !important;
+  color: #fff !important;
+}
+.spadei .text-base{
+  padding-left: 0 !important;
+}
