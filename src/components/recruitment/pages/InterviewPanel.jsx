@@ -311,7 +311,7 @@ const InterviewPanel = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => openModal(job, index)}
+                            onClick={() => openModal(panel, index)}
                           >
                             <Edit className="size-4 text-gray-500" />
                           </Button>
@@ -321,7 +321,7 @@ const InterviewPanel = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => openModal(job, index)}
+                            onClick={() => openModal(panel, index)}
                           >
                             <Eye className="size-4 text-gray-500" />
                           </Button>

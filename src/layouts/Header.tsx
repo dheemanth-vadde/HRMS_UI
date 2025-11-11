@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/interceptors";
 import { useDispatch,useSelector } from 'react-redux';
 import { selectAuth } from '../store/authSlice'; 
+import EMPLOYEE_ENDPOINTS from "../services/employeeEndpoints";
 type UserRole = "employee" | "manager" | "hr" | "superadmin" | null;
 type ActiveModule = "dashboard" | "employees" | "hr" | "settings";
 const Header: React.FC = () => {
@@ -64,7 +65,25 @@ const getUserRole = () => {
     navigate('/login');
   }
 };
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
+  
+  useEffect(() => {
+    if (auth?.profileImg) {
+      setProfilePicUrl(auth.profileImg);
+    } else if (auth?.userId) {
+      const fetchEmployeeDetails = async () => {
+        try {
+          const response = await api.get(EMPLOYEE_ENDPOINTS.GET_EMPLOYEE_BY_ID(auth.userId));
+          setProfilePicUrl(response.data.data?.profileImg || null);
+        } catch (error) {
+          console.error("Error fetching employee details:", error);
+        }
+      };
+      fetchEmployeeDetails();
+    }
+  }, [auth?.profileImg, auth?.userId]);
+
   return (
    <header className="h-16 bg-white dark:bg-card border-b border-border flex items-center justify-between px-6 shadow-md backdrop-blur-sm animate-slide-in-right">
           {/* Left Section */}
@@ -100,11 +119,15 @@ const getUserRole = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2 hover:bg-accent transition-zynix">
-                  <Avatar className="size-8">
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-[#2171b5] text-white">
-                      {getUserName().split(" ").map(n => n[0]).join("")}
-                    </AvatarFallback>
-                  </Avatar>
+                  {profilePicUrl ? (
+                    <img src={profilePicUrl} alt="Profile" className="w-full h-full object-cover rounded-full size-8" />
+                  ) : (
+                    <Avatar className="size-8">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-[#2171b5] text-white">
+                        {getUserName().split(" ").map(n => n[0]).join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                   <div className="hidden md:block text-left">
                     <div className="text-sm font-medium">{getUserName()}</div>
                     <div className="text-xs text-muted-foreground">{getUserRole()}</div>
