@@ -509,7 +509,8 @@ const CandidateCard = ({ setTriggerDownload }) => {
             const response = await apiService.sendOffer(payload);
             // console.log("Offer response:", response?.status);
 
-            if (response?.status === 200) {
+            if (response?.includes("Offer sent")) {
+                console.log("ravali offer sent")
                 const updatedCandidate = {
                     ...offerCandidate,
                     application_status: 'Offered',
@@ -793,8 +794,8 @@ const CandidateCard = ({ setTriggerDownload }) => {
             const response = await apiService.updateInterviewStatus(payload);
             //  const response = await axios.put(`http://192.168.20.111:8081/api/candidates/schedule-interview`,(payload))
 
-
-            if (response.status === 200) {
+          if (response?.includes("Interview Rescheduled")) {
+            console.log("ravali")
                 showToast("Interview rescheduled successfully!", "success");
                 const updated = interviewed.map((c) =>
                     c.candidate_id === rescheduleCandidate.candidate_id ? {
@@ -851,8 +852,10 @@ const CandidateCard = ({ setTriggerDownload }) => {
             };
             // console.log("myPayload",payload)
             const response = await apiService.updateInterviewStatus(payload);
+            console.log("response", response);
 
-            if (response.status === 200) {
+            if (response?.includes("Interview Cancelled")) {
+                console.log("ravali")
                 showToast("Interview cancelled successfully!", "success");
                 // Move candidate to a different column or remove from 'Interviewed'
                 const updatedInterviewed = interviewed.filter(c => c.candidate_id !== rescheduleCandidate.candidate_id);
