@@ -536,7 +536,7 @@ function Heading1() {
   return (
     <div className="h-[36px] relative shrink-0 w-full" data-name="Heading 1">
       <p className="absolute bg-clip-text font-['Roboto:Regular',_sans-serif] font-normal leading-[36px] left-0 text-[30px] text-[rgba(0,0,0,0)] text-nowrap top-[-1px] whitespace-pre" style={{ WebkitTextFillColor: "transparent", fontVariationSettings: "'wdth' 100", backgroundImage: "linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%), linear-gradient(rgb(49, 143, 255) 0%, rgb(33, 113, 181) 100%)" }}>
-        Super Admin Dashboard
+        Dashboard
       </p>
     </div>
   );

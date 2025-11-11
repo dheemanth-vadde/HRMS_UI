@@ -340,7 +340,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
         const status = (movedItem.application_status || "").toLowerCase();
         if (
             destination.droppableId === "offered" &&
-            (status === "scheduled" || status === "rescheduled" || status === "cancelled" || status === "selected for next round" || status === "rejected")
+            (status === "scheduled" || status === "rescheduled" || status === "cancelled" || status === "selected for next round" || status === "rejected" || status === "not available")
         ) {
             return;
         }
@@ -809,6 +809,7 @@ const CandidateCard = ({ setTriggerDownload }) => {
                     } : c);
                 setInterviewed(updated);
 
+                // setShouldRefresh(prev => prev + 1);
                 // Update the rescheduleCandidate state with the new data
 
                 setRescheduleCandidate((prev) => ({

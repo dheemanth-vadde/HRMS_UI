@@ -125,6 +125,7 @@ const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
     managerId: "",    
     userStatus: "Active", // was status
   }
+  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
 
   const mapEmployeeForUI = (emp: any) => {
     return {
@@ -163,6 +164,7 @@ const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
         // Assuming API returns data in response.data
         const list = response?.data?.data || [];
         setEmployees(list.map((emp: any) => mapEmployeeForUI(emp)));
+        setProfilePicUrl(response.data.data?.profileImg || null);
         console.log(response?.data?.data);
       } catch (err) {
         console.error("Error fetching employees:", err);
@@ -359,8 +361,8 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
     }
   };
 
-  const handleEdit = (employee: any) => {
-    fetchDepartmentsByUnit(employee.unitId);
+  const handleEdit = async (employee: any) => {
+    await fetchDepartmentsByUnit(employee.unitId);
     console.log('departments',departments)
     setEditingEmployee({
       ...employee,
@@ -381,7 +383,7 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
       // Map names to IDs for API payload
       const payload = {
         ...editingEmployee,
-        deptId: departments.find(d => d.name === editingEmployee.department)?.id || "",
+        deptId: editingEmployee.deptId || "",
         designationId: designations.find(d => d.name === editingEmployee.designation)?.id || "",
         empRole: roles.find(r => r.name === editingEmployee.role)?.id || "",
         unitId: businessUnits.find(b => b.name === editingEmployee.businessUnit)?.id || "",
@@ -826,18 +828,20 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
                 {/* Profile Image */}
                 <div className="flex items-start gap-3 mb-4">
                   <div className="relative flex-shrink-0">
-                    {employee.avatar ? (
+                    {employee.profileImg ? (
                       <ImageWithFallback
-                        src={employee?.avatar}
-                        alt={employee?.fullName}
+                        src={employee.profileImg}
+                        alt={employee.fullName}
                         className="size-12 rounded-full object-cover ring-2 ring-offset-2 ring-gray-100"
                       />
                     ) : (
-                      <div className={cn(
-                        "size-12 rounded-full bg-gradient-to-br flex items-center justify-center text-white ring-2 ring-offset-2 ring-gray-100",
-                        getAvatarColor(employee.employeeId ?? employee.id)
-                      )}>
-                        <span className="text-sm font-semibold">{getInitials(employee?.fullName)}</span>
+                      <div
+                        className={cn(
+                          "size-12 rounded-full bg-gradient-to-br flex items-center justify-center text-white ring-2 ring-offset-2 ring-gray-100",
+                          getAvatarColor(employee.employeeId ?? employee.id)
+                        )}
+                      >
+                        <span className="text-sm font-semibold">{getInitials(employee.fullName)}</span>
                       </div>
                     )}
                   </div>
@@ -897,17 +901,22 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
                   <TableRow key={employee.id} className="hover:bg-muted/20">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            "size-9 rounded-full bg-gradient-to-br flex items-center justify-center text-white",
-                            // use the same color selector as grid view
-                            getAvatarColor(employee.employeeId ?? employee.id)
-                          )}
-                        >
-                          <span className="text-sm font-medium">
-                            {getInitials(employee?.fullName)}
-                          </span>
-                        </div>
+                        {employee.profileImg ? (
+                          <ImageWithFallback
+                            src={employee.profileImg}
+                            alt={employee.fullName}
+                            className="size-9 rounded-full object-cover ring-2 ring-offset-2 ring-gray-100"
+                          />
+                        ) : (
+                          <div
+                            className={cn(
+                              "size-9 rounded-full bg-gradient-to-br flex items-center justify-center text-white ring-2 ring-offset-2 ring-gray-100",
+                              getAvatarColor(employee.employeeId ?? employee.id)
+                            )}
+                          >
+                            <span className="text-sm font-medium">{getInitials(employee.fullName)}</span>
+                          </div>
+                        )}
                         <div>
                           <div className="font-medium text-sm">{employee.fullName}</div>
                           <div className="text-xs text-muted-foreground">{employee.employeeId}</div>
@@ -1395,17 +1404,23 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
               <div className="space-y-2">
                   <Label>Business Unit *</Label>
                   <Select
-                    value={businessUnits.find(u => u.name === editingEmployee.businessUnit)?.id || editingEmployee.unitId}
+                    value={editingEmployee.unitId || ""}
                     onValueChange={(value: any) => {
-                      setEditingEmployee({ ...editingEmployee, unitId: value, department: "" });
-                      fetchDepartmentsByUnit(value); // ✅ fetch depts by selected business unit
+                      const selectedUnit = businessUnits.find(u => u.id === value);
+                      setEditingEmployee({
+                        ...editingEmployee,
+                        unitId: value,
+                        businessUnit: selectedUnit?.name || "",
+                        department: "",
+                      });
+                      fetchDepartmentsByUnit(value);
                     }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select business unit" />
                     </SelectTrigger>
                     <SelectContent>
-                      {businessUnits.map(unit => (
+                      {businessUnits.map((unit) => (
                         <SelectItem key={unit.id} value={unit.id}>
                           {unit.name}
                         </SelectItem>
@@ -1420,23 +1435,14 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
              <div className="space-y-2">
                   <Label>Department *</Label>
                   <Select
-                    value={
-                      filteredDepartments.find(d => d.name === editingEmployee.department)?.id ||
-                      editingEmployee.deptId
-                    }
+                    value={editingEmployee.deptId || ""}
                     onValueChange={(value: any) =>
                       setEditingEmployee({ ...editingEmployee, deptId: value })
                     }
                     disabled={!editingEmployee.unitId}
                   >
                     <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          !editingEmployee.unitId
-                            ? "Select business unit first"
-                            : "Select department"
-                        }
-                      />
+                      <SelectValue placeholder={!editingEmployee.unitId ? "Select business unit first" : "Select department"} />
                     </SelectTrigger>
                     <SelectContent>
                       {filteredDepartments.map((dept) => (

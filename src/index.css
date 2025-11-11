@@ -5183,4 +5183,17 @@ border: 1px solid #333 !important;
 }
 .border-color-permissions{
 border-color: #2d2d56 !important;
+.textline{
+  text-decoration: none;
+}
+.textline:hover{
+  text-decoration: underline;
+}
+.text-size-14{
+  font-size: 14px;
+}
+.popbg{
+  border: 1px solid #e9e3e6;
+  background: #fff;
+  border-radius: 10px;
 }

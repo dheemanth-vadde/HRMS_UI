@@ -390,7 +390,7 @@ const Approvals = () => {
                               <tr key={row.position_id || i}>
                                 <td>{row.position_title}</td>
                                 <td>{row.position_code}</td>
-                                <td>{row.grade_id}</td>
+                                <td>{row.grade_name}</td>
                                 <td>{row.no_of_vacancies ?? "-"}</td>
                                 <td>
                                   {job.requisition_status === "New" ? (
@@ -402,6 +402,7 @@ const Approvals = () => {
                                         setEditPositionId(row.position_id);
                                         setShowModal(true);
                                         setReadOnly(false);
+                                        console.log("row.requisition_id",row.requisition_id);
                                       }}
                                     />
                                   ) : (
