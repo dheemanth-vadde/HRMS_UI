@@ -557,9 +557,9 @@ export function DepartmentsModule({ viewOnly = false }: DepartmentsModuleProps) 
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add Department</DialogTitle>
-            <DialogDescription>
+            {/* <DialogDescription>
               Choose to add manually or import from CSV/XLSX file
-            </DialogDescription>
+            </DialogDescription> */}
           </DialogHeader>
 
           <Tabs defaultValue="manual" className="w-full">
