@@ -1000,190 +1000,191 @@ const JobCreation = ({ editRequisitionId, showModal, onClose, editPositionId, on
 
         </Col>
       </Row>
-      <Modal className='fontss' show={showUploadModal} onHide={() => setShowUploadModal(false)} size="lg" centered>
-        <Modal.Header closeButton>
-          <Modal.Title className='fonall'>Bulk Job Creation</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="upload-section fontss">
-            <div className="popform">
-              <Form.Group className="mb-2 job-form">
-                <Form.Label className="small mb-1 d-flex align-items-center fontss" style={{ gap: '0.4em' }}>
-                  Select Requisition
-                  {typeof selectedReqIndex === 'number' && reqs[selectedReqIndex] && (
-                    <OverlayTrigger
-                      trigger="click"
-                      placement="right"
-                      rootClose
-                      overlay={
-                        <Popover id="modal-requisition-popover" style={{ minWidth: 250 }}>
-                          <Popover.Header as="h3" style={{ fontSize: '1rem' }}>
-                            {reqs[selectedReqIndex].requisition_code || reqs[selectedReqIndex].requisition_title || 'Requisition Details'}
-                          </Popover.Header>
-                          <Popover.Body style={{ fontSize: '0.85rem' }}>
-                            <div><strong>Position Title:</strong> {reqs[selectedReqIndex].requisition_title || '-'}</div>
-                            <div><strong>Number of positions:</strong> {reqs[selectedReqIndex].no_of_positions || '-'}</div>
-                            <div><strong>Start date:</strong> {reqs[selectedReqIndex].registration_start_date || '-'}</div>
-                            <div><strong>End date:</strong> {reqs[selectedReqIndex].registration_end_date || '-'}</div>
-                            {/* Add more fields as needed */}
-                          </Popover.Body>
-                        </Popover>
-                      }
-                    >
-                      <span style={{ display: 'inline-block', cursor: 'pointer' }}>
-                        <FontAwesomeIcon
-                          icon={faInfoCircle}
-                          className="text-info"
-                          style={{ fontSize: '1.1em' }}
-                          tabIndex={0}
-                        />
-                      </span>
-                    </OverlayTrigger>
-                  )}
-                </Form.Label>
-                <Form.Select
-                  size="sm"
-                  value={selectedReqIndex === null ? "" : selectedReqIndex}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setSelectedReqIndex(val === "" ? null : Number(val));
-                  }}
-                  style={{ maxWidth: "300px" }}
-                  className='fw-300'
-                >
-                  <option value="">Select Requisition</option>
-                  {reqs.map((req, index) => (
-                    <option key={req.requisition_id} value={index}>
-                      {req.requisition_code + " - " + req.requisition_title}
-                    </option>
-                  ))}
-                </Form.Select>
+      {/* Bulk Upload Modal */}
+      {showUploadModal && (
+        <div className="bgcolor fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="w-full max-w-2xl bg-white rounded-lg shadow-xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">Bulk Job Creation</h3>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
+                aria-label="Close modal"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="space-y-6">
+                {/* Requisition Selection */}
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Select Requisition
+                      </label>
+                      {selectedReqIndex !== null && reqs[selectedReqIndex] && (
+                        <div className="relative">
+                          <OverlayTrigger
+                            trigger="click"
+                            placement="right"
+                            rootClose
+                            overlay={
+                              <Popover id="requisition-details-popover popover" style={{ minWidth: 250,zIndex:99,border: '1px solid rgba(0,0,0,0.175)' }} className='min-w-[220px] popbg'>
+                                <Popover.Header as="h3" style={{ fontSize: '1rem' }}>
+                                  {reqs[selectedReqIndex].requisition_code || 'Requisition Details'}
+                                </Popover.Header>
+                                <Popover.Body style={{ fontSize: '0.85rem' }}>
+                                  <div><strong>Position Title:</strong> {reqs[selectedReqIndex].requisition_title || '-'}</div>
+                                  <div><strong>Number of positions:</strong> {reqs[selectedReqIndex].no_of_positions || '-'}</div>
+                                  <div><strong>Start date:</strong> {reqs[selectedReqIndex].registration_start_date || '-'}</div>
+                                  <div><strong>End date:</strong> {reqs[selectedReqIndex].registration_end_date || '-'}</div>
+                                </Popover.Body>
+                              </Popover>
+                            }
+                          >
+                            <button 
+                              type="button"
+                              className="text-blue-500 hover:text-blue-700 focus:outline-none ml-1"
+                              aria-label="View requisition details"
+                            >
+                              <FontAwesomeIcon icon={faInfoCircle} className="text-lg" />
+                            </button>
+                          </OverlayTrigger>
+                          
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <select
+                    value={selectedReqIndex === null ? "" : selectedReqIndex}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSelectedReqIndex(val === "" ? null : Number(val));
+                    }}
+                    className="mt-1 block  max-w-md rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 border"
+                  >
+                    <option value="">Select Requisition</option>
+                    {reqs.map((req, index) => (
+                      <option key={req.requisition_id} value={index}>
+                        {`${req.requisition_code} - ${req.requisition_title}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              </Form.Group>
-              {/* {selectedReqIndex !== null && selectedReqIndex !== "" && (
-                <Row
-                  className="job-row border-bottom py-1 align-items-center text-muted px-3 mx-1 my-3 mt-3 w-75"
-                  style={{
-                    backgroundColor: "#fff3e0",
-                    borderLeft: "4px solid #746def",
-                    borderRadius: "4px",
-                  }}
-                >
-                  <Col xs={12} md={3} className="d-flex align-items-center">
-                    <div className="bullet-columns d-flex me-2">
-                      <div className="d-flex flex-column me-1">
-                        <span className="job-bullet mb-1"></span>
-                        <span className="job-bullet mb-1"></span>
-                        <span className="job-bullet mb-1"></span>
-                        <span className="job-bullet"></span>
-                      </div>
-                      <div className="d-flex flex-column">
-                        <span className="job-bullet mb-1"></span>
-                        <span className="job-bullet mb-1"></span>
-                        <span className="job-bullet mb-1"></span>
-                        <span className="job-bullet"></span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="fw-semibold text-dark">
-                        {reqs[selectedReqIndex].requisition_title}
-                      </div>
-                      <div className="text-muted small">
-                        {reqs[selectedReqIndex].requisition_description}
-                      </div>
-                    </div>
-                  </Col>
-                  <Col
-                    xs={12}
-                    md={3}
-                    className="text-end small text-secondary"
+                {/* File Upload Section */}
+                <div className="space-y-4">
+                  <div
+                    className="flex flex-col items-center justify-center p-6 mx-auto border-2 border-dashed border-indigo-300 bg-indigo-50 rounded-lg cursor-pointer w-full max-w-md hover:bg-indigo-100 transition-colors duration-200"
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onClick={() => fileInputRef.current?.click()}
                   >
-                    <div>
-                      <strong>Positions:</strong>{" "}
-                      {reqs[selectedReqIndex].no_of_positions}
+                    <FontAwesomeIcon 
+                      icon={faUpload} 
+                      className="mb-3 text-indigo-500 text-2xl" 
+                    />
+                    <p className="text-sm text-gray-600 mb-1">
+                      <span className="font-medium text-indigo-700">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Excel file only (max 5MB)
+                    </p>
+                  </div>
+                  
+                  <input 
+                    type="file" 
+                    id="file-upload" 
+                    className="sr-only" 
+                    onChange={handleFileChange} 
+                    ref={fileInputRef}
+                    accept=".xlsx,.xls"
+                  />
+                  
+                  {errors.file && (
+                    <p className="mt-1 text-sm text-red-600">{errors.file}</p>
+                  )}
+                  
+                  {files.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Selected File:</p>
+                      <div className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 rounded-full bg-indigo-100">
+                            <FontAwesomeIcon 
+                              icon={faFileAlt} 
+                              className="text-indigo-600" 
+                            />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{files[0].name}</p>
+                            <p className="text-xs text-gray-500">
+                              {(files[0].size / 1024).toFixed(1)} KB
+                            </p>
+                          </div>
+                        </div>
+                        <button 
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFile(0);
+                          }}
+                          className="p-1.5 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                          aria-label="Remove file"
+                        >
+                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                        </button>
+                      </div>
                     </div>
-                  </Col>
-                  <Col
-                    xs={12}
-                    md={3}
-                    className="text-end small text-secondary"
-                  >
-                    <div>
-                      <strong>From:</strong>{" "}
-                      {reqs[selectedReqIndex].registration_start_date}
+                  )}
+                  
+                  {Array.isArray(errors) && errors.length > 0 && (
+                    <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-400 rounded">
+                      <h4 className="text-sm font-medium text-red-800 mb-2">Validation Errors Found:</h4>
+                      <ul className="space-y-1 text-sm text-red-700">
+                        {errors.map((err, i) => (
+                          <li key={i} className="flex">
+                            <span className="font-medium">Row {err.row}:</span>
+                            <span className="ml-1">{err.messages.join(', ')}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  </Col>
-                  <Col
-                    xs={12}
-                    md={3}
-                    className="text-end small text-secondary"
-                  >
-                    <div>
-                      <strong>To:</strong>{" "}
-                      {reqs[selectedReqIndex].registration_end_date}
-                    </div>
-                  </Col>
-                </Row>
-              )} */}
-            </div>
-            <div
-              className="rounded p-3 text-center mb-3 mt-4"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onClick={() => fileInputRef.current && fileInputRef.current.click()}
-              style={{
-                cursor: 'pointer',
-                minHeight: '60px',
-                height: '90px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: 'auto',
-                width: '350px',
-                border: '1px dashed #2d2d58',
-                backgroundColor: '#f5f5f5',
-                borderStyle: 'dashed',
-              }}
-            >
-              <FontAwesomeIcon icon={faUpload} size="1x" className="mb-2 text-muted" />
-              <div style={{ color: '#757575', fontSize: '0.95rem' }}><span style={{ textDecoration: 'underline', color: '#2d2d58', cursor: 'pointer' }}>click to browse</span></div>
-            </div>
-            <Form.Control type="file" id="file-upload" className="d-none" onChange={handleFileChange} ref={fileInputRef} />
-            {errors.file && <small className="error d-block mb-2 text-danger">{errors.file}</small>}
-            {files.length > 0 && (
-              <div className="mb-3">
-                <h6>Selected File:</h6>
-                <div className="d-flex align-items-center justify-content-between border rounded p-2" style={{ background: '#f9f9f9' }}>
-                  <span><FontAwesomeIcon icon={faFileAlt} className="me-2 text-muted" /> {files[0].name}</span>
-                  <button className="btn btn-sm btn-danger ms-2" onClick={() => removeFile(0)}>✕</button>
+                  )}
                 </div>
               </div>
-            )}
-            {Array.isArray(errors) && errors.length > 0 && (
-              <div className="alert alert-danger p-2 mb-2" style={{ fontSize: '0.95em', maxHeight: '120px', overflowY: 'auto', color: '#d32f2f' }}>
-                <strong>Validation Errors:</strong>
-                <ul className="mb-0 ps-3" style={{ listStyle: 'disc', color: '#d32f2f' }}>
-                  {errors.map((err, i) => (
-                    <li key={i} style={{ marginBottom: 2 }}>
-                      Row {err.row}: {err.messages.join(', ')}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="px-6 py-4 flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={() => setShowUploadModal(false)}
+                className="mr-15 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleUploadSubmit}
+                disabled={files.length === 0 || selectedReqIndex === null}
+                className="bg-[#2d2d58] px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Save
+              </button>
+            </div>
           </div>
-        </Modal.Body>
-        <Modal.Footer className='footspace'>
-          <Button
-            onClick={handleUploadSubmit}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive btn-gradient-primary shadow-sm hover:shadow-md px-4 has-[>svg]:px-3"
-            style={{ backgroundColor: '#2d2d58 ', borderColor: '#2d2d58 ' }}
-          >
-            Save
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        </div>
+      )}
     </Container>
   );
 };

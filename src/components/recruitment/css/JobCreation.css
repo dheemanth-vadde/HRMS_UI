@@ -95,3 +95,17 @@ color: #000 !important;
 .spadei .text-base{
   padding-left: 0 !important;
 }
+.popover-header {
+	padding: 8px 15px;
+	margin-bottom: 0;
+	font-size: var(--bs-popover-header-font-size);
+	color: var(--bs-popover-header-color);
+	background-color: #e9ecef;
+	border-bottom: 1px solid rgba(0,0,0,0.175) !important;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+}
+.popover-body {
+	padding: 15px;
+	color: var(--bs-popover-body-color);
+}
