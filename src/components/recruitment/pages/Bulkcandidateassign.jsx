@@ -1,16 +1,6 @@
 // src/pages/BulkCandidateAssign.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Form,
-  Button,
-  Container,
-  Spinner,
-  Table,
-  InputGroup,
-} from "react-bootstrap";
+// Bootstrap components removed in favor of Tailwind CSS
 import { toast } from "sonner";
 import apiService from "../services/apiService";
 import "../css/bulkUpload.css";
@@ -18,6 +8,7 @@ import BulkTiles from "./BulkTiles";
 import CandidateDetailsModal from "../components/CandidateDetailsModal";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Eye } from "lucide-react";
 
 export default function BulkCandidateAssign() {
   const [loadingReq, setLoadingReq] = useState(false);
@@ -32,7 +23,7 @@ export default function BulkCandidateAssign() {
   const [selectedReq, setSelectedReq] = useState("");
   const [selectedPos, setSelectedPos] = useState("");
 
-  const [selected, setSelected] = useState(new Set());
+  const [selectedCandidates, setSelectedCandidates] = useState(new Set());
   const [query, setQuery] = useState("");
   const [showDetails, setShowDetails] = useState(false);
   const [candidateDetails, setCandidateDetails] = useState(null);
@@ -66,7 +57,7 @@ export default function BulkCandidateAssign() {
       setPositions([]);
       setSelectedPos("");
       setCandidates([]);
-      setSelected(new Set());
+      setSelectedCandidates(new Set());
       if (!selectedReq) return;
       setLoadingPos(true);
       try {
@@ -87,7 +78,7 @@ export default function BulkCandidateAssign() {
   useEffect(() => {
     const run = async () => {
       setCandidates([]);
-      setSelected(new Set());
+      setSelectedCandidates(new Set());
       if (!selectedPos) return;
 
       setLoadingCand(true);
@@ -128,10 +119,10 @@ export default function BulkCandidateAssign() {
 
   const isAllVisibleSelected =
     allVisibleIds.length > 0 &&
-    allVisibleIds.every((id) => selected.has(id));
+    allVisibleIds.every((id) => selectedCandidates.has(id));
 
   const toggleAllVisible = (checked) => {
-    setSelected((prev) => {
+    setSelectedCandidates((prev) => {
       const next = new Set(prev);
       if (checked) {
         allVisibleIds.forEach((id) => next.add(id));
@@ -143,7 +134,7 @@ export default function BulkCandidateAssign() {
   };
 
   const toggleOne = (id, checked) => {
-    setSelected((prev) => {
+    setSelectedCandidates((prev) => {
       const next = new Set(prev);
       if (checked) next.add(id);
       else next.delete(id);
@@ -152,11 +143,11 @@ export default function BulkCandidateAssign() {
   };
 
   const handleAssign = async () => {
-    if (!selectedPos || selected.size === 0) return;
+    if (!selectedPos || selectedCandidates.size === 0) return;
     setAssigning(true);
     try {
       // Build candidateIds as the API expects (UUIDs from candidate.candidate_id)
-      const ids = Array.from(selected)
+      const ids = Array.from(selectedCandidates)
         .map((selId) => {
           const obj = candidates.find(
             (c) => (c.id || c.candidate_id || c._id) === selId
@@ -172,7 +163,7 @@ export default function BulkCandidateAssign() {
       if (ok) {
         toast.success(`Assigned ${ids.length} candidate(s) to the position.`);
         // Refresh the "not-applied" list so assigned ones disappear
-        setSelected(new Set());
+        setSelectedCandidates(new Set());
         setLoadingCand(true);
         try {
           const ref = await apiService.getNotAppliedBulkUploadCandidates(selectedPos);
@@ -194,27 +185,22 @@ export default function BulkCandidateAssign() {
   };
 
   return (
-    <Container
-      fluid
-      className="py-4 px-3"
-      style={{ height: "100vh", display: "flex", flexDirection: "column", minHeight: 0 }}
-    >
+    <div className="flex flex-col h-screen py-4 px-3 min-h-0">
       <BulkTiles />
 
       {/* Filters */}
-      <Card className="border-0 shadow-sm mb-3">
-        <Card.Body>
-          <Row className="g-3 align-items-end">
-            <Col md={4}>
-              <Form.Label className="mb-1">Requisition</Form.Label>
-              <Form.Select
-              className="requisition"
-                size="sm"
+      <div className="bg-white rounded-lg shadow-sm mb-3 border-0">
+        <div className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Requisition</label>
+              <select
+                className="grid px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
                 value={selectedReq}
                 onChange={(e) => setSelectedReq(e.target.value)}
                 disabled={loadingReq}
               >
-                <option value="" className="reqvalues">
+                <option value="" className="text-gray-500">
                   {loadingReq ? "Loading…" : "Select requisition"}
                 </option>
                 {requisitions.map((r) => (
@@ -227,18 +213,18 @@ export default function BulkCandidateAssign() {
                       `REQ-${r.requisition_id || r.id}`}
                   </option>
                 ))}
-              </Form.Select>
-            </Col>
+              </select>
+            </div>
 
-            <Col md={4}>
-              <Form.Label className="mb-1">Position</Form.Label>
-              <Form.Select
-                size="sm"
+            <div className="">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
+              <select
+                className={`grid px-3 py-2 border ${!selectedReq ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' : 'border-gray-300 bg-white text-gray-900'} rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
                 value={selectedPos}
                 onChange={(e) => setSelectedPos(e.target.value)}
                 disabled={!selectedReq || loadingPos}
               >
-                <option value="">
+                <option value="" className="text-gray-500">
                   {loadingPos
                     ? "Loading…"
                     : selectedReq
@@ -252,144 +238,152 @@ export default function BulkCandidateAssign() {
                       `POS-${p.position_id || p.id}`}
                   </option>
                 ))}
-              </Form.Select>
-            </Col>
+              </select>
+            </div>
 
-            {/* <Col md={4}>
-              <Form.Label className="mb-1">Search</Form.Label>
-              <InputGroup size="sm">
-                <Form.Control
+            {/* Search field - commented out as per original
+            <div className="md:col-span-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Search candidates (name, email, phone)…"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   disabled={loadingCand || candidates.length === 0}
                 />
-              </InputGroup>
-            </Col> */}
-          </Row>
-        </Card.Body>
-      </Card>
+              </div>
+            </div>
+            */}
+          </div>
+        </div>
+      </div>
 
       {/* Candidates table */}
-      <Card
-        className="border-0 shadow-sm"
-        style={{ flex: 1, overflow: "hidden", minHeight: 0 }}
-      >
-        <Card.Body
-          className="p-0 d-flex flex-column"
-          style={{ minHeight: 0 }}
-        >
+      <div className="bg-white rounded-lg shadow-sm flex-1 overflow-hidden flex flex-col min-h-0">
+        <div className="p-0 flex flex-col min-h-0">
           {loadingCand ? (
-            <div className="d-flex align-items-center justify-content-center py-5 text-muted">
-              <Spinner animation="border" size="sm" className="me-2" />
+            <div className="flex items-center justify-center py-5 text-gray-500">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-2"></div>
               Loading candidates…
             </div>
           ) : !selectedPos ? (
-            <div className="text-center text-muted py-5">
+            <div className="text-center text-gray-500 py-5">
               Select a position to load candidates.
             </div>
           ) : candidates.length === 0 ? (
-            <div className="text-center text-muted py-5">
+            <div className="text-center text-gray-500 py-5">
               No candidates found for this position.
             </div>
           ) : (
-            <>
-              <div className="px-3 py-2 small text-muted d-flex justify-content-between align-items-center">
+            <div className="flex flex-col h-full">
+              <div className="px-3 py-2 text-sm text-gray-500 flex justify-between items-center">
                 <div className="mt-2">
-                  <p className="text-muted">Showing {filtered.length} of {candidates.length}</p>
+                  <p className="text-gray-500">Showing {filtered.length} of {candidates.length}</p>
                 </div>
-                <div className="d-flex gap-3" style={{ height: '40px' }}>
-
-                  {/* <Form.Label className="mb-1">Search</Form.Label> */}
-                  <InputGroup className="posting-search" size="sm">
-                  <InputGroup.Text style={{ backgroundColor: "#746def" }}>
-                                <FontAwesomeIcon icon={faSearch} style={{ color: "#fff" }} />
-                              </InputGroup.Text>
-                    <Form.Control
+                <div className="flex gap-3 h-10">
+                  <div className="relative flex items-center">
+                    <div className="absolute inset-y-0 left-0 pl-3 px-2 flex items-center pointer-events-none">
+                      <FontAwesomeIcon icon={faSearch} className="text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      className="block w-96 pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       placeholder="Search candidates..."
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       disabled={loadingCand || candidates.length === 0}
-                      style={{ width: '350px' }}
                     />
-                  </InputGroup>
-                  <div>
-                    <Button
-                      size="sm"
-                      className="bulkupload_btn"
-                      disabled={
-                        assigning ||
-                        loadingCand ||
-                        selected.size === 0 ||
-                        !selectedPos
-                      }
-                      onClick={handleAssign}
-                      style={{ width: '140px', padding: '0.5rem' }}
-                    >
-                      {assigning ? (
-                        <>
-                          <Spinner animation="border" size="sm" className="me-2" />
-                          Assigning…
-                        </>
-                      ) : (
-                        "Assign to position"
-                      )}
-                    </Button>
                   </div>
+                  <button
+                    onClick={handleAssign}
+                    disabled={assigning || loadingCand || !selectedPos || !selectedCandidates.size}
+                    className={`bg-[#2d2d58] inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                      assigning || loadingCand || !selectedPos || !selectedCandidates.size
+                        ? 'bg-blue-300 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                    }`}
+                  >
+                    {assigning ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Assigning…
+                      </>
+                    ) : (
+                      `Assign to position`
+                    )}
+                  </button>
                 </div>
               </div>
-              <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
-                <Table hover responsive className="req_table mt-2">
-                  <thead className="table-header-orange">
-                    <tr>
-                      <th style={{ width: 40 }}>
-                        <Form.Check
-                          type="checkbox"
-                          checked={isAllVisibleSelected}
-                          onChange={(e) => toggleAllVisible(e.target.checked)}
-                        />
-                      </th>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Education Qualification</th>
-                    </tr>
-                  </thead>
-                  <tbody className="table-body-orange">
-                    {filtered.map((c) => {
-                      const id = c.id || c.candidate_id || c._id;
-                      return (
-                        <tr key={id}>
-                          <td>
-                            <Form.Check
+              
+              <div className="flex-1 overflow-auto">
+                <div className="min-w-full overflow-hidden">
+                  <table className="w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            checked={filtered.length > 0 && filtered.every(c => selectedCandidates.has(c.candidate_id || c.id))}
+                            onChange={(e) => toggleAllVisible(e.target.checked)}
+                            disabled={filtered.length === 0}
+                          />
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left font-semibold text-base">Name</th>
+                        <th scope="col" className="px-6 py-3 text-left font-semibold text-base">Email</th>
+                        <th scope="col" className="px-6 py-3 text-left font-semibold text-base">Phone</th>
+                        <th scope="col" className="px-6 py-3 text-left font-semibold text-base w-1/4">Education Qualification</th>
+                        <th scope="col" className="px-6 py-3 text-left font-semibold text-base w-24">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filtered.map((candidate) => (
+                        <tr key={candidate.candidate_id || candidate.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <input
                               type="checkbox"
-                              checked={selected.has(id)}
-                              onChange={(e) => toggleOne(id, e.target.checked)}
+                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              checked={selectedCandidates.has(candidate.candidate_id || candidate.id)}
+                              onChange={(e) => toggleOne(candidate.candidate_id || candidate.id, e.target.checked)}
                             />
                           </td>
-                          <td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {candidate.full_name || candidate.name || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {candidate.email || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {candidate.phone || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-700 break-words">
+                            {candidate.education_qualification || candidate.highest_qualification || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button
-                              type="button"
-                              className="btn btn-link p-0"
-                              onClick={() => openCandidate(c)}
+                              onClick={() => openCandidate(candidate)}
+                              className="text-gray-500 hover:text-gray-700 p-1 transition-colors"
+                              title="View Candidate"
                             >
-                              {c.full_name || c.name || "-"}
+                              <Eye className="h-4 w-4" />
                             </button>
                           </td>
-                          <td>{c.email || "-"}</td>
-                          <td>{c.phone || c.mobile || "-"}</td>
-                          <td>{c.education_qualification || "-"}</td>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </Table>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              <div className="d-flex justify-content-between align-items-center px-3 py-2 border-top bg-light">
-                <div className="small text-muted">
-                  Selected: {selected.size}
-                </div>
+              <div className="flex justify-between items-center px-3 py-2 border-t border-gray-200 bg-gray-50">
+                <span className="text-sm text-gray-500">
+                  Selected: {selectedCandidates.size}
+                </span>
               </div>
 
               <CandidateDetailsModal
@@ -397,10 +391,10 @@ export default function BulkCandidateAssign() {
                 onHide={() => setShowDetails(false)}
                 data={candidateDetails}
               />
-            </>
+            </div>
           )}
-        </Card.Body>
-      </Card>
-    </Container>
+        </div>
+      </div>
+    </div>
   );
 }
