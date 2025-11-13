@@ -212,7 +212,7 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
       name: d.department_name || "",
     }));
     setFilteredDepartments(mappedDepartments);
-    setDepartments(mappedDepartments);
+    // setDepartments(mappedDepartments);
   } catch (err) {
     console.error("Failed to fetch departments by unit", err);
     toast.error("Unable to load departments for this business unit");
@@ -221,22 +221,24 @@ const fetchDepartmentsByUnit = async (unitId: string) => {
 };
 
 
-  // useEffect(() => {
-  //   const fetchDepartments = async () => {
-  //     try {
-  //       const response = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS);
-  //       const deptData = response?.data?.data || [];
-  //       // map to { id, name } for Select usage
-  //       const mappedDepartments = deptData.map((d: any) => ({ id: d.department_id, name: d.department_name }));
-  //       setDepartments(mappedDepartments);
-  //     } catch (err) {
-  //       console.error("Error fetching departments:", err);
-  //       setDepartments([]); // fallback empty
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await api.get(DEPARTMENT_ENDPOINTS.GET_DEPARTMENTS);
+        const deptData = response?.data?.data || [];
+        const mappedDepartments = deptData.map((d: any) => ({
+          id: d.department_id,
+          name: d.department_name
+        }));
+        setDepartments(mappedDepartments);
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+        setDepartments([]);
+      }
+    };
     
-  //   fetchDepartments();
-  // }, []);
+    fetchDepartments();
+  }, []);
 
   useEffect(() => {
     const fetchDesignations = async () => {
