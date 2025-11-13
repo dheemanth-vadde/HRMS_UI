@@ -699,9 +699,9 @@ const { hasPermission } = usePermissions();
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>New Announcement</DialogTitle>
-            <DialogDescription>
+            {/* <DialogDescription>
               Choose to add manually or import from CSV/XLSX file
-            </DialogDescription>
+            </DialogDescription> */}
           </DialogHeader>
 
           <Tabs defaultValue="manual" className="w-full">
